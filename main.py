@@ -8,6 +8,7 @@ import subprocess
 import colorlog
 import logging
 import json
+import time
 from pathlib import Path
 from multiprocessing.pool import ThreadPool
 from multiprocessing.dummy import Pool, Lock
@@ -60,7 +61,7 @@ print('\033[1;32;40m | |_| | | | \  | | |___  | | \ \  | |___    / /\033[0m')
 print('\033[1;32;40m \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：0.0.5')
+log.info('版本：0.0.6')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.warning('注意：据传Steam新版本对部分解锁工具进行了检测，但目前未发现问题，如果你被封号可以issue反馈')
 log.warning('本项目完全免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【ikun分享】：https://qm.qq.com/q/D9Uiva3RVS\nhttps://t.me/ikunshare_group')
@@ -209,8 +210,13 @@ def check_github_api_limit(headers):
     r = requests.get(url, headers=headers)
     remain_limit = r.json()['rate']['remaining']
     use_limit = r.json()['rate']['used']
+    reset_time = r.json()['rate']['reset']
+    f_reset_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset_time))
     log.info(f'已用Github请求数：{use_limit}')
     log.info(f'剩余Github请求数：{remain_limit}')
+    if r.status_code == '429':
+        log.info(f'你的Github Api请求数已超限，请尝试增加Persoal Token')
+        log.info(f'请求数重置时间：{f_reset_time}')
     return True
 
 
@@ -228,6 +234,7 @@ def main(app_id):
     if 'commit' in r.json():
         sha = r.json()['commit']['sha']
         url = r.json()['commit']['commit']['tree']['url']
+        date = r.json()['commit']['commit']['author']['date']
         r = requests.get(url, headers=headers)
         if 'tree' in r.json():
             result_list = []
@@ -252,6 +259,7 @@ def main(app_id):
                     depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
                     depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
                     log.info('找到GreenLuma，已添加解锁文件')
+                log.info(f'清单最后更新时间：{date}')
                 log.info(f'入库成功: {app_id}')
                 return True
     log.error(f'清单下载或生成.st失败: {app_id}')
@@ -264,7 +272,7 @@ args = parser.parse_args()
 repo = 'ManifestHub/ManifestHub'
 if __name__ == '__main__':
     try:
-        log.debug('App ID可以在SteamDB或Steam商店链接页面查看')
+        print('App ID可以在SteamDB或Steam商店链接页面查看')
         main(args.app_id or input('需要入库的App ID: '))
     except KeyboardInterrupt:
         exit()
