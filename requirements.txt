@@ -1,0 +1,5 @@
+aiofiles==24.1.0
+aiohttp==3.9.5
+colorlog==6.8.2
+psutil==6.0.0
+vdf==3.4
