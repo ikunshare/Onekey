@@ -68,7 +68,7 @@ print('\033[1;32;40m | |_| | | | \  | | |___  | | \ \  | |___    / /\033[0m')
 print('\033[1;32;40m \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.0.3')
+log.info('版本：1.0.4')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('注意：据传Steam新版本对部分解锁工具进行了检测，但目前未发现问题，如果你被封号可以issue反馈')
@@ -113,7 +113,7 @@ async def get(sha, path):
         while retry:
             for url in url_list:
                 try:
-                    async with session.get(url) as r:
+                    async with session.get(url, ssl=False) as r:
                         if r.status == 200:
                             return await r.read()
                         else:
@@ -231,7 +231,7 @@ async def greenluma_add(depot_id_list):
 async def check_github_api_limit(headers):
     url = 'https://api.github.com/rate_limit'
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as r:
+        async with session.get(url, headers=headers, ssl=False) as r:
             r_json = await r.json()
             remain_limit = r_json['rate']['remaining']
             use_limit = r_json['rate']['used']
@@ -260,18 +260,17 @@ async def main(app_id):
     github_token = config.get("Github_Persoal_Token", "")
     headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
 
-    if headers:
-        await check_github_api_limit(headers)
+    await check_github_api_limit(headers)
 
     url = f'https://api.github.com/repos/{repo}/branches/{app_id}'
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as r:
+        async with session.get(url, headers=headers, ssl=False) as r:
             r_json = await r.json()
             if 'commit' in r_json:
                 sha = r_json['commit']['sha']
                 url = r_json['commit']['commit']['tree']['url']
                 date = r_json['commit']['commit']['author']['date']
-                async with session.get(url, headers=headers) as r2:
+                async with session.get(url, headers=headers, ssl=False) as r2:
                     r2_json = await r2.json()
                     if 'tree' in r2_json:
                         collected_depots = []
