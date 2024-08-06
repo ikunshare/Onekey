@@ -40,7 +40,7 @@ def gen_config_file():
     default_config = {"Github_Persoal_Token": "", "Custom_Steam_Path": ""}
     with open('./config.json', 'w', encoding='utf-8') as f:
         json.dump(default_config, f)
-    log.info('程序可能为第一次启动，请填写配置文件后重新启动程序')
+    log.info(' 🖱️ 程序可能为第一次启动，请填写配置文件后重新启动程序')
 
 
 # 加载配置文件
@@ -60,15 +60,15 @@ config = load_config()
 lock = asyncio.Lock()
 
 
-print('\033[1;32;40m  _____   __   _   _____   _   _    _____  __    __ \033[0m')
-print('\033[1;32;40m /  _  \ |  \ | | | ____| | | / /  | ____| \ \  / /\033[0m')
-print('\033[1;32;40m | | | | |   \| | | |__   | |/ /   | |__    \ \/ /\033[0m')
-print('\033[1;32;40m | | | | | |\   | |  __|  | |\ \   |  __|    \  /')
-print('\033[1;32;40m | |_| | | | \  | | |___  | | \ \  | |___    / /\033[0m')
-print('\033[1;32;40m \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/\033[0m')
+print('\033[1;32;40m  _____   __   _   _____   _   _    _____  __    __ ' + '\033[0m')
+print('\033[1;32;40m /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /' + '\033[0m')
+print('\033[1;32;40m | | | | |   \\| | | |__   | |/ /   | |__    \\ \\/ /' + '\033[0m')
+print('\033[1;32;40m | | | | | |\\   | |  __|  | |\\ \\   |  __|    \\  / ' + '\033[0m')
+print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033[0m')
+print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.0.4')
+log.info('版本：1.0.5')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('注意：据传Steam新版本对部分解锁工具进行了检测，但目前未发现问题，如果你被封号可以issue反馈')
@@ -103,10 +103,8 @@ async def get(sha, path):
         f'https://gcore.jsdelivr.net/gh/{repo}@{sha}/{path}',
         f'https://fastly.jsdelivr.net/gh/{repo}@{sha}/{path}',
         f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',
-        f'https://github.moeyy.xyz/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://ghproxy.org/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://raw.githubusercontent.com/{repo}/{sha}/{path}'
+        f'https://raw.dgithub.xyz/{repo}/{sha}/{path}'
     ]
     retry = 3
     async with aiohttp.ClientSession() as session:
@@ -117,13 +115,13 @@ async def get(sha, path):
                         if r.status == 200:
                             return await r.read()
                         else:
-                            log.error(f'获取失败: {path} - 状态码: {r.status}')
+                            log.error(f' 🔄 获取失败: {path} - 状态码: {r.status}')
                 except aiohttp.ClientError:
-                    log.error(f'获取失败: {path} - 连接错误')
+                    log.error(f' 🔄 获取失败: {path} - 连接错误')
             retry -= 1
-            log.warning(f'重试剩余次数: {retry} - {path}')
-    log.error(f'超过最大重试次数: {path}')
-    raise Exception(f'Failed to download: {path}')
+            log.warning(f'  🔄  重试剩余次数: {retry} - {path}')
+    log.error(f'  🔄  超过最大重试次数: {path}')
+    raise Exception(f'  🔄  无法下载: {path}')
 
 
 # 获取清单信息
@@ -138,17 +136,17 @@ async def get_manifest(sha, path, steam_path: Path):
             save_path = depot_cache_path / path
             if save_path.exists():
                 async with lock:
-                    log.warning(f'已存在清单: {path}')
+                    log.warning(f'👋已存在清单: {path}')
                 return collected_depots
             content = await get(sha, path)
             async with lock:
-                log.info(f'清单下载成功: {path}')
+                log.info(f' 🔄 清单下载成功: {path}')
             async with aiofiles.open(save_path, 'wb') as f:
                 await f.write(content)
         elif path == 'Key.vdf':
             content = await get(sha, path)
             async with lock:
-                log.info(f'密钥下载成功: {path}')
+                log.info(f' 🔄 密钥下载成功: {path}')
             depots_config = vdf.loads(content.decode(encoding='utf-8'))
             for depot_id, depot_info in depots_config['depots'].items():
                 collected_depots.append((depot_id, depot_info['DecryptionKey']))
@@ -165,7 +163,7 @@ async def get_manifest(sha, path, steam_path: Path):
 async def depotkey_merge(config_path, depots_config):
     if not config_path.exists():
         async with lock:
-            log.error('Steam默认配置不存在，可能是没有登录账号')
+            log.error(' 👋 Steam默认配置不存在，可能是没有登录账号')
         return
     with open(config_path, encoding='utf-8') as f:
         config = vdf.load(f)
@@ -186,7 +184,7 @@ async def stool_add(depot_data, app_id):
     lua_filepath = steam_path / "config" / "stplug-in" / lua_filename
 
     async with lock:
-        log.info(f'SteamTools解锁文件生成: {lua_filepath}')
+        log.info(f' ✅ SteamTools解锁文件生成: {lua_filepath}')
         with open(lua_filepath, "w", encoding="utf-8") as lua_file:
             lua_file.write(f'addappid({app_id}, 1, "None")\n')
             for depot_id, depot_key in depot_data:
@@ -237,11 +235,11 @@ async def check_github_api_limit(headers):
             use_limit = r_json['rate']['used']
             reset_time = r_json['rate']['reset']
             f_reset_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset_time))
-            log.info(f'已用Github请求数：{use_limit}')
-            log.info(f'剩余Github请求数：{remain_limit}')
+            log.info(f' 🔄 已用Github请求数：{use_limit}')
+            log.info(f' 🔄 剩余Github请求数：{remain_limit}')
             if r.status == 429:
-                log.info(f'你的Github Api请求数已超限，请尝试增加Persoal Token')
-                log.info(f'请求数重置时间：{f_reset_time}')
+                log.info(f' 🔄 你的Github Api请求数已超限，请尝试增加Persoal Token')
+                log.info(f' 🔄 请求数重置时间：{f_reset_time}')
     return True
 
 
@@ -280,17 +278,17 @@ async def main(app_id):
                         if collected_depots:
                             if isSteamTools:
                                 await stool_add(collected_depots, app_id)
-                                log.info('找到SteamTools，已添加解锁文件')
+                                log.info(' ✅ 找到SteamTools，已添加解锁文件')
                             if isGreenLuma:
                                 await greenluma_add([app_id])
                                 depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
                                 depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
                                 if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
-                                    log.info('找到GreenLuma，已添加解锁文件')
-                            log.info(f'清单最后更新时间：{date}')
-                            log.info(f'入库成功: {app_id}')
+                                    log.info(' ✅ 找到GreenLuma，已添加解锁文件')
+                            log.info(f' ✅ 清单最后更新时间：{date}')
+                            log.info(f' ✅ 入库成功: {app_id}')
                             return True
-    log.error(f'清单下载或生成.st失败: {app_id}')
+    log.error(f' ⚠ 清单下载或生成.st失败: {app_id}')
     return False
 
 
@@ -305,7 +303,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         exit()
     except Exception as e:
-        log.error(f'发生错误: {stack_error(e)}')
+        log.error(f' ⚠ 发生错误: {stack_error(e)}')
         traceback.print_exc()
     if not args.app_id:
         os.system('pause')
