@@ -68,9 +68,10 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.0.5')
+log.info('版本：1.0.6')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
+log.warning('倒卖本工具的臭傻逼：https://space.bilibili.com/3546655638948756')
 log.warning('注意：据传Steam新版本对部分解锁工具进行了检测，但目前未发现问题，如果你被封号可以issue反馈')
 log.warning('本项目完全免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【ikun分享】：https://qm.qq.com/q/D9Uiva3RVS\nhttps://t.me/ikunshare_group')
 
@@ -103,7 +104,6 @@ async def get(sha, path):
         f'https://gcore.jsdelivr.net/gh/{repo}@{sha}/{path}',
         f'https://fastly.jsdelivr.net/gh/{repo}@{sha}/{path}',
         f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',
-        f'https://ghproxy.org/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://raw.dgithub.xyz/{repo}/{sha}/{path}'
     ]
     retry = 3
