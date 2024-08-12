@@ -69,7 +69,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.0.7')
+log.info('版本：1.0.8')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('倒卖本工具的臭傻逼：https://space.bilibili.com/3546655638948756，好嚣张哦')
@@ -230,24 +230,6 @@ async def greenluma_add(depot_id_list):
     return True
 
 
-# 检测Github Api请求数量
-async def check_github_api_limit(headers):
-    url = 'https://api.github.com/rate_limit'
-    async with ClientSession() as session:
-        async with session.get(url, headers=headers, ssl=False) as r:
-            r_json = await r.json()
-            remain_limit = r_json['rate']['remaining']
-            use_limit = r_json['rate']['used']
-            reset_time = r_json['rate']['reset']
-            f_reset_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset_time))
-            log.info(f' 🔄 已用Github请求数：{use_limit}')
-            log.info(f' 🔄 剩余Github请求数：{remain_limit}')
-            if r.status == 429:
-                log.info(f' 🔄 你的Github Api请求数已超限，请尝试增加Persoal Token')
-                log.info(f' 🔄 请求数重置时间：{f_reset_time}')
-    return True
-
-
 # 检查进程是否运行
 def check_process_running(process_name):
     for process in psutil.process_iter(['name']):
@@ -258,16 +240,35 @@ def check_process_running(process_name):
 
 # 主函数
 async def main(app_id):
-    app_id_list = list(filter(str.isdecimal, app_id.strip().split('-')))
-    app_id = app_id_list[0]
+    if not app_id == None:
+        app_id_list = list(filter(str.isdecimal, app_id.strip().split('-')))
+        app_id = app_id_list[0]
+
     github_token = config.get("Github_Persoal_Token", "")
     headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
 
-    await check_github_api_limit(headers)
+    url = 'https://api.github.com/rate_limit'
 
-    url = f'https://api.github.com/repos/{repo}/branches/{app_id}'
     async with ClientSession() as session:
         async with session.get(url, headers=headers, ssl=False) as r:
+            r_json = await r.json()
+            remain_limit = r_json['rate']['remaining']
+            use_limit = r_json['rate']['used']
+            reset_time = r_json['rate']['reset']
+            f_reset_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset_time))
+            log.info(f' 🔄 已用Github请求数：{use_limit}')
+            log.info(f' 🔄 剩余Github请求数：{remain_limit}')
+            if r.status == 403:
+                log.info(f' 🔄 你的Github Api请求数已超限，请尝试增加Persoal Token')
+                log.info(f' 🔄 请求数重置时间：{f_reset_time}')
+
+    url = f'https://api.github.com/repos/{repo}/branches/{app_id}'
+
+    async with ClientSession() as session:
+        async with session.get(url, headers=headers, ssl=False) as r:
+            if r.status == 403:
+                log.info(f' 🔄 你的Github Api请求数已超限，请尝试增加Persoal Token')
+                log.info(f' 🔄 请求数重置时间：{reset_time}')
             r_json = await r.json()
             if 'commit' in r_json:
                 sha = r_json['commit']['sha']
