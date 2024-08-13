@@ -69,7 +69,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.0.8')
+log.info('版本：1.0.8 fix')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('倒卖本工具的臭傻逼：https://space.bilibili.com/3546655638948756，好嚣张哦')
@@ -102,14 +102,11 @@ def stack_error(exception):
 # 下载清单
 async def get(sha, path):
     url_list = [
-        f'https://gcore.jsdelivr.net/gh/{repo}@{sha}/{path}',
-        f'https://fastly.jsdelivr.net/gh/{repo}@{sha}/{path}',
-        f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',
         f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
         f'https://gh.api.99988866.xyz/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://gh.jiasu.in/https://github.com/{repo}/{sha}/{path}'
+        f'https://gh.jiasu.in/https://raw.githubusercontent.com/{repo}/{sha}/{path}'
     ]
     retry = 3
     async with ClientSession() as session:
