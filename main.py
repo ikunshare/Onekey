@@ -74,7 +74,7 @@ log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('倒卖本工具的臭傻逼：https://space.bilibili.com/3546655638948756，好嚣张哦')
 log.warning('注意：据传Steam新版本对部分解锁工具进行了检测，但目前未发现问题，如果你被封号可以issue反馈')
-log.warning('本项目完全免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【ikun分享】：https://qm.qq.com/q/D9Uiva3RVS\nhttps://t.me/ikunshare_group')
+log.warning('本项目完全免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
 
 
 # 通过注册表获取Steam安装路径
