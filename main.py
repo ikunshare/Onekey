@@ -2,7 +2,6 @@ import os
 import vdf
 import winreg
 import argparse
-import aiohttp
 import aiofiles
 import traceback
 import subprocess
@@ -69,7 +68,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.0.9')
+log.info('版本：1.1.0')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
@@ -98,60 +97,52 @@ def stack_error(exception):
 
 
 # 下载清单
-async def get(sha, path):
+async def get(sha, path, repo, session):
     url_list = [
-        f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
         f'https://gh.api.99988866.xyz/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://gh.jiasu.in/https://raw.githubusercontent.com/{repo}/{sha}/{path}'
     ]
     retry = 3
-    async with ClientSession() as session:
-        while retry:
-            for url in url_list:
-                try:
-                    async with session.get(url, ssl=False) as r:
-                        if r.status == 200:
-                            return await r.read()
-                        else:
-                            log.error(f' 🔄 获取失败: {path} - 状态码: {r.status}')
-                except ClientError():
-                    log.error(f' 🔄 获取失败: {path} - 连接错误')
-            retry -= 1
-            log.warning(f'  🔄  重试剩余次数: {retry} - {path}')
-    log.error(f'  🔄  超过最大重试次数: {path}')
-    raise Exception(f'  🔄  无法下载: {path}')
+    while retry:
+        for url in url_list:
+            try:
+                async with session.get(url, ssl=False) as r:
+                    if r.status == 200:
+                        return await r.read()
+                    else:
+                        log.error(f' 🔄 获取失败: {path} - 状态码: {r.status}')
+            except ClientError:
+                log.error(f' 🔄 获取失败: {path} - 连接错误')
+        retry -= 1
+        log.warning(f'  🔄  重试剩余次数: {retry} - {path}')
+    log.error(f'  🔄 超过最大重试次数: {path}')
+    raise Exception(f'  🔄 无法下载: {path}')
 
 
 # 获取清单信息
-async def get_manifest(sha, path, steam_path: Path):
+async def get_manifest(sha, path, steam_path: Path, repo, session):
     collected_depots = []
     try:
         if path.endswith('.manifest'):
             depot_cache_path = steam_path / 'depotcache'
-            async with lock:
-                if not depot_cache_path.exists():
-                    depot_cache_path.mkdir(exist_ok=True)
+            if not depot_cache_path.exists():
+                depot_cache_path.mkdir(exist_ok=True)
             save_path = depot_cache_path / path
             if save_path.exists():
-                async with lock:
-                    log.warning(f'👋已存在清单: {path}')
+                log.warning(f'👋已存在清单: {path}')
                 return collected_depots
-            content = await get(sha, path)
-            async with lock:
-                log.info(f' 🔄 清单下载成功: {path}')
+            content = await get(sha, path, repo, session)
+            log.info(f' 🔄 清单下载成功: {path}')
             async with aiofiles.open(save_path, 'wb') as f:
                 await f.write(content)
         elif path == 'Key.vdf':
-            content = await get(sha, path)
-            async with lock:
-                log.info(f' 🔄 密钥下载成功: {path}')
+            content = await get(sha, path, repo, session)
+            log.info(f' 🔄 密钥下载成功: {path}')
             depots_config = vdf.loads(content.decode(encoding='utf-8'))
             for depot_id, depot_info in depots_config['depots'].items():
                 collected_depots.append((depot_id, depot_info['DecryptionKey']))
-    except KeyboardInterrupt:
-        raise
     except Exception as e:
         log.error(f'处理失败: {path} - {stack_error(e)}')
         traceback.print_exc()
@@ -233,70 +224,87 @@ def check_process_running(process_name):
     return False
 
 
-# 主函数
-async def main(app_id):
-    if not app_id == None:
-        app_id_list = list(filter(str.isdecimal, app_id.strip().split('-')))
-        app_id = app_id_list[0]
-
-    github_token = config.get("Github_Persoal_Token", "")
-    headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
+async def check_github_api_rate_limit(headers, session):
 
     url = 'https://api.github.com/rate_limit'
 
-    async with ClientSession() as session:
-        async with session.get(url, headers=headers, ssl=False) as r:
-            r_json = await r.json()
-            remain_limit = r_json['rate']['remaining']
-            use_limit = r_json['rate']['used']
-            reset_time = r_json['rate']['reset']
-            f_reset_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(reset_time))
-            log.info(f' 🔄 已用Github请求数：{use_limit}')
-            log.info(f' 🔄 剩余Github请求数：{remain_limit}')
-            if r.status == 403:
-                log.info(f' 🔄 你的Github Api请求数已超限，请尝试增加Persoal Token')
-                log.info(f' 🔄 请求数重置时间：{f_reset_time}')
+    async with session.get(url, headers=headers, ssl=False) as r:
+        r_json = await r.json()
 
-    url = f'https://api.github.com/repos/{repo}/branches/{app_id}'
+    if r.status == 200:
+        rate_limit = r_json['rate']
+        remaining_requests = rate_limit['remaining']
+        reset_time = rate_limit['reset']
+        reset_time_formatted = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(reset_time))
+        log.info(f' 🔄 剩余请求次数: {remaining_requests}')
 
+    if remaining_requests == 0:
+        log.warning(f' ⚠ GitHub API 请求数已用尽，将在 {reset_time_formatted} 重置, 不想等生成一个填配置文件里')
+
+
+# 主函数
+async def main(app_id):
     async with ClientSession() as session:
-        async with session.get(url, headers=headers, ssl=False) as r:
-            if r.status == 403:
-                log.info(f' 🔄 你的Github Api请求数已超限，请尝试增加Persoal Token')
-                log.info(f' 🔄 请求数重置时间：{reset_time}')
-            r_json = await r.json()
-            if 'commit' in r_json:
-                sha = r_json['commit']['sha']
-                url = r_json['commit']['commit']['tree']['url']
-                date = r_json['commit']['commit']['author']['date']
-                async with session.get(url, headers=headers, ssl=False) as r2:
-                    r2_json = await r2.json()
-                    if 'tree' in r2_json:
-                        collected_depots = []
-                        for i in r2_json['tree']:
-                            result = await get_manifest(sha, i['path'], steam_path)
-                            collected_depots.extend(result)
-                        if collected_depots:
-                            if isSteamTools:
-                                await stool_add(collected_depots, app_id)
-                                log.info(' ✅ 找到SteamTools，已添加解锁文件')
-                            if isGreenLuma:
-                                await greenluma_add([app_id])
-                                depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
-                                depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
-                                if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
-                                    log.info(' ✅ 找到GreenLuma，已添加解锁文件')
-                            log.info(f' ✅ 清单最后更新时间：{date}')
-                            log.info(f' ✅ 入库成功: {app_id}')
-                            return True
-    log.error(f' ⚠ 清单下载或生成.st失败: {app_id}')
-    return False
+        github_token = config.get("Github_Persoal_Token", "")
+        headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
+        latest_date = None
+        selected_repo = None
+
+        # 检查Github API限额
+        await check_github_api_rate_limit(headers, session)
+
+        for repo in repos:
+            url = f'https://api.github.com/repos/{repo}/branches/{app_id}'
+            try:
+                async with session.get(url, headers=headers, ssl=False) as r:
+                    r_json = await r.json()
+                    if 'commit' in r_json:
+                        date = r_json['commit']['commit']['author']['date']
+                        if latest_date is None or date > latest_date:
+                            latest_date = date
+                            selected_repo = repo
+            except Exception as e:
+                log.error(f' ⚠ 获取分支信息失败: {stack_error(e)}')
+                traceback.print_exc()
+        if selected_repo:
+            log.info(f' 🔄 选择清单仓库：{selected_repo}')
+            url = f'https://api.github.com/repos/{selected_repo}/branches/{app_id}'
+            async with session.get(url, headers=headers, ssl=False) as r:
+                r_json = await r.json()
+                if 'commit' in r_json:
+                    sha = r_json['commit']['sha']
+                    url = r_json['commit']['commit']['tree']['url']
+                    async with session.get(url, headers=headers, ssl=False) as r2:
+                        r2_json = await r2.json()
+                        if 'tree' in r2_json:
+                            collected_depots = []
+                            for i in r2_json['tree']:
+                                result = await get_manifest(sha, i['path'], steam_path, selected_repo, session)
+                                collected_depots.extend(result)
+                            if collected_depots:
+                                if isSteamTools:
+                                    await stool_add(collected_depots, app_id)
+                                    log.info(' ✅ 找到SteamTools，已添加解锁文件')
+                                if isGreenLuma:
+                                    await greenluma_add([app_id])
+                                    depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
+                                    depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
+                                    if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
+                                        log.info(' ✅ 找到GreenLuma，已添加解锁文件')
+                                log.info(f' ✅ 清单最后更新时间：{date}')
+                                log.info(f' ✅ 入库成功: {app_id}')
+                                return True
+        log.error(f' ⚠ 清单下载或生成失败: {app_id}')
+        return False
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-a', '--app-id')
 args = parser.parse_args()
-repo = 'ManifestHub/ManifestHub'
+repos = [
+         'ManifestHub/ManifestHub',
+         'ikun0014/ManifestHub'
+        ]
 if __name__ == '__main__':
     try:
         log.debug('App ID可以在SteamDB或Steam商店链接页面查看')
