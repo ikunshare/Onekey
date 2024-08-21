@@ -68,7 +68,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.1.0')
+log.info('版本：1.1.1')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
@@ -229,7 +229,11 @@ async def check_github_api_rate_limit(headers, session):
     url = 'https://api.github.com/rate_limit'
 
     async with session.get(url, headers=headers, ssl=False) as r:
-        r_json = await r.json()
+        if not r == None:
+            r_json = await r.json()
+        else:
+            log.error('孩子，你怎么做到的？')
+            os.system('pause')
 
     if r.status == 200:
         rate_limit = r_json['rate']
