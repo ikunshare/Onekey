@@ -75,7 +75,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.1.1')
+log.info('版本：1.1.2')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
@@ -106,7 +106,9 @@ def stack_error(exception):
 # 下载清单
 async def get(sha, path, repo, session):
     url_list = [
-        f'https://gh.api.99988866.xyz/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        # f'https://gh.api.99988866.xyz/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
+        f'https://jsd.onmicrosoft.cn/gh/{repo}@{sha}/{path}',
         f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://gh.jiasu.in/https://raw.githubusercontent.com/{repo}/{sha}/{path}'
@@ -196,7 +198,7 @@ async def stool_add(depot_data, app_id):
 
 # 增加GreenLuma解锁相关文件
 async def greenluma_add(depot_id_list):
-    app_list_path = steam_path / 'appcache' / 'appinfo.vdf'
+    app_list_path = steam_path / 'AppList'
     if app_list_path.exists() and app_list_path.is_file():
         app_list_path.unlink(missing_ok=True)
     if not app_list_path.is_dir():
@@ -299,7 +301,7 @@ async def main(app_id):
                                 if isGreenLuma:
                                     await greenluma_add([app_id])
                                     depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
-                                    depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
+                                    await depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
                                     if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
                                         log.info(' ✅ 找到GreenLuma，已添加解锁文件')
                                 log.info(f' ✅ 清单最后更新时间：{date}')
