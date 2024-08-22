@@ -57,11 +57,9 @@ def load_config():
         os.system('pause')
         sys.exit()
     else:
-        with open("./config/config.json", "w", encoding="utf-8") as f:
+        with open("./config.json", "r", encoding="utf-8") as f:
             config = json.loads(f.read())
-            rc = json.dumps(config, indent=2,
-                    ensure_ascii=False, escape_forward_slashes=False)
-            return rc
+            return config
 
 
 log = init_log()
@@ -258,7 +256,7 @@ async def check_github_api_rate_limit(headers, session):
 # 主函数
 async def main(app_id):
     async with ClientSession() as session:
-        github_token = config.get("Github_Persoal_Token", "")
+        github_token = config.get("Github_Personal_Token", "")
         headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
         latest_date = None
         selected_repo = None
