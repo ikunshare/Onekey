@@ -7,7 +7,7 @@ import traceback
 import subprocess
 import colorlog
 import logging
-import json
+import ujson as json
 import time
 import sys
 import psutil
@@ -37,9 +37,16 @@ def init_log():
 
 # 生成配置文件
 def gen_config_file():
-    default_config = {"Github_Persoal_Token": "", "Custom_Steam_Path": ""}
-    with open('./config.json', 'w', encoding='utf-8') as f:
-        json.dump(default_config, f)
+    default_config ={
+                    "Github_Personal_Token": "",
+                    "Custom_Steam_Path": "",
+                    "QA1": "温馨提示：Github_Personal_Token可在Github设置的最底下开发者选项找到，详情看教程",
+                    "教程": "https://lyvx-my.sharepoint.com/:w:/g/personal/ikun_ikunshare_com/EWqIqyCElLNLo_CKfLbqix0BWU_O03HLzEHQKHdJYrUz-Q?e=79MZjw"
+                    }
+    with open("./config.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(default_config, indent=2, ensure_ascii=False,
+                escape_forward_slashes=False))
+        f.close()
     log.info(' 🖱️ 程序可能为第一次启动，请填写配置文件后重新启动程序')
 
 
@@ -50,9 +57,11 @@ def load_config():
         os.system('pause')
         sys.exit()
     else:
-        with open('./config.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            return config
+        with open("./config/config.json", "w", encoding="utf-8") as f:
+            config = json.loads(f.read())
+            rc = json.dumps(config, indent=2,
+                    ensure_ascii=False, escape_forward_slashes=False)
+            return rc
 
 
 log = init_log()
@@ -307,7 +316,9 @@ parser.add_argument('-a', '--app-id')
 args = parser.parse_args()
 repos = [
          'ManifestHub/ManifestHub',
-         'ikun0014/ManifestHub'
+         'ikun0014/ManifestHub',
+         'Auiowu/ManifestAutoUpdate',
+         'tymolu233/ManifestAutoUpdate'
         ]
 if __name__ == '__main__':
     try:
