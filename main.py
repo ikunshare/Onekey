@@ -1,7 +1,6 @@
 import os
 import vdf
 import winreg
-import argparse
 import aiofiles
 import traceback
 import subprocess
@@ -75,7 +74,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.1.2')
+log.info('版本：1.1.3')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
@@ -101,6 +100,42 @@ isSteamTools = (steam_path / 'config' / 'stplug-in').is_dir()
 def stack_error(exception):
     stack_trace = traceback.format_exception(type(exception), exception, exception.__traceback__)
     return ''.join(stack_trace)
+
+
+# 从Steam API直接搜索游戏信息
+async def search_game_info(search_term):
+    async with ClientSession() as session:  
+        url = f'https://steamui.com/loadGames.php?search={search_term}'
+        async with session.get(url) as r:
+            if r.status == 200:
+                data = await r.json()
+                games = data.get('games', [])
+                return games
+            else:
+                log.error("⚠ 获取游戏信息失败")
+                return []
+
+
+# 通过游戏名查找appid
+async def find_appid_by_name(game_name):
+    games = await search_game_info(game_name)
+
+    if games:
+        log.info("🔍 找到以下匹配的游戏:")
+        for idx, game in enumerate(games, 1):
+            if game['schinese_name'] == '':
+                gamename = game['name']
+            else:
+                gamename = game['schinese_name']
+            log.info(f"{idx}. {gamename} (AppID: {game['appid']})")
+
+        choice = input("请选择游戏编号：")
+        if choice.isdigit() and 1 <= int(choice) <= len(games):
+            selected_game = games[int(choice) - 1]
+            log.info(f"✅ 选择的游戏: {selected_game['schinese_name']} (AppID: {selected_game['appid']})")
+            return selected_game['appid'], selected_game['schinese_name']
+    log.error("⚠ 未找到匹配的游戏")
+    return None, None
 
 
 # 下载清单
@@ -234,7 +269,6 @@ def check_process_running(process_name):
 
 
 async def check_github_api_rate_limit(headers, session):
-
     url = 'https://api.github.com/rate_limit'
 
     async with session.get(url, headers=headers, ssl=False) as r:
@@ -256,7 +290,10 @@ async def check_github_api_rate_limit(headers, session):
 
 
 # 主函数
-async def main(app_id):
+async def main(app_id, game_name):
+    app_id_list = list(filter(str.isdecimal, app_id.strip().split('-')))
+    app_id = app_id_list[0]
+    
     async with ClientSession() as session:
         github_token = config.get("Github_Personal_Token", "")
         headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
@@ -305,15 +342,12 @@ async def main(app_id):
                                     if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
                                         log.info(' ✅ 找到GreenLuma，已添加解锁文件')
                                 log.info(f' ✅ 清单最后更新时间：{date}')
-                                log.info(f' ✅ 入库成功: {app_id}')
+                                log.info(f' ✅ 入库成功: {app_id}：{game_name}')
                                 return True
-        log.error(f' ⚠ 清单下载或生成失败: {app_id}')
+        log.error(f' ⚠ 清单下载或生成失败: {app_id}：{game_name}')
         return False
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-a', '--app-id')
-args = parser.parse_args()
 repos = [
          'ManifestHub/ManifestHub',
          'ikun0014/ManifestHub',
@@ -323,11 +357,15 @@ repos = [
 if __name__ == '__main__':
     try:
         log.debug('App ID可以在SteamDB或Steam商店链接页面查看')
-        asyncio.run(main(args.app_id or input('需要入库的App ID: ')))
+        user_input = input("请输入游戏AppID或名称：").strip()
+        appid, game_name = asyncio.run(find_appid_by_name(user_input))
+        if not appid:
+            log.error(' ⚠ 未找到匹配的游戏，请尝试其他名称。')
+        asyncio.run(main(appid, game_name))
     except KeyboardInterrupt:
         exit()
     except Exception as e:
         log.error(f' ⚠ 发生错误: {stack_error(e)}')
         traceback.print_exc()
-    if not args.app_id:
+    if not user_input:
         os.system('pause')
