@@ -74,7 +74,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.1.3')
+log.info('版本：1.1.4')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.debug('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
@@ -84,7 +84,7 @@ log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过�
 def get_steam_path():
     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Valve\Steam')
     steam_path = Path(winreg.QueryValueEx(key, 'SteamPath')[0])
-    custom_steam_path = config.get("Custom_Steam_Path", "")
+    custom_steam_path = config["Custom_Steam_Path"]
     if not custom_steam_path == '':
         return Path(custom_steam_path)
     else:
@@ -123,18 +123,18 @@ async def find_appid_by_name(game_name):
     if games:
         log.info("🔍 找到以下匹配的游戏:")
         for idx, game in enumerate(games, 1):
-            if game['schinese_name'] == '':
-                gamename = game['name']
-            else:
-                gamename = game['schinese_name']
+            gamename = game['schinese_name'] if game['schinese_name'] else game['name']
             log.info(f"{idx}. {gamename} (AppID: {game['appid']})")
 
-        choice = input("请选择游戏编号：")
-        if choice.isdigit() and 1 <= int(choice) <= len(games):
-            selected_game = games[int(choice) - 1]
-            log.info(f"✅ 选择的游戏: {selected_game['schinese_name']} (AppID: {selected_game['appid']})")
-            return selected_game['appid'], selected_game['schinese_name']
-    log.error("⚠ 未找到匹配的游戏")
+        while True:
+            choice = input("请选择游戏编号：")
+            if choice.isdigit() and 1 <= int(choice) <= len(games):
+                selected_game = games[int(choice) - 1]
+                log.info(f"✅ 选择的游戏: {selected_game['schinese_name']} (AppID: {selected_game['appid']})")
+                return selected_game['appid'], selected_game['schinese_name']
+            else:
+                log.error(f"⚠ 错误的编号：{choice}，请重新输入。")
+
     return None, None
 
 
@@ -260,14 +260,6 @@ async def greenluma_add(depot_id_list):
     return True
 
 
-# 检查进程是否运行
-def check_process_running(process_name):
-    for process in psutil.process_iter(['name']):
-        if process.info['name'] == process_name:
-            return True
-    return False
-
-
 async def check_github_api_rate_limit(headers, session):
     url = 'https://api.github.com/rate_limit'
 
@@ -284,6 +276,8 @@ async def check_github_api_rate_limit(headers, session):
         reset_time = rate_limit['reset']
         reset_time_formatted = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(reset_time))
         log.info(f' 🔄 剩余请求次数: {remaining_requests}')
+    else:
+        log.error('Github请求数检查失败')
 
     if remaining_requests == 0:
         log.warning(f' ⚠ GitHub API 请求数已用尽，将在 {reset_time_formatted} 重置, 不想等生成一个填配置文件里')
@@ -295,7 +289,7 @@ async def main(app_id, game_name):
     app_id = app_id_list[0]
     
     async with ClientSession() as session:
-        github_token = config.get("Github_Personal_Token", "")
+        github_token = config["Github_Personal_Token"]
         headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
         latest_date = None
         selected_repo = None
@@ -343,8 +337,10 @@ async def main(app_id, game_name):
                                         log.info(' ✅ 找到GreenLuma，已添加解锁文件')
                                 log.info(f' ✅ 清单最后更新时间：{date}')
                                 log.info(f' ✅ 入库成功: {app_id}：{game_name}')
+                                os.system('pause')
                                 return True
         log.error(f' ⚠ 清单下载或生成失败: {app_id}：{game_name}')
+        os.system('pause')
         return False
 
 
@@ -361,7 +357,8 @@ if __name__ == '__main__':
         appid, game_name = asyncio.run(find_appid_by_name(user_input))
         if not appid:
             log.error(' ⚠ 未找到匹配的游戏，请尝试其他名称。')
-        asyncio.run(main(appid, game_name))
+        else:
+            asyncio.run(main(appid, game_name))
     except KeyboardInterrupt:
         exit()
     except Exception as e:
