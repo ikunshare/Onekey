@@ -1,5 +1,5 @@
 aiofiles==24.1.0
-aiohttp==3.9.5
 colorlog==6.8.2
-psutil==6.0.0
+ujson==5.10.0
 vdf==3.4
+nuitka==2.4.8

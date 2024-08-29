@@ -9,7 +9,6 @@ import logging
 import ujson as json
 import time
 import sys
-import psutil
 import asyncio
 from aiohttp import ClientSession, ClientError
 from pathlib import Path
@@ -22,8 +21,7 @@ def init_log():
     stream_handler.setLevel(logging.DEBUG)
     fmt_string = '%(log_color)s[%(name)s][%(levelname)s]%(message)s'
     log_colors = {
-        'DEBUG': 'cyan',
-        'INFO': 'green',
+        'INFO': 'cyan',
         'WARNING': 'yellow',
         'ERROR': 'red',
         'CRITICAL': 'purple'
@@ -35,34 +33,34 @@ def init_log():
 
 
 # 生成配置文件
-def gen_config_file():
+async def gen_config_file():
     default_config ={
                     "Github_Personal_Token": "",
                     "Custom_Steam_Path": "",
                     "QA1": "温馨提示：Github_Personal_Token可在Github设置的最底下开发者选项找到，详情看教程",
                     "教程": "https://lyvx-my.sharepoint.com/:w:/g/personal/ikun_ikunshare_com/EWqIqyCElLNLo_CKfLbqix0BWU_O03HLzEHQKHdJYrUz-Q?e=79MZjw"
                     }
-    with open("./config.json", "w", encoding="utf-8") as f:
-        f.write(json.dumps(default_config, indent=2, ensure_ascii=False,
+    async with aiofiles.open("./config.json", mode="w", encoding="utf-8") as f:
+        await f.write(json.dumps(default_config, indent=2, ensure_ascii=False,
                 escape_forward_slashes=False))
-        f.close()
+        await f.close()
     log.info(' 🖱️ 程序可能为第一次启动，请填写配置文件后重新启动程序')
 
 
 # 加载配置文件
-def load_config():
+async def load_config():
     if not os.path.exists('./config.json'):
-        gen_config_file()
+        await gen_config_file()
         os.system('pause')
         sys.exit()
     else:
-        with open("./config.json", "r", encoding="utf-8") as f:
-            config = json.loads(f.read())
+        async with aiofiles.open("./config.json", mode="r", encoding="utf-8") as f:
+            config = json.loads(await f.read())
             return config
 
 
 log = init_log()
-config = load_config()
+config = asyncio.run(load_config())
 lock = asyncio.Lock()
 
 
@@ -74,9 +72,9 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL V3许可证')
-log.info('版本：1.1.4')
+log.info('版本：1.1.5')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
-log.debug('官网：ikunshare.com')
+log.info('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
 
 
@@ -100,42 +98,6 @@ isSteamTools = (steam_path / 'config' / 'stplug-in').is_dir()
 def stack_error(exception):
     stack_trace = traceback.format_exception(type(exception), exception, exception.__traceback__)
     return ''.join(stack_trace)
-
-
-# 从Steam API直接搜索游戏信息
-async def search_game_info(search_term):
-    async with ClientSession() as session:  
-        url = f'https://steamui.com/loadGames.php?search={search_term}'
-        async with session.get(url) as r:
-            if r.status == 200:
-                data = await r.json()
-                games = data.get('games', [])
-                return games
-            else:
-                log.error("⚠ 获取游戏信息失败")
-                return []
-
-
-# 通过游戏名查找appid
-async def find_appid_by_name(game_name):
-    games = await search_game_info(game_name)
-
-    if games:
-        log.info("🔍 找到以下匹配的游戏:")
-        for idx, game in enumerate(games, 1):
-            gamename = game['schinese_name'] if game['schinese_name'] else game['name']
-            log.info(f"{idx}. {gamename} (AppID: {game['appid']})")
-
-        while True:
-            choice = input("请选择游戏编号：")
-            if choice.isdigit() and 1 <= int(choice) <= len(games):
-                selected_game = games[int(choice) - 1]
-                log.info(f"✅ 选择的游戏: {selected_game['schinese_name']} (AppID: {selected_game['appid']})")
-                return selected_game['appid'], selected_game['schinese_name']
-            else:
-                log.error(f"⚠ 错误的编号：{choice}，请重新输入。")
-
-    return None, None
 
 
 # 下载清单
@@ -200,7 +162,7 @@ async def depotkey_merge(config_path, depots_config):
         async with lock:
             log.error(' 👋 Steam默认配置不存在，可能是没有登录账号')
         return
-    with open(config_path, encoding='utf-8') as f:
+    async with aiofiles.open(config_path, encoding='utf-8') as f:
         config = vdf.load(f)
     software = config['InstallConfigStore']['Software']
     valve = software.get('Valve') or software.get('valve')
@@ -208,7 +170,7 @@ async def depotkey_merge(config_path, depots_config):
     if 'depots' not in steam:
         steam['depots'] = {}
     steam['depots'].update(depots_config['depots'])
-    with open(config_path, 'w', encoding='utf-8') as f:
+    async with aiofiles.open(config_path, mode='w', encoding='utf-8') as f:
         vdf.dump(config, f, pretty=True)
     return True
 
@@ -220,10 +182,10 @@ async def stool_add(depot_data, app_id):
 
     async with lock:
         log.info(f' ✅ SteamTools解锁文件生成: {lua_filepath}')
-        with open(lua_filepath, "w", encoding="utf-8") as lua_file:
-            lua_file.write(f'addappid({app_id}, 1, "None")\n')
+        async with aiofiles.open(lua_filepath, mode="w", encoding="utf-8") as lua_file:
+            await lua_file.write(f'addappid({app_id}, 1, "None")\n')
             for depot_id, depot_key in depot_data:
-                lua_file.write(f'addappid({depot_id}, 1, "{depot_key}")\n')
+                await lua_file.write(f'addappid({depot_id}, 1, "{depot_key}")\n')
 
     luapacka_path = steam_path / "config" / "stplug-in" / "luapacka.exe"
     subprocess.run([str(luapacka_path), str(lua_filepath)])
@@ -284,7 +246,7 @@ async def check_github_api_rate_limit(headers, session):
 
 
 # 主函数
-async def main(app_id, game_name):
+async def main(app_id):
     app_id_list = list(filter(str.isdecimal, app_id.strip().split('-')))
     app_id = app_id_list[0]
     
@@ -336,10 +298,10 @@ async def main(app_id, game_name):
                                     if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
                                         log.info(' ✅ 找到GreenLuma，已添加解锁文件')
                                 log.info(f' ✅ 清单最后更新时间：{date}')
-                                log.info(f' ✅ 入库成功: {app_id}：{game_name}')
+                                log.info(f' ✅ 入库成功: {app_id}')
                                 os.system('pause')
                                 return True
-        log.error(f' ⚠ 清单下载或生成失败: {app_id}：{game_name}')
+        log.error(f' ⚠ 清单下载或生成失败: {app_id}')
         os.system('pause')
         return False
 
@@ -352,17 +314,11 @@ repos = [
         ]
 if __name__ == '__main__':
     try:
-        log.debug('App ID可以在SteamDB或Steam商店链接页面查看')
-        user_input = input("请输入游戏AppID或名称：").strip()
-        appid, game_name = asyncio.run(find_appid_by_name(user_input))
-        if not appid:
-            log.error(' ⚠ 未找到匹配的游戏，请尝试其他名称。')
-        else:
-            asyncio.run(main(appid, game_name))
+        log.info('App ID可以在SteamDB或Steam商店链接页面查看')
+        app_id = input("请输入游戏AppID或名称：").strip()
+        asyncio.run(main(app_id))
     except KeyboardInterrupt:
         exit()
     except Exception as e:
         log.error(f' ⚠ 发生错误: {stack_error(e)}')
         traceback.print_exc()
-    if not user_input:
-        os.system('pause')
