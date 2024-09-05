@@ -11,7 +11,7 @@ steam_path = getsteampath.steam_path
 
 # 增加SteamTools解锁相关文件
 async def stool_add(depot_data, app_id):
-    lua_filename = f"Onekey_unlock_{app_id}.lua"
+    lua_filename = f"Onekey{app_id}.lua"
     lua_filepath = steam_path / "config" / "stplug-in" / lua_filename
 
     async with lock:

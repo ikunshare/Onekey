@@ -4,8 +4,8 @@ import aiofiles
 import traceback
 import time
 import asyncio
-from common import log, config, getsteampath, stunlock, glunlock, stack_error
-from aiohttp import ClientSession, ClientError
+from common import log, config, getsteampath, stunlock, glunlock, stack_error, manifestdown, dkey_merge
+from aiohttp import ClientSession
 from pathlib import Path
 
 log = log.log
@@ -17,6 +17,9 @@ isSteamTools = (steam_path / 'config' / 'stplug-in').is_dir()
 stunlock = stunlock.stunlock
 glunlock = glunlock.glunlock
 stack_error = stack_error.stack_error
+get = manifestdown.get
+depotkey_merge = dkey_merge.depotkey_merge
+
 
 print('\033[1;32;40m  _____   __   _   _____   _   _    _____  __    __ ' + '\033[0m')
 print('\033[1;32;40m /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /' + '\033[0m')
@@ -26,36 +29,10 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用ACSL许可证')
-log.info('版本：1.1.6')
+log.info('版本：1.1.7')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.info('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
-
-# 下载清单
-async def get(sha, path, repo, session):
-    url_list = [
-        # f'https://gh.api.99988866.xyz/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
-        f'https://jsd.onmicrosoft.cn/gh/{repo}@{sha}/{path}',
-        f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://gh.jiasu.in/https://raw.githubusercontent.com/{repo}/{sha}/{path}'
-    ]
-    retry = 3
-    while retry:
-        for url in url_list:
-            try:
-                async with session.get(url, ssl=False) as r:
-                    if r.status == 200:
-                        return await r.read()
-                    else:
-                        log.error(f' 🔄 获取失败: {path} - 状态码: {r.status}')
-            except ClientError:
-                log.error(f' 🔄 获取失败: {path} - 连接错误')
-        retry -= 1
-        log.warning(f'  🔄  重试剩余次数: {retry} - {path}')
-    log.error(f'  🔄 超过最大重试次数: {path}')
-    raise Exception(f'  🔄 无法下载: {path}')
 
 # 获取清单信息
 async def get_manifest(sha, path, steam_path: Path, repo, session):
@@ -84,24 +61,6 @@ async def get_manifest(sha, path, steam_path: Path, repo, session):
         traceback.print_exc()
         raise
     return collected_depots
-
-# 合并DecryptionKey
-async def depotkey_merge(config_path, depots_config):
-    if not config_path.exists():
-        async with lock:
-            log.error(' 👋 Steam默认配置不存在，可能是没有登录账号')
-        return
-    async with aiofiles.open(config_path, encoding='utf-8') as f:
-        config = vdf.load(f)
-    software = config['InstallConfigStore']['Software']
-    valve = software.get('Valve') or software.get('valve')
-    steam = valve.get('Steam') or valve.get('steam')
-    if 'depots' not in steam:
-        steam['depots'] = {}
-    steam['depots'].update(depots_config['depots'])
-    async with aiofiles.open(config_path, mode='w', encoding='utf-8') as f:
-        vdf.dump(config, f, pretty=True)
-    return True
 
 async def check_github_api_rate_limit(headers, session):
     url = 'https://api.github.com/rate_limit'
