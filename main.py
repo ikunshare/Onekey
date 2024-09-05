@@ -4,7 +4,7 @@ import aiofiles
 import traceback
 import time
 import asyncio
-from common import log, config, getsteampath, stunlock, glunlock, stack_error, manifestdown, dkey_merge
+from common import log, config, getsteampath, stunlock, glunlock, stack_error, manifestdown, dkey_merge, migration
 from aiohttp import ClientSession
 from pathlib import Path
 
@@ -19,6 +19,7 @@ glunlock = glunlock.glunlock
 stack_error = stack_error.stack_error
 get = manifestdown.get
 depotkey_merge = dkey_merge.depotkey_merge
+migration = migration.migrate
 
 
 print('\033[1;32;40m  _____   __   _   _____   _   _    _____  __    __ ' + '\033[0m')
@@ -152,6 +153,7 @@ repos = [
         ]
 if __name__ == '__main__':
     try:
+        migration()
         log.info('App ID可以在SteamDB或Steam商店链接页面查看')
         app_id = input("请输入游戏AppID：").strip()
         asyncio.run(main(app_id))
