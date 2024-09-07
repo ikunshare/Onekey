@@ -1,11 +1,12 @@
 import ujson as json
 import aiofiles
-from . import log
+from . import log, stack_error
 import os
 import sys
 import asyncio
 
 log = log.log
+stack_error = stack_error.stack_error
 
 # 生成配置文件
 async def gen_config_file():
@@ -29,8 +30,14 @@ async def load_config():
         os.system('pause')
         sys.exit()
     else:
-        async with aiofiles.open("./config.json", mode="r", encoding="utf-8") as f:
-            config = json.loads(await f.read())
-            return config
+        try:
+            async with aiofiles.open("./config.json", mode="r", encoding="utf-8") as f:
+                config = json.loads(await f.read())
+                return config
+        except Exception as e:
+            log.error(f"配置文件加载失败，原因: {stack_error(e)}")
+            os.remove("./config.json")
+            os.system('pause')
+
         
 config = asyncio.run(load_config())

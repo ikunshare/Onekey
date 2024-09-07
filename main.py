@@ -4,6 +4,7 @@ import aiofiles
 import traceback
 import time
 import asyncio
+import time
 from common import log, config, getsteampath, stunlock, glunlock, stack_error, manifestdown, dkey_merge, migration
 from aiohttp import ClientSession
 from pathlib import Path
@@ -30,7 +31,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用ACSL许可证')
-log.info('版本：1.1.7')
+log.info('版本：1.1.8')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.info('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
@@ -154,11 +155,13 @@ repos = [
 if __name__ == '__main__':
     try:
         migration()
-        log.info('App ID可以在SteamDB或Steam商店链接页面查看')
-        app_id = input("请输入游戏AppID：").strip()
-        asyncio.run(main(app_id))
+        while True:
+            log.info('App ID可以在SteamDB或Steam商店链接页面查看')
+            app_id = input("请输入游戏AppID：").strip()
+            asyncio.run(main(app_id))
     except KeyboardInterrupt:
         exit()
     except Exception as e:
-        log.error(f' ⚠ 发生错误: {stack_error(e)}')
-        traceback.print_exc()
+        log.error(f' ⚠ 发生错误: {stack_error(e)}，将在5秒后退出')
+        time.sleep(5)
+        os.system('pause')

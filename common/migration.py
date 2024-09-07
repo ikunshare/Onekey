@@ -15,8 +15,12 @@ def migrate():
     
             old_file = os.path.join(directory, filename)
             new_file = os.path.join(directory, new_filename)
-        
-            os.rename(old_file, new_file)
-            log.info(f'Renamed: {filename} -> {new_filename}')
+
+            try:
+                # 使用 os.replace 进行强制替换
+                os.replace(old_file, new_file)
+                log.info(f'Renamed: {filename} -> {new_filename}')
+            except Exception as e:
+                log.error(f'Failed to rename {filename} -> {new_filename}: {e}')
 
 migrate = migrate
