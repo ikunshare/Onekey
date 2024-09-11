@@ -169,3 +169,4 @@ cython_debug/
 *.xml
 *.exe
 *.dll
+/main.dist

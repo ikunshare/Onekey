@@ -14,7 +14,7 @@ config = config.config
 lock = asyncio.Lock()
 steam_path = getsteampath.steam_path
 isGreenLuma = any((steam_path / dll).exists() for dll in ['GreenLuma_2024_x86.dll', 'GreenLuma_2024_x64.dll', 'User32.dll'])
-isSteamTools = (steam_path / 'config' / 'stplug-in').is_dir()
+isSteamTools = (steam_path / 'config' / 'stUI').is_dir()
 stunlock = stunlock.stunlock
 glunlock = glunlock.glunlock
 stack_error = stack_error.stack_error
@@ -31,7 +31,7 @@ print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033
 print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
 log.info('作者ikun0014')
 log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用ACSL许可证')
-log.info('版本：1.1.8')
+log.info('版本：1.1.9')
 log.info('项目仓库：https://github.com/ikunshare/Onekey')
 log.info('官网：ikunshare.com')
 log.warning('本项目完全开源免费，如果你在淘宝，QQ群内通过购买方式获得，赶紧回去骂商家死全家\n交流群组：\n点击链接加入群聊【𝗶𝗸𝘂𝗻分享】：https://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_group')
@@ -130,9 +130,11 @@ async def main(app_id):
                                 collected_depots.extend(result)
                             if collected_depots:
                                 if isSteamTools:
+                                    migration(st_use=True)
                                     await stunlock(collected_depots, app_id)
                                     log.info(' ✅ 找到SteamTools，已添加解锁文件')
                                 if isGreenLuma:
+                                    migration(st_use=False)
                                     await glunlock([app_id])
                                     depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
                                     await depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
@@ -147,14 +149,12 @@ async def main(app_id):
         return False
 
 repos = [
-         'ManifestHub/ManifestHub',
          'ikun0014/ManifestHub',
          'Auiowu/ManifestAutoUpdate',
          'tymolu233/ManifestAutoUpdate'
         ]
 if __name__ == '__main__':
     try:
-        migration()
         while True:
             log.info('App ID可以在SteamDB或Steam商店链接页面查看')
             app_id = input("请输入游戏AppID：").strip()

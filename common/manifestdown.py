@@ -4,12 +4,10 @@ from .log import log
 # 下载清单
 async def get(sha, path, repo, session):
     url_list = [
-        # f'https://gh.api.99988866.xyz/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
         f'https://jsd.onmicrosoft.cn/gh/{repo}@{sha}/{path}',
         f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://gh.jiasu.in/https://raw.githubusercontent.com/{repo}/{sha}/{path}'
     ]
     retry = 3
     while retry:

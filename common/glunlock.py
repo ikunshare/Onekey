@@ -1,6 +1,4 @@
-from common import getsteampath
-
-steam_path = getsteampath.steam_path
+from .getsteampath import steam_path
 
 # 增加GreenLuma解锁相关文件
 async def greenluma_add(depot_id_list):

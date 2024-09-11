@@ -1,11 +1,9 @@
 import winreg
 import os
-from common import log, config, stack_error
+from .log import log
+from .config import config
+from .stack_error import stack_error
 from pathlib import Path
-
-stack_error  = stack_error.stack_error
-config = config.config
-log = log.log
 
 # 通过注册表获取Steam安装路径
 def get_steam_path():

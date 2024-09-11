@@ -1,12 +1,10 @@
 import ujson as json
 import aiofiles
-from . import log, stack_error
+from .stack_error import stack_error
+from .log import log
 import os
 import sys
 import asyncio
-
-log = log.log
-stack_error = stack_error.stack_error
 
 # 生成配置文件
 async def gen_config_file():
