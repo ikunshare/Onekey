@@ -3,3 +3,4 @@ colorlog==6.8.2
 ujson==5.10.0
 vdf==3.4
 nuitka==2.4.8
+requests
