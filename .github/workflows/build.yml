@@ -27,6 +27,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Get package version
+      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+
     - name: Build
       uses: Nuitka/Nuitka-Action@main
       with:
@@ -43,9 +46,6 @@ jobs:
         windows-product-version: ${{ env.PACKAGE_VERSION }}
         windows-file-description: 一个Steam仓库清单下载器
         output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
-
-    - name: Get package version
-      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
 
     - name: Create git tag
       uses: pkgdeps/git-tag-action@v3
