@@ -1,6 +1,7 @@
 import logging
 import colorlog
 
+
 def init_log():
     logger = logging.getLogger('Onekey')
     logger.setLevel(logging.DEBUG)
@@ -17,5 +18,6 @@ def init_log():
     stream_handler.setFormatter(fmt)
     logger.addHandler(stream_handler)
     return logger
+
 
 log = init_log()

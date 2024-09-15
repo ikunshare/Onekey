@@ -6,6 +6,7 @@ from .log import log
 
 lock = asyncio.Lock()
 
+
 async def depotkey_merge(config_path, depots_config):
     if not config_path.exists():
         async with lock:
