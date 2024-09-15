@@ -5,3 +5,4 @@ vdf
 nuitka
 requests
 imageio
+aiohttp
