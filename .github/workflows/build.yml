@@ -30,8 +30,8 @@ jobs:
     - name: Get package version
       run: |
         pwd
-        ls -la
-        node -p "PACKAGE_VERSION=${require('./package.json').version}" >> $GITHUB_ENV
+        dir
+        node -p "PACKAGE_VERSION=${require('.\package.json').version}" >> $GITHUB_ENV
 
     - name: Build
       uses: Nuitka/Nuitka-Action@main
