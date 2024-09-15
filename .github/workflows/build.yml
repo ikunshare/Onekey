@@ -14,7 +14,7 @@ jobs:
 
     - name: Get package version
       run: |
-        cmd /k node -p -e '`PACKAGE_VERSION=${require("package.json").version}`' >> $GITHUB_ENV
+        cmd /k node -p -e '`PACKAGE_VERSION=${require(".\package.json").version}`' >> $GITHUB_ENV
         cmd /k echo ${{ env.PACKAGE_VERSION }}
       
     - name: Set up Python 3.11
@@ -37,11 +37,11 @@ jobs:
         show-memory: true
         windows-uac-admin: true
         windows-icon-from-ico: icon.jpg
-        windows-company-name: ikunshare
-        windows-product-name: Onekey
-        windows-file-version: ${{ env.PACKAGE_VERSION }}
-        windows-product-version: ${{ env.PACKAGE_VERSION }}
-        windows-file-description: 一个Steam仓库清单下载器
+        company-name: ikunshare
+        product-name: Onekey
+        file-version: ${{ env.PACKAGE_VERSION }}
+        product-version: ${{ env.PACKAGE_VERSION }}
+        file-description: 一个Steam仓库清单下载器
         output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
         assume-yes-for-downloads: true
         output-dir: build
