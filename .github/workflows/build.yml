@@ -12,11 +12,9 @@ jobs:
     - name: Check out git repository
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version-file: .nvmrc
-
+    - name: Get package version
+      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+      
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
       with:
@@ -26,9 +24,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Get package version
-      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
 
     - name: Build
       uses: Nuitka/Nuitka-Action@main
@@ -42,8 +37,8 @@ jobs:
         windows-icon-from-ico: icon.jpg
         windows-company-name: ikunshare
         windows-product-name: Onekey
-        windows-file-version: ${{ env.PACKAGE_VERSION }}.0
-        windows-product-version: ${{ env.PACKAGE_VERSION }}.0
+        windows-file-version: ${{ env.PACKAGE_VERSION }}
+        windows-product-version: ${{ env.PACKAGE_VERSION }}
         windows-file-description: 一个Steam仓库清单下载器
         output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
         assume-yes-for-downloads: true
