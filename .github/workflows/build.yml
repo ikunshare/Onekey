@@ -28,10 +28,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Get package version
-      run: |
-        pwd
-        dir
-        node -p "PACKAGE_VERSION=${require('.\package.json').version}" >> $GITHUB_ENV
+      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
 
     - name: Build
       uses: Nuitka/Nuitka-Action@main
