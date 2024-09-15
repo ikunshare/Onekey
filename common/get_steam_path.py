@@ -1,10 +1,11 @@
+import os
+
+import winreg
+
+from pathlib import Path
 from .log import log
 from .config import config
 from .stack_error import stack_error
-from pathlib import Path
-
-import winreg
-import os
 
 def get_steam_path():
     try:

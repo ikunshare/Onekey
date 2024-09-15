@@ -1,11 +1,10 @@
-from .log import log
-from .manifest_down import get
-from .stack_error import stack_error
-
+from pathlib import Path
 import aiofiles
 import vdf
 
-from pathlib import Path
+from .log import log
+from .manifest_down import get
+from .stack_error import stack_error
 
 # 获取清单信息
 async def get_manifest(sha, path, steam_path: Path, repo, session):

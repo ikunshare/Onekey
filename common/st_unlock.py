@@ -1,9 +1,10 @@
+import os
+import asyncio
+import subprocess
+import aiofiles
+
 from .log import log
 from .get_steam_path import steam_path
-import asyncio
-import aiofiles
-import os
-import subprocess
 
 lock = asyncio.Lock()
 

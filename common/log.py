@@ -1,5 +1,5 @@
-import colorlog
 import logging
+import colorlog
 
 def init_log():
     logger = logging.getLogger('Onekey')

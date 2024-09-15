@@ -1,7 +1,7 @@
-from .log import log
-
 import os
 import time
+
+from .log import log
 
 async def check_github_api_rate_limit(headers, session):
     url = 'https://api.github.com/rate_limit'

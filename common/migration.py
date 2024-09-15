@@ -1,10 +1,10 @@
+import os
+import subprocess
+import requests
+
+from pathlib import Path
 from .log import log
 from .get_steam_path import steam_path
-from pathlib import Path
-
-import os
-import requests
-import subprocess
 
 directory = Path(steam_path / "config" / "stplug-in")
 

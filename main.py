@@ -1,12 +1,11 @@
+import os
+import time
+import asyncio
+
 from common.log import log
 from common.stack_error import stack_error
 from common.init_text import init
 from common.main_func import main
-
-import os
-import time
-import asyncio
-import time
 
 lock = asyncio.Lock()
 

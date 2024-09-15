@@ -1,8 +1,8 @@
-from .log import log
-
 import asyncio
 import aiofiles
 import vdf
+
+from .log import log
 
 lock = asyncio.Lock()
 

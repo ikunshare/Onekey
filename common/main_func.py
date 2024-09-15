@@ -1,3 +1,7 @@
+import os
+
+from aiohttp import ClientSession
+
 from common.config import config
 from common.dkey_merge import depotkey_merge
 from common.migration import migrate
@@ -8,10 +12,6 @@ from common.check import check_github_api_rate_limit
 from common.log import log
 from common.get_steam_path import steam_path
 from common.stack_error import stack_error
-
-from aiohttp import ClientSession
-
-import os
 
 isGreenLuma = any((steam_path / dll).exists() for dll in ['GreenLuma_2024_x86.dll', 'GreenLuma_2024_x64.dll', 'User32.dll'])
 isSteamTools = (steam_path / 'config' / 'stUI').is_dir()
