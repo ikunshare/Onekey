@@ -15,7 +15,6 @@ jobs:
     - name: Get package version
       run: |
         node -p "process.env.PACKAGE_VERSION = require('./package.json').version" >> $GITHUB_ENV
-        echo ${{ env.PACKAGE_VERSION }}
       
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
