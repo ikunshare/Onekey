@@ -42,9 +42,9 @@ jobs:
         windows-icon-from-ico: icon.jpg
         windows-company-name: ikunshare
         windows-product-name: Onekey
-        windows-file-version: ${{ env.PACKAGE_VERSION }}
-        windows-product-version: ${{ env.PACKAGE_VERSION }}
-        windows-file-description: "\u4e00\u4e2aSteam\u4ed3\u5e93\u6e05\u5355\u4e0b\u8f7d\u5668"
+        windows-file-version: ${{ env.PACKAGE_VERSION }}.0
+        windows-product-version: ${{ env.PACKAGE_VERSION }}.0
+        windows-file-description: 一个Steam仓库清单下载器
         output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
         assume-yes-for-downloads: true
         output-dir: build
