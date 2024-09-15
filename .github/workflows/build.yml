@@ -61,6 +61,6 @@ jobs:
         draft: false
         tag_name: v${{ env.PACKAGE_VERSION }}
         files: |
-          Onekey---v${{ env.PACKAGE_VERSION }}.exe
+          build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
