@@ -7,15 +7,14 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Check out git repository
       uses: actions/checkout@v4
 
     - name: Get package version
       run: |
-        cmd /k node -p "process.env.PACKAGE_VERSION = require('./package.json').version" >> $GITHUB_ENV
-        cmd /k echo ${{ env.PACKAGE_VERSION }}
+        node -p "process.env.PACKAGE_VERSION = require('./package.json').version" >> $GITHUB_ENV
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
@@ -24,8 +23,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cmd /k python -m pip install --upgrade pip
-        cmd /k pip install -r requirements.txt
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
     - name: Build
       uses: Nuitka/Nuitka-Action@main
