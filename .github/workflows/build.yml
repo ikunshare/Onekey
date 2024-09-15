@@ -14,8 +14,9 @@ jobs:
 
     - name: Get package version
       run: |
-        node -p "process.env.PACKAGE_VERSION = require('./package.json').version" >> $GITHUB_ENV
-      
+        cmd /k node -p "process.env.PACKAGE_VERSION = require('./package.json').version" >> $GITHUB_ENV
+        cmd /k echo ${{ env.PACKAGE_VERSION }}
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
       with:
@@ -23,8 +24,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        cmd /k python -m pip install --upgrade pip
+        cmd /k pip install -r requirements.txt
 
     - name: Build
       uses: Nuitka/Nuitka-Action@main
