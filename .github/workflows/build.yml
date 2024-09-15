@@ -44,8 +44,10 @@ jobs:
         windows-product-name: Onekey
         windows-file-version: ${{ env.PACKAGE_VERSION }}
         windows-product-version: ${{ env.PACKAGE_VERSION }}
-        windows-file-description: 一个Steam仓库清单下载器
+        windows-file-description: "\u4e00\u4e2aSteam\u4ed3\u5e93\u6e05\u5355\u4e0b\u8f7d\u5668"
         output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
+        assume-yes-for-downloads: true
+        output-dir: build
 
     - name: Create git tag
       uses: pkgdeps/git-tag-action@v3
