@@ -17,21 +17,23 @@
  先去Release下最新发布，然后去steamtools官网下steamtools，日志会有点石介意别用
 
 ## 开发
-本程序使用Python编程语言开发
-要求环境：
-1.Python 3.10及以上
-2.Windows 10及以上
-3.使用Git进行版本管理
+本程序使用Python编程语言开发   
+要求环境：   
+1.Python 3.10及以上   
+2.Windows 10及以上   
+3.使用Git进行版本管理   
 
 1.克隆项目到本地 
 
+```
 git clone https://github.com/ikunshare/Onekey
+```
 
 2.安装依赖
 
+```
 pip install -r requirements.txt
-
-3.Success！
+```
 
 ## 项目协议
  本项目基于 ACSL V2.0 许可证发行，以下协议是对于 ACSL V2.0 原协议的补充，如有冲突，以以下协议为准。
