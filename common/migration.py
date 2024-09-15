@@ -1,9 +1,10 @@
+from .log import log
+from .get_steam_path import steam_path
+from pathlib import Path
+
 import os
 import requests
 import subprocess
-from .log import log
-from .getsteampath import steam_path
-from pathlib import Path
 
 directory = Path(steam_path / "config" / "stplug-in")
 
@@ -19,7 +20,6 @@ def migrate(st_use):
                     new_file = os.path.join(directory, new_filename)
 
                     try:
-                        # 使用 os.replace 进行强制替换
                         os.replace(old_file, new_file)
                         log.info(f'Renamed: {filename} -> {new_filename}')
                     except Exception as e:
@@ -42,6 +42,3 @@ def migrate(st_use):
             os.rmdir(temp_path)
     else:
         log.info('未使用SteamTools，停止迁移')
-
-
-migrate = migrate

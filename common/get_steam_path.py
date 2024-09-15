@@ -1,11 +1,11 @@
-import winreg
-import os
 from .log import log
 from .config import config
 from .stack_error import stack_error
 from pathlib import Path
 
-# 通过注册表获取Steam安装路径
+import winreg
+import os
+
 def get_steam_path():
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Valve\Steam')

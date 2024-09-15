@@ -1,8 +1,6 @@
 import colorlog
 import logging
 
-
-# 初始化日志记录器
 def init_log():
     logger = logging.getLogger('Onekey')
     logger.setLevel(logging.DEBUG)

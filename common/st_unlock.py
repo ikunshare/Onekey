@@ -1,15 +1,12 @@
-from common import log, getsteampath
+from .log import log
+from .get_steam_path import steam_path
 import asyncio
 import aiofiles
 import os
 import subprocess
 
 lock = asyncio.Lock()
-log = log.log
-steam_path = getsteampath.steam_path
 
-
-# 增加SteamTools解锁相关文件
 async def stool_add(depot_data, app_id):
     lua_filename = f"{app_id}.lua"
     lua_filepath = steam_path / "config" / "stplug-in" / lua_filename
@@ -25,5 +22,3 @@ async def stool_add(depot_data, app_id):
     subprocess.run([str(luapacka_path), str(lua_filepath)])
     os.remove(lua_filepath)
     return True
-
-stunlock = stool_add

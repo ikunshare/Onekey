@@ -1,7 +1,6 @@
 from aiohttp import ClientError
 from .log import log
 
-# 下载清单
 async def get(sha, path, repo, session):
     url_list = [
         f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',

@@ -1,12 +1,12 @@
-import ujson as json
-import aiofiles
 from .stack_error import stack_error
 from .log import log
+
+import ujson as json
+import aiofiles
 import os
 import sys
 import asyncio
 
-# 生成配置文件
 async def gen_config_file():
     default_config ={
                     "Github_Personal_Token": "",
@@ -21,7 +21,6 @@ async def gen_config_file():
     log.info(' 🖱️ 程序可能为第一次启动，请填写配置文件后重新启动程序')
 
 
-# 加载配置文件
 async def load_config():
     if not os.path.exists('./config.json'):
         await gen_config_file()

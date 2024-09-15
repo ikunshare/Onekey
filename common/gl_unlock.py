@@ -1,6 +1,5 @@
-from .getsteampath import steam_path
+from .get_steam_path import steam_path
 
-# 增加GreenLuma解锁相关文件
 async def greenluma_add(depot_id_list):
     app_list_path = steam_path / 'AppList'
     if app_list_path.exists() and app_list_path.is_file():
@@ -27,5 +26,3 @@ async def greenluma_add(depot_id_list):
                 f.write(str(depot_id))
             depot_dict[index] = int(depot_id)
     return True
-
-glunlock = greenluma_add

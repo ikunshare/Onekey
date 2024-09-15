@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    # Push tag to GitHub if package.json version's tag is not tagged
+    - name: Get package version
+      run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11.9
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build
+      uses: Nuitka/Nuitka-Action@main
+      with:
+        nuitka-version: main
+        script-name: main.py
+        standalone: true
+        onefile: true
+        show-memory: true
+        windows-uac-admin: true
+        windows-icon-from-ico: icon.jpg
+        windows-company-name: ikunshare
+        windows-product-name: Onekey
+        windows-file-version: ${{ env.PACKAGE_VERSION }}
+        windows-product-version: ${{ env.PACKAGE_VERSION }}
+        windows-file-description: 一个Steam仓库清单下载器
+        output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        prerelease: false
+        draft: false
+        tag_name: v${{ env.PACKAGE_VERSION }}
+        files: |
+          Onekey---v${{ env.PACKAGE_VERSION }}.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
