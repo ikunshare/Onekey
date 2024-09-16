@@ -22,7 +22,7 @@ async def get(sha, path, repo, session):
                         chunk_size = 1024
                         content = bytearray()
 
-                        with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'下载 {path}') as pbar:
+                        with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'🟢 下载 {path}', bar_format="{l_bar}{bar} [{n_fmt}/{total_fmt}] {postfix}") as pbar:
                             async for chunk in r.content.iter_chunked(chunk_size):
                                 content.extend(chunk)
                                 pbar.update(len(chunk))
