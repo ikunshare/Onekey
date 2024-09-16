@@ -20,6 +20,6 @@ async def stool_add(depot_data, app_id):
                 await lua_file.write(f'addappid({depot_id}, 1, "{depot_key}")\n')
 
     luapacka_path = steam_path / "config" / "stplug-in" / "luapacka.exe"
-    subprocess.run([str(luapacka_path), str(lua_filepath)])
+    subprocess.run([str(luapacka_path), str(lua_filepath)], check=True)
     os.remove(lua_filepath)
     return True

@@ -1,8 +1,6 @@
 from aiohttp import ClientError
 from tqdm.asyncio import tqdm_asyncio
-
 from .log import log
-
 
 async def get(sha, path, repo, session):
     url_list = [
@@ -18,6 +16,9 @@ async def get(sha, path, repo, session):
                 async with session.get(url, ssl=False) as r:
                     if r.status == 200:
                         total_size = int(r.headers.get('Content-Length', 0))
+                        if total_size == 0:
+                            log.error(f' 🔄 获取失败: {path} - 内容为空')
+                            break
                         chunk_size = 1024
                         content = bytearray()
 
