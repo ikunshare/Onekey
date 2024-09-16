@@ -8,7 +8,7 @@ def init():
     print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033[0m')
     print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
     log.info('作者ikun0014')
-    log.info('本项目基于wxy1343/ManifestAutoUpdate进行修改，采用GPL-3.0许可证')
+    log.info('本项目采用GNU General Public License v3开源许可证')
     log.info('版本：1.2.1')
     log.info('项目仓库：https://github.com/ikunshare/Onekey')
     log.info('官网：ikunshare.com')
