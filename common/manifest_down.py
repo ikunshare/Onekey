@@ -8,7 +8,7 @@ async def get(sha, path, repo, session):
     url_list = [
         f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
         f'https://jsd.onmicrosoft.cn/gh/{repo}@{sha}/{path}',
-        f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        # f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
     ]
     retry = 3
@@ -21,7 +21,7 @@ async def get(sha, path, repo, session):
                         chunk_size = 1024
                         content = bytearray()
 
-                        with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'下载 {path}') as pbar:
+                        with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'下载 {path}', colour='#ffadad') as pbar:
                             async for chunk in r.content.iter_chunked(chunk_size):
                                 content.extend(chunk)
                                 pbar.update(len(chunk))
