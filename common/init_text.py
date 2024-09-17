@@ -1,12 +1,16 @@
+from colorama import Fore, Back, Style, init
+
+init()
+
 from .log import log
 
 def init():
-    print('\033[1;32;40m  _____   __   _   _____   _   _    _____  __    __ ' + '\033[0m')
-    print('\033[1;32;40m /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /' + '\033[0m')
-    print('\033[1;32;40m | | | | |   \\| | | |__   | |/ /   | |__    \\ \\/ /' + '\033[0m')
-    print('\033[1;32;40m | | | | | |\\   | |  __|  | |\\ \\   |  __|    \\  / ' + '\033[0m')
-    print('\033[1;32;40m | |_| | | | \\  | | |___  | | \\ \\  | |___    / /' + '\033[0m')
-    print('\033[1;32;40m \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/' + '\033[0m')
+    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT}  _____   __   _   _____   _   _    _____  __    __ {Style.RESET_ALL}")
+    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | | | | |   \\| | | |__   | |/ /   | |__    \\ \\/ /{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | | | | | |\\   | |  __|  | |\\ \\   |  __|    \\  / {Style.RESET_ALL}")
+    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | |_| | | | \\  | | |___  | | \\ \\  | |___    / /{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/{Style.RESET_ALL}")
     log.info('作者ikun0014')
     log.info('本项目采用GNU General Public License v3开源许可证')
     log.info('版本：1.2.2')

@@ -10,7 +10,7 @@ directory = Path(steam_path / "config" / "stplug-in")
 
 def migrate(st_use):
     if st_use:
-        log.info('检测到你正在使用SteamTools，尝试迁移旧文件')
+        log.info('🔃 检测到你正在使用SteamTools，尝试迁移旧文件')
         if directory.exists():
             for filename in os.listdir(directory):
                 if filename.startswith("Onekey_unlock_"):
@@ -25,7 +25,7 @@ def migrate(st_use):
                     except Exception as e:
                         log.error(f'Failed to rename {filename} -> {new_filename}: {e}')
         else:
-            log.error('故障，正在重新安装SteamTools')
+            log.error('❗ 故障，正在重新安装SteamTools')
             temp_path = Path('./temp')
             temp_path.mkdir(exist_ok=True)
             down_url = 'https://steamtools.net/res/SteamtoolsSetup.exe'

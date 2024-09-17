@@ -20,14 +20,14 @@ async def get_manifest(sha, path, steam_path: Path, repo, session):
                 return collected_depots
             
             content = await get(sha, path, repo, session)
-            log.info(f' 🔄 清单下载成功: {path}')
+            log.info(f'🔄 清单下载成功: {path}')
             
             async with aiofiles.open(save_path, 'wb') as f:
                 await f.write(content)
         
         elif path == 'Key.vdf':
             content = await get(sha, path, repo, session)
-            log.info(f' 🔄 密钥下载成功: {path}')
+            log.info(f'🔄 密钥下载成功: {path}')
             depots_config = vdf.loads(content.decode('utf-8'))
             
             for depot_id, depot_info in depots_config['depots'].items():

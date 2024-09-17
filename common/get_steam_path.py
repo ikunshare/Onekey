@@ -16,7 +16,7 @@ def get_steam_path():
         
         return steam_path
     except Exception as e:
-        log.error(f'Steam路径获取失败, {stack_error(e)}')
+        log.error(f'❗ Steam路径获取失败, {stack_error(e)}')
         os.system('pause')
         return None
 
