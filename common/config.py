@@ -25,7 +25,7 @@ async def gen_config_file():
                                  ensure_ascii=False,
                                  escape_forward_slashes=False))
         await f.close()
-    log.info(' 🖱️ 程序可能为第一次启动，请填写配置文件后重新启动程序')
+    log.info('🖱️ 程序可能为第一次启动，请填写配置文件后重新启动程序')
 
 
 async def load_config():
