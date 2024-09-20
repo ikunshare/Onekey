@@ -8,7 +8,7 @@ async def get(sha, path, repo, session):
     url_list = [
         f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
         f'https://jsd.onmicrosoft.cn/gh/{repo}@{sha}/{path}',
-        # f'https://mirror.ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
     ]
     retry = 3
@@ -25,13 +25,12 @@ async def get(sha, path, repo, session):
                             async for chunk in r.content.iter_chunked(chunk_size):
                                 content.extend(chunk)
                                 pbar.update(len(chunk))
-                        
                         return content
                     else:
-                        log.error(f' 🔄 获取失败: {path} - 状态码: {r.status}')
+                        log.error(f'🔄 获取失败: {path} - 状态码: {r.status}')
             except ClientError:
-                log.error(f' 🔄 获取失败: {path} - 连接错误')
+                log.error(f'🔄 获取失败: {path} - 连接错误')
         retry -= 1
-        log.warning(f' 🔄 重试剩余次数: {retry} - {path}')
-    log.error(f' 🔄 超过最大重试次数: {path}')
-    raise Exception(f' 🔄 无法下载: {path}')
+        log.warning(f'🔄 重试剩余次数: {retry} - {path}')
+    log.error(f'🔄 超过最大重试次数: {path}')
+    raise Exception(f'🔄 无法下载: {path}')

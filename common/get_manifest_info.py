@@ -6,7 +6,7 @@ from .log import log
 from .manifest_down import get
 from .stack_error import stack_error
 
-# 获取清单信息
+
 async def get_manifest(sha, path, steam_path: Path, repo, session):
     collected_depots = []
     try:
