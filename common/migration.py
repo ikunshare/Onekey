@@ -35,16 +35,16 @@ async def migrate(st_use, session):
 
             async with session.get(down_url, stream=True) as r:
                 if r.status == 200:
-                    total_size = int(r.headers.get('Content-Length', 0))
+                    total_size = int(await  r.headers.get('Content-Length', 0))
                     chunk_size = 8192
                     progress = tqdm(total=total_size, unit='B', unit_scale=True)
 
                     async with aiofiles.open(out_path, mode='wb') as f:
                         async for chunk in r.content.iter_chunked(chunk_size=chunk_size):
                             await f.write(chunk)
-                            progress.update(len(chunk))
+                            await progress.update(len(chunk))
 
-                    progress.close()
+                    await progress.close()
                 else:
                     log.error('⚠ 网络错误')
 
