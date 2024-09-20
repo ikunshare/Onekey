@@ -60,7 +60,7 @@ async def main(app_id, repos):
                                 collected_depots.extend(result)
                             if collected_depots:
                                 if isSteamTools:
-                                    migrate(st_use=True)
+                                    migrate(st_use=True,session=session)
                                     await stool_add(collected_depots, app_id)
                                     log.info(' ✅ 找到SteamTools，已添加解锁文件')
                                 if isGreenLuma:
