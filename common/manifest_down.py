@@ -10,6 +10,13 @@ async def get(sha, path, repo, session):
         f'https://jsd.onmicrosoft.cn/gh/{repo}@{sha}/{path}',
         f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        f'https://raw.kkgithub.com/{repo}/{sha}/{path}',
+        f'https://gitdl.cn/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        f'https://ghp.ci/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        f'https://ghproxy.net/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
+        f'https://fastly.jsdelivr.net/gh/{repo}@{sha}/{path}',
+        f'https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}',
+        f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',
     ]
     retry = 3
     while retry:
