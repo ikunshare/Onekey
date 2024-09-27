@@ -19,7 +19,7 @@ async def get(sha, path, repo, session):
                 async with session.get(url, ssl=False) as r:
                     if r.status == 200:
                         total_size = int(r.headers.get('Content-Length', 0))
-                        chunk_size = 2048
+                        chunk_size = 1024
                         content = bytearray()
 
                         with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'下载 {path}', colour='#ffadad') as pbar:
