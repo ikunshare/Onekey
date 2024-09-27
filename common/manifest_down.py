@@ -16,6 +16,7 @@ async def get(sha, path, repo, session):
     while retry:
         for url in url_list:
             try:
+                log.debug(f"{url}")
                 async with session.get(url, ssl=False) as r:
                     if r.status == 200:
                         total_size = int(r.headers.get('Content-Length', 0))
