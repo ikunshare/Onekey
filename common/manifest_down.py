@@ -9,14 +9,8 @@ async def get(sha, path, repo, session):
         f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
         f'https://jsd.onmicrosoft.cn/gh/{repo}@{sha}/{path}',
         f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
-        f'https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://raw.kkgithub.com/{repo}/{sha}/{path}',
-        f'https://gitdl.cn/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://ghp.ci/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://ghproxy.net/https://raw.githubusercontent.com/{repo}/{sha}/{path}',
-        f'https://fastly.jsdelivr.net/gh/{repo}@{sha}/{path}',
-        f'https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}',
-        f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',
+        f'https://raw.gitmirror.com/{repo}/{sha}/{path}',
+        f'https://raw.githubusercontent.com/{repo}/{sha}/{path}'
     ]
     retry = 3
     while retry:
@@ -25,7 +19,7 @@ async def get(sha, path, repo, session):
                 async with session.get(url, ssl=False) as r:
                     if r.status == 200:
                         total_size = int(r.headers.get('Content-Length', 0))
-                        chunk_size = 1024
+                        chunk_size = 2048
                         content = bytearray()
 
                         with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'下载 {path}', colour='#ffadad') as pbar:
