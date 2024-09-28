@@ -1,10 +1,8 @@
 import time
 import ujson as json
-
 from aiohttp import ClientError
 from .log import log
 from .stack_error import stack_error
-
 
 async def check_github_api_rate_limit(headers, session):
     try:
@@ -19,10 +17,13 @@ async def check_github_api_rate_limit(headers, session):
                 reset_time = rate_limit['reset']
                 reset_time_formatted = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(reset_time))
                 log.info(f' 🔄 剩余请求次数: {remaining_requests}')
+
+                if remaining_requests == 0:
+                    log.warning(f'⚠ GitHub API 请求数已用尽，将在 {reset_time_formatted} 重置，建议生成一个填在配置文件里')
             else:
                 log.error('⚠ Github请求数检查失败，网络错误')
-
-        if remaining_requests == 0:
-            log.warning(f'⚠ GitHub API 请求数已用尽，将在 {reset_time_formatted} 重置, 不想等生成一个填配置文件里')
+    
     except ClientError as e:
         log.error(f'⚠ 检查Github API 请求数失败，{stack_error(e)}')
+    except Exception as e:
+        log.error(f'⚠ 发生错误: {stack_error(e)}')

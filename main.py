@@ -1,5 +1,6 @@
 import os
 import time
+import sys
 import asyncio
 
 from colorama import Fore, Back, Style
@@ -15,20 +16,36 @@ init()
 cinit()
 
 repos = [
-         'ikun0014/ManifestHub',
-         'Auiowu/ManifestAutoUpdate',
-         'tymolu233/ManifestAutoUpdate',
-        ]
+    'ikun0014/ManifestHub',
+    'Auiowu/ManifestAutoUpdate',
+    'tymolu233/ManifestAutoUpdate',
+]
+
+def prompt_app_id():
+    return input(f"{Fore.CYAN}{Back.BLACK}{Style.BRIGHT}🤔 请输入游戏AppID：{Style.RESET_ALL}").strip()
+
+async def main_loop():
+    while True:
+        try:
+            app_id = prompt_app_id()
+            await main(app_id, repos)
+        except EOFError:
+            break
+
+async def run():
+    try:
+        log.info('❗ App ID可以在SteamDB或Steam商店链接页面查看')
+        await main_loop()
+    except KeyboardInterrupt:
+        log.info("👋 程序已退出")
+    except Exception as e:
+        log.error(f' ⚠ 发生错误: {stack_error(e)}，将在5秒后退出')
+        await asyncio.sleep(5)
+    finally:
+        asyncio.get_event_loop().stop()
 
 if __name__ == '__main__':
     try:
-        log.info('❗ App ID可以在SteamDB或Steam商店链接页面查看')
-        while True:
-            app_id = input(f"{Fore.CYAN}{Back.BLACK}{Style.BRIGHT}🤔 请输入游戏AppID：{Style.RESET_ALL}").strip()
-            asyncio.run(main(app_id, repos))
-    except KeyboardInterrupt:
-        exit()
-    except Exception as e:
-        log.error(f' ⚠ 发生错误: {stack_error(e)}，将在5秒后退出')
-        time.sleep(5)
-        os.system('pause')
+        asyncio.run(run())
+    except SystemExit:
+        sys.exit()
