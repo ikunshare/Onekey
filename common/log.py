@@ -19,6 +19,7 @@ def init_log(level=logging.DEBUG) -> logging.Logger:
     fmt = colorlog.ColoredFormatter(LOG_FORMAT, log_colors=LOG_COLORS)
     stream_handler.setFormatter(fmt)
 
+    # 避免重复添加处理器
     if not logger.handlers:
         logger.addHandler(stream_handler)
 

@@ -24,7 +24,10 @@ async def stool_add(depot_data: list, app_id: str) -> bool:
             luapacka_path = steam_path / "config" / "stplug-in" / "luapacka.exe"
             log.info(f'🔄 正在处理文件: {lua_filepath}')
 
-            result = subprocess.run([str(luapacka_path), str(lua_filepath)], capture_output=True)
+            result = subprocess.run(
+                [str(luapacka_path), str(lua_filepath)], 
+                capture_output=True
+            )
             if result.returncode != 0:
                 log.error(f'⚠ 调用失败: {result.stderr.decode()}')
                 return False

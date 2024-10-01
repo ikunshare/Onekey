@@ -2,6 +2,7 @@ import os
 import time
 import sys
 import asyncio
+import re
 
 from colorama import Fore, Back, Style
 from colorama import init as cinit
@@ -22,7 +23,11 @@ repos = [
 ]
 
 def prompt_app_id():
-    return input(f"{Fore.CYAN}{Back.BLACK}{Style.BRIGHT}🤔 请输入游戏AppID：{Style.RESET_ALL}").strip()
+        app_id = input(f"{Fore.CYAN}{Back.BLACK}{Style.BRIGHT}🤔 请输入游戏AppID：{Style.RESET_ALL}").strip()
+        if re.match(r'^\d+$', app_id):
+            return app_id
+        else:
+            print(f"{Fore.RED}⚠ 无效的AppID，请输入数字！{Style.RESET_ALL}")
 
 async def main_loop():
     while True:

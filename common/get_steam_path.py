@@ -11,10 +11,7 @@ def get_steam_path() -> Path:
         steam_path = Path(winreg.QueryValueEx(key, 'SteamPath')[0])
         
         custom_steam_path = config.get("Custom_Steam_Path", "").strip()
-        if custom_steam_path:
-            return Path(custom_steam_path)
-        else:
-            return steam_path
+        return Path(custom_steam_path) if custom_steam_path else steam_path
     except Exception as e:
         log.error(f'Steam路径获取失败, {stack_error(e)}')
         os.system('pause')

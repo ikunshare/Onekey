@@ -17,20 +17,19 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
             content = await f.read()
         
         config = vdf.loads(content)
-        software = config.get('InstallConfigStore', {}).get('Software', {})
-        steam = software.get('Valve') or software.get('valve')
+        steam = config.get('InstallConfigStore', {}).get('Software', {}).get('Valve') or \
+                config.get('InstallConfigStore', {}).get('Software', {}).get('valve')
+
         if steam is None:
             log.error('⚠ 找不到Steam配置，请检查配置文件')
             return False
         
-        if 'depots' not in steam:
-            steam['depots'] = {}
-        
-        steam['depots'].update(depots_config.get('depots', {}))
+        depots = steam.setdefault('depots', {})
+        depots.update(depots_config.get('depots', {}))
         
         async with aiofiles.open(config_path, mode='w', encoding='utf-8') as f:
-            new_content = vdf.dumps(config, pretty=True)
-            await f.write(new_content)
+            new_context = vdf.dumps(config, pretty=True)
+            await f.write(new_context)
 
         log.info('✅ 成功合并')
         return True

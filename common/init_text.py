@@ -5,12 +5,17 @@ init()
 from .log import log
 
 def init():
-    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT}  _____   __   _   _____   _   _    _____  __    __ {Style.RESET_ALL}")
-    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | | | | |   \\| | | |__   | |/ /   | |__    \\ \\/ /{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | | | | | |\\   | |  __|  | |\\ \\   |  __|    \\  / {Style.RESET_ALL}")
-    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | |_| | | | \\  | | |___  | | \\ \\  | |___    / /{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/{Style.RESET_ALL}")
+    banner_lines = [
+        f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT}  _____   __   _   _____   _   _    _____  __    __ {Style.RESET_ALL}",
+        f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /{Style.RESET_ALL}",
+        f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | | | | |   \\| | | |__   | |/ /   | |__    \\ \\/ /{Style.RESET_ALL}",
+        f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | | | | | |\\   | |  __|  | |\\ \\   |  __|    \\  / {Style.RESET_ALL}",
+        f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} | |_| | | | \\  | | |___  | | \\ \\  | |___    / /{Style.RESET_ALL}",
+        f"{Fore.GREEN}{Back.BLACK}{Style.BRIGHT} \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/{Style.RESET_ALL}",
+    ]
+    for line in banner_lines:
+        print(line)
+    
     log.info('作者：ikun0014')
     log.info('本项目采用GNU General Public License v3开源许可证')
     log.info('版本：1.2.4')
