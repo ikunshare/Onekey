@@ -7,28 +7,37 @@ from .manifest_down import get
 from .stack_error import stack_error
 
 
-async def get_manifest(sha, path, steam_path: Path, repo, session):
+async def get_manifest(sha: str, path: str, steam_path: Path, repo: str, session) -> list:
     collected_depots = []
+    depot_cache_path = steam_path / 'depotcache'
+    
     try:
+        depot_cache_path.mkdir(exist_ok=True)
+
         if path.endswith('.manifest'):
-            depot_cache_path = steam_path / 'depotcache'
-            if not depot_cache_path.exists():
-                depot_cache_path.mkdir(exist_ok=True)
             save_path = depot_cache_path / path
             if save_path.exists():
-                log.warning(f'👋已存在清单: {path}')
+                log.warning(f'👋 已存在清单: {save_path}')
                 return collected_depots
+
             content = await get(sha, path, repo, session)
-            log.info(f' 🔄 清单下载成功: {path}')
+            log.info(f'🔄 清单下载成功: {path}')
+
             async with aiofiles.open(save_path, 'wb') as f:
                 await f.write(content)
+
         elif path == 'Key.vdf':
             content = await get(sha, path, repo, session)
-            log.info(f' 🔄 密钥下载成功: {path}')
-            depots_config = vdf.loads(content.decode(encoding='utf-8'))
-            for depot_id, depot_info in depots_config['depots'].items():
-                collected_depots.append((depot_id, depot_info['DecryptionKey']))
+            log.info(f'🔄 密钥下载成功: {path}')
+
+            depots_config = vdf.loads(content.decode('utf-8'))
+            collected_depots = [
+                (depot_id, depot_info['DecryptionKey'])
+                for depot_id, depot_info in depots_config['depots'].items()
+            ]
+
     except Exception as e:
-        log.error(f'处理失败: {path} - {stack_error(e)}')
+        log.error(f'❗ 处理失败: {path} - {stack_error(e)}')
         raise
+
     return collected_depots

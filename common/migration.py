@@ -3,52 +3,58 @@ import subprocess
 import aiofiles
 from pathlib import Path
 from tqdm.asyncio import tqdm
-
 from .log import log
 from .get_steam_path import steam_path
 
-directory = Path(steam_path / "config" / "stplug-in")
+directory = Path(steam_path) / "config" / "stplug-in"
+temp_path = Path('./temp')
+setup_url = 'https://steamtools.net/res/SteamtoolsSetup.exe'
+setup_file = temp_path / 'SteamtoolsSetup.exe'
 
-async def migrate(st_use, session):
-    if st_use == True:
-        log.info('🔄 检测到你正在使用SteamTools，尝试迁移旧文件')
-        if os.path.exists(directory):
-            for filename in os.listdir(directory):
-                if filename.startswith("Onekey_unlock_"):
-                    new_filename = filename[len("Onekey_unlock_"):]
+async def download_setup_file(session) -> None:
+    log.info('🔄 开始下载 SteamTools 安装程序...')
+    try:
+        async with session.get(setup_url, stream=True) as r:
+            if r.status == 200:
+                total_size = int(r.headers.get('Content-Length', 0))
+                chunk_size = 8192
+                progress = tqdm(total=total_size, unit='B', unit_scale=True, desc='下载安装程序')
 
-                    old_file = os.path.join(directory, filename)
-                    new_file = os.path.join(directory, new_filename)
+                async with aiofiles.open(setup_file, mode='wb') as f:
+                    async for chunk in r.content.iter_chunked(chunk_size):
+                        await f.write(chunk)
+                        progress.update(len(chunk))
+
+                progress.close()
+                log.info('✅ 安装程序下载完成')
+            else:
+                log.error('⚠ 网络错误，无法下载安装程序')
+    except Exception as e:
+        log.error(f'⚠ 下载失败: {e}')
+
+async def migrate(st_use: bool, session) -> None:
+    if st_use:
+        log.info('🔄 检测到你正在使用 SteamTools，尝试迁移旧文件')
+
+        if directory.exists():
+            for file in directory.iterdir():
+                if file.is_file() and file.name.startswith("Onekey_unlock_"):
+                    new_filename = file.name[len("Onekey_unlock_"):]
 
                     try:
-                        os.replace(old_file, new_file)
-                        log.info(f'Renamed: {filename} -> {new_filename}')
+                        file.rename(directory / new_filename)
+                        log.info(f'Renamed: {file.name} -> {new_filename}')
                     except Exception as e:
-                        log.error(f'Failed to rename {filename} -> {new_filename}: {e}')
+                        log.error(f'⚠ 重命名失败 {file.name} -> {new_filename}: {e}')
         else:
-            log.error('⚠ 故障，正在重新安装SteamTools')
-            temp_path = './temp'
-            if not os.path.exists(temp_path):
-                os.mkdir(temp_path)
-            down_url = 'https://steamtools.net/res/SteamtoolsSetup.exe'
-            out_path = './temp/SteamtoolsSetup.exe'
+            log.error('⚠ 故障，正在重新安装 SteamTools')
+            temp_path.mkdir(parents=True, exist_ok=True)
 
-            async with session.get(down_url, stream=True) as r:
-                if r.status == 200:
-                    total_size = int(await  r.headers.get('Content-Length', 0))
-                    chunk_size = 8192
-                    progress = tqdm(total=total_size, unit='B', unit_scale=True)
+            await download_setup_file(session)
 
-                    async with aiofiles.open(out_path, mode='wb') as f:
-                        async for chunk in r.content.iter_chunked(chunk_size=chunk_size):
-                            await f.write(chunk)
-                            await progress.update(len(chunk))
-
-                    await progress.close()
-                else:
-                    log.error('⚠ 网络错误')
-
-            subprocess.run(str(out_path))
-            os.rmdir(temp_path)
+            subprocess.run(str(setup_file), check=True)
+            for file in temp_path.iterdir():
+                file.unlink()
+            temp_path.rmdir()
     else:
-        log.info('✅ 未使用SteamTools，停止迁移')
+        log.info('✅ 未使用 SteamTools，停止迁移')
