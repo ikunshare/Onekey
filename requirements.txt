@@ -1,5 +1,5 @@
 aiofiles==24.1.0
-aiohttp==3.9.5
+aiohttp==3.10.2
 colorama==0.4.6
 colorlog==6.8.2
 tqdm==4.66.5
