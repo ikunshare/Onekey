@@ -1,6 +1,5 @@
-from aiohttp import ClientError, ClientResponse
+from aiohttp import ClientError
 from tqdm.asyncio import tqdm_asyncio
-from typing import Union
 
 from .log import log
 
@@ -37,7 +36,7 @@ async def get(sha: str, path: str, repo: str, session, chunk_size: int = 1024) -
                         total_size = int(response.headers.get('Content-Length', 0))
                         content = bytearray()
 
-                        with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'下载 {path}', colour='#ffadad') as pbar:
+                        with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'🔄 下载 {path}', colour='#ffadad') as pbar:
                             async for chunk in response.content.iter_chunked(chunk_size):
                                 content.extend(chunk)
                                 pbar.update(len(chunk))

@@ -36,5 +36,5 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
         
     except Exception as e:
         async with lock:
-            log.error(f'❗ 合并失败，原因: {e}')
+            log.error(f'❌ 合并失败，原因: {e}')
         return False

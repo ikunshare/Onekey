@@ -37,7 +37,7 @@ async def get_manifest(sha: str, path: str, steam_path: Path, repo: str, session
             ]
 
     except Exception as e:
-        log.error(f'❗ 处理失败: {path} - {stack_error(e)}')
+        log.error(f'❌ 处理失败: {path} - {stack_error(e)}')
         raise
 
     return collected_depots
