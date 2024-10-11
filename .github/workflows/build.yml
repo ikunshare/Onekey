@@ -80,4 +80,5 @@ jobs:
           -F caption="${{ github.actor }} created commit:\nCommit message: ${{ github.event.commits[0].message }}\n\nRepository: ${{ github.repository }}\n\nSee changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}" \
           -F parse_mode=Markdown \
           https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument
+      shell: cmd
 
