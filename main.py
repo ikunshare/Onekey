@@ -24,7 +24,7 @@ repos = [
 def check_system_msg():
     os_type = platform.system()
     try:
-        if not os_type == 'Windows':
+        if os_type != 'Windows':
             log.error(f'❌ 不用Windows你想上天？{os_type}')
     except Exception as e:
         log.error(f'❌ 获取系统类型失败：{stack_error(e)}')
