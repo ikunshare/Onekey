@@ -34,7 +34,7 @@ async def stool_add(depot_data: list, app_id: str) -> bool:
 
             log.info('✅ 处理完成')
         except Exception as e:
-            log.error(f'❗ 处理过程出现错误: {e}')
+            log.error(f'❌ 处理过程出现错误: {e}')
             return False
         finally:
             if lua_filepath.exists():
