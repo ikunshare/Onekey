@@ -75,4 +75,4 @@ jobs:
       
     - name: Upload to Telegram Channel
       run: |
-        curl -F chat_id=${{ secrets.TELEGRAM_TO }} \ -F document=@build/Onekey---v${{ env.PACKAGE_VERSION }}.exe \ -F caption="${{ github.actor }} created commit:\nCommit message: ${{ github.event.commits[0].message }}\n\nRepository: ${{ github.repository }}\n\nSee changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}" \ -F parse_mode=Markdown \ https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument
+        curl -F chat_id=${{ secrets.TELEGRAM_TO }} \ -F document=@build/Onekey---v${{ env.PACKAGE_VERSION }}.exe \ -F caption="${{ github.actor }} created commit:%0ACommit message: ${{ github.event.commits[0].message }}%0A%0ARepository: ${{ github.repository }}%0A%0ASee changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}" \ -F parse_mode=Markdown \ https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument
