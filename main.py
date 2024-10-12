@@ -26,14 +26,18 @@ def check_system_msg():
     try:
         if os_type != 'Windows':
             log.error(f'❌ 不用Windows你想上天？{os_type}')
+            sys.quit()
     except Exception as e:
         log.error(f'❌ 获取系统类型失败：{stack_error(e)}')
+        sys.quit()
     os_version = sys.getwindowsversion().major
     try:
         if os_version < 10:
             log.error(f'❌ 低于Windows10就别用了买台新电脑吧！当前版本：Windows {os_version}')
+            sys.quit()
     except Exception as e:
         log.error(f'❌ 获取系统版本失败：{stack_error(e)}')
+        sys.quit()
 
 def prompt_app_id():
         app_id = input(f"{Fore.CYAN}{Back.BLACK}{Style.BRIGHT}🤔 请输入游戏AppID：{Style.RESET_ALL}").strip()
