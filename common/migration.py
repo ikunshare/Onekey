@@ -33,7 +33,7 @@ async def download_setup_file(session) -> None:
 
 async def migrate(st_use: bool, session) -> None:
     if st_use:
-        log.info('🔄 检测到你正在使用 SteamTools，尝试迁移旧文件')
+        log.info('🔄 检测到你正在使用 SteamTools,尝试迁移旧文件')
 
         if directory.exists():
             for file in directory.iterdir():
@@ -46,7 +46,7 @@ async def migrate(st_use: bool, session) -> None:
                     except Exception as e:
                         log.error(f'⚠ 重命名失败 {file.name} -> {new_filename}: {e}')
         else:
-            log.error('⚠ 故障，正在重新安装 SteamTools')
+            log.error('⚠ 故障,正在重新安装 SteamTools')
             temp_path.mkdir(parents=True, exist_ok=True)
 
             await download_setup_file(session)
@@ -56,4 +56,4 @@ async def migrate(st_use: bool, session) -> None:
                 file.unlink()
             temp_path.rmdir()
     else:
-        log.info('✅ 未使用 SteamTools，停止迁移')
+        log.info('✅ 未使用 SteamTools,停止迁移')

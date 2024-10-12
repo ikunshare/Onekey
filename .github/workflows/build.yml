@@ -14,14 +14,12 @@ jobs:
     - name: Check out git repository
       uses: actions/checkout@v4
 
-    # Push tag to GitHub if package.json version's tag is not tagged
     - name: Get package version
       shell: powershell
       run: |
         $version = (Get-Content package.json | ConvertFrom-Json).version
         echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
   
-
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
       with:
@@ -65,14 +63,17 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
+        tag_name: v${{ env.PACKAGE_VERSION }}
+        files: build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
         prerelease: false
         draft: false
-        tag_name: v${{ env.PACKAGE_VERSION }}
-        files: |
-          build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
     - name: Upload to Telegram Channel
       run: |
-        curl -F chat_id=${{ secrets.TELEGRAM_TO }} \ -F document=@build/Onekey---v${{ env.PACKAGE_VERSION }}.exe \ -F caption="Onekey 's New Update ${{ env.PACKAGE_VERSION }}" \ -F parse_mode=Markdown \ https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument
+        & curl -F "chat_id=${{ secrets.TELEGRAM_TO }}" `
+            -F "document=@build/Onekey---v${{ env.PACKAGE_VERSION }}.exe" `
+            -F "caption=Onekey's New Update ${{ env.PACKAGE_VERSION }}" `
+            -F "parse_mode=Markdown" `
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument"

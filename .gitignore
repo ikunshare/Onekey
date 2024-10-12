@@ -170,3 +170,5 @@ config.json
 *.exe
 *.dll
 /main.dist
+/.vscode
+/.vs
