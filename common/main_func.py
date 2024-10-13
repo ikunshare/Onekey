@@ -1,5 +1,5 @@
 import os
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ConnectionTimeoutError
 
 from common.config import config
 from common.dkey_merge import depotkey_merge
@@ -21,6 +21,9 @@ async def fetch_branch_info(session, url, headers):
             return await response.json()
     except Exception as e:
         log.error(f'⚠ 获取信息失败: {stack_error(e)}')
+        return None
+    except ConnectionTimeoutError as e:
+        log.error(f'⚠ 获取信息时超时: {stack_error(e)}')
         return None
 
 async def get_latest_repo_info(session, repos, app_id, headers):

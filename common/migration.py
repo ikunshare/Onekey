@@ -1,5 +1,6 @@
 import subprocess
 import aiofiles
+from aiohttp import ConnectionTimeoutError
 from pathlib import Path
 from tqdm.asyncio import tqdm
 from .log import log
@@ -30,6 +31,8 @@ async def download_setup_file(session) -> None:
                 log.error('⚠ 网络错误，无法下载安装程序')
     except Exception as e:
         log.error(f'⚠ 下载失败: {e}')
+    except ConnectionTimeoutError as e:
+        log.error(f'⚠ 下载时超时: {e}')
 
 async def migrate(st_use: bool, session) -> None:
     if st_use:

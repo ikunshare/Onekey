@@ -1,6 +1,5 @@
 import time
-import ujson as json
-from aiohttp import ClientError
+from aiohttp import ClientError, ConnectionTimeoutError
 from .log import log
 from .stack_error import stack_error
 
@@ -26,5 +25,7 @@ async def check_github_api_rate_limit(headers, session):
     
     except ClientError as e:
         log.error(f'⚠ 检查Github API 请求数失败,{stack_error(e)}')
+    except ConnectionTimeoutError as e:
+        log.error(f'⚠ 检查Github API 请求数超时: {stack_error(e)}')
     except Exception as e:
         log.error(f'⚠ 发生错误: {stack_error(e)}')
