@@ -1,18 +1,22 @@
+import os
 from aiohttp import ClientError, ConnectionTimeoutError
 from tqdm.asyncio import tqdm_asyncio
 
 from .log import log
 
-
 async def get(sha: str, path: str, repo: str, session, chunk_size: int = 1024) -> bytearray:
-    url_list = [
-        f'https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}',
-        f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
-        f'https://raw.gitmirror.com/{repo}/{sha}/{path}',
-        f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
-        f'https://gh.akass.cn/{repo}/{sha}/{path}',
-        f'https://raw.githubusercontent.com/{repo}/{sha}/{path}'
-    ]
+    if os.environ.get('IS_CN') == 'yes':
+        url_list = [
+            f'https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}',
+            f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
+            f'https://raw.gitmirror.com/{repo}/{sha}/{path}',
+            f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
+            f'https://gh.akass.cn/{repo}/{sha}/{path}'
+        ]
+    else:
+        url_list = [
+            f'https://raw.githubusercontent.com/{repo}/{sha}/{path}'
+        ]
     retry = 3
     while retry > 0:
         for url in url_list:

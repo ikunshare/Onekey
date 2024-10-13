@@ -1,6 +1,7 @@
 import os
 from aiohttp import ClientSession, ConnectionTimeoutError
 
+from common.checkcn import checkcn
 from common.config import config
 from common.dkey_merge import depotkey_merge
 from common.migration import migrate
@@ -47,6 +48,8 @@ async def main(app_id: str, repos: list) -> bool:
         log.error(f'⚠ App ID无效')
         return False
     app_id = app_id_list[0]
+    
+    checkcn()
 
     async with ClientSession() as session:
         github_token = config.get("Github_Personal_Token", "")
