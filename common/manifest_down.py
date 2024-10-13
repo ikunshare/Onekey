@@ -8,8 +8,9 @@ async def get(sha: str, path: str, repo: str, session, chunk_size: int = 1024) -
     url_list = [
         f'https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}',
         f'https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}',
-        f'https://raw.kkgithub.com/{repo}/{sha}/{path}',
+        f'https://raw.gitmirror.com/{repo}/{sha}/{path}',
         f'https://raw.dgithub.xyz/{repo}/{sha}/{path}',
+        f'https://gh.akass.cn/{repo}/{sha}/{path}',
         f'https://raw.githubusercontent.com/{repo}/{sha}/{path}'
     ]
     retry = 3

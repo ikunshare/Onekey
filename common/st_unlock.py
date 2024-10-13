@@ -2,7 +2,6 @@ import os
 import asyncio
 import subprocess
 import aiofiles
-from pathlib import Path
 
 from .log import log
 from .get_steam_path import steam_path
