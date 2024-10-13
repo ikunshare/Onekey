@@ -66,6 +66,5 @@ pip install -r requirements.txt
 ## 社区和支持
 加入我们的社区，参与讨论和支持：
 - [GitHub Discussions](https://github.com/ikunshare/Onekey/discussions)
-- [Gitter Chat](https://gitter.im/ikunshare/Onekey)
 - [QQ](https://qm.qq.com/q/d7sWovfAGI)
-- [Telegram](https://t.me/ikunshare_group)
+- [Telegram](https://t.me/ikunshare_qun)
