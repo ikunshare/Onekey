@@ -9,7 +9,7 @@ lock = asyncio.Lock()
 async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
     if not config_path.exists():
         async with lock:
-            log.error('👋 Steam默认配置不存在,可能是没有登录账号')
+            log.error('👋 Steam默认配置不存在, 可能是没有登录账号')
         return False
 
     try:
@@ -21,7 +21,7 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
                 config.get('InstallConfigStore', {}).get('Software', {}).get('valve')
 
         if steam is None:
-            log.error('⚠ 找不到Steam配置,请检查配置文件')
+            log.error('⚠ 找不到Steam配置, 请检查配置文件')
             return False
         
         depots = steam.setdefault('depots', {})
@@ -34,7 +34,9 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
         log.info('✅ 成功合并')
         return True
         
+    except KeyboardInterrupt:
+        log.info("\n👋 程序已退出")
     except Exception as e:
         async with lock:
-            log.error(f'❌ 合并失败,原因: {e}')
+            log.error(f'❌ 合并失败, 原因: {e}')
         return False

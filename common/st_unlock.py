@@ -32,6 +32,8 @@ async def stool_add(depot_data: list, app_id: str) -> bool:
                 return False
 
             log.info('✅ 处理完成')
+        except KeyboardInterrupt:
+            log.info("\n👋 程序已退出")
         except Exception as e:
             log.error(f'❌ 处理过程出现错误: {e}')
             return False

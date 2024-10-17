@@ -16,10 +16,10 @@ def init():
     for line in banner_lines:
         print(line)
     
-    log.info('作者:ikun0014')
-    log.info('本项目采用GNU General Public License v3开源许可证')
-    log.info('版本:1.2.6')
-    log.info('项目仓库:https://github.com/ikunshare/Onekey')
-    log.info('官网:ikunshare.com')
-    log.warning('本项目完全开源免费,如果你在淘宝,QQ群内通过购买方式获得,赶紧回去骂商家死全家\n交流群组:\nhttps://qm.qq.com/q/d7sWovfAGI\nhttps://t.me/ikunshare_qun')
-    log.warning('如果本项目中的Emoji(即表情包)无法正常显示,请使用支持Emoji的终端(例如Windows Terminal)')
+    log.info(f'作者: {Fore.RED}{Back.BLACK}{Style.BRIGHT}ikun0014{Style.RESET_ALL}')
+    log.info(f'{Fore.RED}{Back.BLACK}{Style.BRIGHT}本项目采用GNU General Public License v3开源许可证，请勿用于商业用途{Style.RESET_ALL}')
+    log.info('版本: 1.2.9')
+    log.info(f'{Fore.RED}{Back.BLACK}{Style.BRIGHT}项目Github仓库: https://github.com/ikunshare/Onekey{Style.RESET_ALL}')
+    log.info('官网: ikunshare.com')
+    log.warning('本项目完全开源免费, 如果你在淘宝, QQ群内通过购买方式获得, 赶紧回去骂商家死全家\n交流群组:\n    https://t.me/ikunshare_qun')
+    log.warning('如果本项目中的Emoji(即表情包)无法正常显示, 请使用支持Emoji的终端(例如Windows Terminal)')

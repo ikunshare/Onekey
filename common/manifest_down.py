@@ -34,6 +34,8 @@ async def get(sha: str, path: str, repo: str, session, chunk_size: int = 1024) -
                         return content
                     else:
                         log.error(f'🔄 获取失败: {path} - 状态码: {response.status}')
+            except KeyboardInterrupt:
+                log.info("\n👋 程序已退出")
             except ClientError as e:
                 log.error(f'🔄 获取失败: {path} - 连接错误: {str(e)}')
             except ConnectionTimeoutError as e:

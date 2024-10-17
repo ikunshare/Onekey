@@ -36,6 +36,8 @@ async def get_manifest(sha: str, path: str, steam_path: Path, repo: str, session
                 for depot_id, depot_info in depots_config['depots'].items()
             ]
 
+    except KeyboardInterrupt:
+        log.info("\n👋 程序已退出")
     except Exception as e:
         log.error(f'❌ 处理失败: {path} - {stack_error(e)}')
         raise

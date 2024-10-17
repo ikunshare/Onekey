@@ -20,6 +20,8 @@ async def fetch_branch_info(session, url, headers):
     try:
         async with session.get(url, headers=headers, ssl=False) as response:
             return await response.json()
+    except KeyboardInterrupt:
+        log.info("\n👋 程序已退出")
     except Exception as e:
         log.error(f'⚠ 获取信息失败: {stack_error(e)}')
         return None
