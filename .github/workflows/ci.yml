@@ -43,37 +43,24 @@ jobs:
         windows-icon-from-ico: icon.jpg
         company-name: ikunshare
         product-name: Onekey
-        file-version: ${{ env.PACKAGE_VERSION }}
-        product-version: ${{ env.PACKAGE_VERSION }}
+        file-version: ${{ github.sha }}
+        product-version: ${{ github.sha }}
         file-description: 一个Steam仓库清单下载器
         copyright: Copyright © 2024 ikun0014
-        output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
+        output-file: Onekey_${{ github.sha }}.exe
         assume-yes-for-downloads: true
         output-dir: build
 
-    - name: Create git tag
-      uses: pkgdeps/git-tag-action@v3
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        github_repo: ${{ github.repository }}
-        version: ${{ env.PACKAGE_VERSION }}
-        git_commit_sha: ${{ github.sha }}
-        git_tag_prefix: "v"
-
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v${{ env.PACKAGE_VERSION }}
-        files: build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
-        prerelease: false
-        draft: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: Onekey_${{ github.sha }}.exe
+        path: build/Onekey_${{ github.sha }}.exe
 
     - name: Upload to Telegram Channel
       run: |
         & curl -F "chat_id=${{ secrets.TELEGRAM_TO }}" `
-            -F "document=@build/Onekey---v${{ env.PACKAGE_VERSION }}.exe" `
-            -F "caption=Onekey's New CI Build ${{ env.PACKAGE_VERSION }}" `
+            -F "document=@build/Onekey_${{ github.sha }}.exe" `
+            -F "caption=Onekey's New CI Build ${{ github.sha }}" `
             -F "parse_mode=Markdown" `
             "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument"
