@@ -33,16 +33,16 @@ async def get(sha: str, path: str, repo: str, session, chunk_size: int = 1024) -
                         
                         return content
                     else:
-                        log.error(f'🔄 获取失败: {path} - 状态码: {response.status}')
+                        log(f'🔄 获取失败: {path} - 状态码: {response.status}')
             except KeyboardInterrupt:
-                log.info("\n👋 程序已退出")
+                log("👋 程序已退出")
             except ClientError as e:
-                log.error(f'🔄 获取失败: {path} - 连接错误: {str(e)}')
+                log(f'🔄 获取失败: {path} - 连接错误: {str(e)}')
             except ConnectionTimeoutError as e:
-                log.error(f'🔄 连接超时: {url} - 错误: {str(e)}')
+                log(f'🔄 连接超时: {url} - 错误: {str(e)}')
         
         retry -= 1
-        log.warning(f'🔄 重试剩余次数: {retry} - {path}')
+        log(f'🔄 重试剩余次数: {retry} - {path}')
     
-    log.error(f'🔄 超过最大重试次数: {path}')
+    log(f'🔄 超过最大重试次数: {path}')
     raise Exception(f'🔄 无法下载: {path}')

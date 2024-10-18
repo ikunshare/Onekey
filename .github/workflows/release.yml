@@ -1,0 +1,80 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    if: contains(github.event.head_commit.message, '[release]')
+    permissions:
+      contents: write
+    runs-on: windows-2019
+    steps:
+    - name: Check out git repository
+      uses: actions/checkout@v4
+
+    - name: Get package version
+      shell: powershell
+      run: |
+        $version = (Get-Content package.json | ConvertFrom-Json).version
+        echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+  
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11.9
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install imageio
+        pip install -r requirements.txt
+
+    - name: Build
+      uses: Nuitka/Nuitka-Action@main
+      with:
+        nuitka-version: main
+        script-name: main.py
+        standalone: true
+        onefile: true
+        show-memory: true
+        windows-uac-admin: true
+        windows-icon-from-ico: icon.jpg
+        company-name: ikunshare
+        product-name: Onekey
+        file-version: ${{ env.PACKAGE_VERSION }}
+        product-version: ${{ env.PACKAGE_VERSION }}
+        file-description: 一个Steam仓库清单下载器
+        copyright: Copyright © 2024 ikun0014
+        output-file: Onekey---v${{ env.PACKAGE_VERSION }}.exe
+        assume-yes-for-downloads: true
+        output-dir: build
+
+    - name: Create git tag
+      uses: pkgdeps/git-tag-action@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_repo: ${{ github.repository }}
+        version: ${{ env.PACKAGE_VERSION }}
+        git_commit_sha: ${{ github.sha }}
+        git_tag_prefix: "v"
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.PACKAGE_VERSION }}
+        files: build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
+        prerelease: false
+        draft: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload to Telegram Channel
+      run: |
+        & curl -F "chat_id=${{ secrets.TELEGRAM_TO }}" `
+            -F "document=@build/Onekey---v${{ env.PACKAGE_VERSION }}.exe" `
+            -F "caption=Onekey's New Update ${{ env.PACKAGE_VERSION }}" `
+            -F "parse_mode=Markdown" `
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument"
