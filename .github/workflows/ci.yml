@@ -43,9 +43,7 @@ jobs:
         windows-icon-from-ico: icon.jpg
         company-name: ikunshare
         product-name: Onekey
-        file-version: ${{ github.sha }}
-        product-version: ${{ github.sha }}
-        file-description: 一个Steam仓库清单下载器
+        file-description: Beta_${{ github.sha }}
         copyright: Copyright © 2024 ikun0014
         output-file: Onekey_${{ github.sha }}.exe
         assume-yes-for-downloads: true
