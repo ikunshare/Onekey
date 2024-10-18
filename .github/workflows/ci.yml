@@ -43,6 +43,8 @@ jobs:
         windows-icon-from-ico: icon.jpg
         company-name: ikunshare
         product-name: Onekey
+        file-version: 0.0.0.0
+        product-version: 0.0.0.0
         file-description: Beta_${{ github.sha }}
         copyright: Copyright © 2024 ikun0014
         output-file: Onekey_${{ github.sha }}.exe
