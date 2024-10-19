@@ -28,5 +28,5 @@ async def greenluma_add(depot_id_list: list) -> bool:
         return True
 
     except Exception as e:
-        print(f'❌ 处理时出错: {e}')
+        print(f'处理时出错: {e}')
         return False

@@ -17,18 +17,18 @@ async def get_manifest(sha: str, path: str, steam_path: Path, repo: str, session
         if path.endswith('.manifest'):
             save_path = depot_cache_path / path
             if save_path.exists():
-                log.warning(f'👋 已存在清单: {save_path}')
+                log.warning(f'已存在清单: {save_path}')
                 return collected_depots
 
             content = await get(sha, path, repo, session)
-            log.info(f'🔄 清单下载成功: {path}')
+            log.info(f'清单下载成功: {path}')
 
             async with aiofiles.open(save_path, 'wb') as f:
                 await f.write(content)
 
         elif path == 'Key.vdf':
             content = await get(sha, path, repo, session)
-            log.info(f'🔄 密钥下载成功: {path}')
+            log.info(f'密钥下载成功: {path}')
 
             depots_config = vdf.loads(content.decode('utf-8'))
             collected_depots = [
@@ -37,9 +37,9 @@ async def get_manifest(sha: str, path: str, steam_path: Path, repo: str, session
             ]
 
     except KeyboardInterrupt:
-        log.info("\n👋 程序已退出")
+        log.info("程序已退出")
     except Exception as e:
-        log.error(f'❌ 处理失败: {path} - {stack_error(e)}')
+        log.error(f'处理失败: {path} - {stack_error(e)}')
         raise
 
     return collected_depots
