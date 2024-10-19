@@ -3,7 +3,7 @@ name: Build CI
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   build:
@@ -45,7 +45,7 @@ jobs:
         product-name: Onekey
         file-version: 0.0.0.0
         product-version: 0.0.0.0
-        file-description: Beta_${{ github.sha }}
+        file-description: Onekey_Beta_${{ github.sha }}
         copyright: Copyright © 2024 ikun0014
         output-file: Onekey_${{ github.sha }}.exe
         assume-yes-for-downloads: true
