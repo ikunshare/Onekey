@@ -12,7 +12,7 @@ setup_url = 'https://steamtools.net/res/SteamtoolsSetup.exe'
 setup_file = temp_path / 'SteamtoolsSetup.exe'
 
 async def download_setup_file(session) -> None:
-    log('🔄 开始下载 SteamTools 安装程序...')
+    log.info('🔄 开始下载 SteamTools 安装程序...')
     try:
         async with session.get(setup_url, stream=True) as r:
             if r.status == 200:
@@ -26,19 +26,19 @@ async def download_setup_file(session) -> None:
                         progress.update(len(chunk))
 
                 progress.close()
-                log('✅ 安装程序下载完成')
+                log.info('✅ 安装程序下载完成')
             else:
-                log('⚠ 网络错误，无法下载安装程序')
+                log.error('⚠ 网络错误，无法下载安装程序')
     except KeyboardInterrupt:
-        log("👋 程序已退出")
+        log.info("\n👋 程序已退出")
     except Exception as e:
-        log(f'⚠ 下载失败: {e}')
+        log.error(f'⚠ 下载失败: {e}')
     except ConnectionTimeoutError as e:
-        log(f'⚠ 下载时超时: {e}')
+        log.error(f'⚠ 下载时超时: {e}')
 
 async def migrate(st_use: bool, session) -> None:
     if st_use:
-        log('🔄 检测到你正在使用 SteamTools,尝试迁移旧文件')
+        log.info('🔄 检测到你正在使用 SteamTools,尝试迁移旧文件')
 
         if directory.exists():
             for file in directory.iterdir():
@@ -47,11 +47,11 @@ async def migrate(st_use: bool, session) -> None:
 
                     try:
                         file.rename(directory / new_filename)
-                        log(f'Renamed: {file.name} -> {new_filename}')
+                        log.info(f'Renamed: {file.name} -> {new_filename}')
                     except Exception as e:
-                        log(f'⚠ 重命名失败 {file.name} -> {new_filename}: {e}')
+                        log.error(f'⚠ 重命名失败 {file.name} -> {new_filename}: {e}')
         else:
-            log('⚠ 故障,正在重新安装 SteamTools')
+            log.error('⚠ 故障,正在重新安装 SteamTools')
             temp_path.mkdir(parents=True, exist_ok=True)
 
             await download_setup_file(session)
@@ -61,4 +61,4 @@ async def migrate(st_use: bool, session) -> None:
                 file.unlink()
             temp_path.rmdir()
     else:
-        log('✅ 未使用 SteamTools,停止迁移')
+        log.info('✅ 未使用 SteamTools,停止迁移')

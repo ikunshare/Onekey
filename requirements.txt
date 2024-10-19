@@ -1,8 +1,8 @@
 aiofiles==24.1.0
 aiohttp==3.10.2
 colorama==0.4.6
+colorlog==6.8.2
 Requests==2.32.3
-terminaltexteffects==0.11.0
 tqdm==4.66.5
 ujson==5.10.0
 vdf==3.4
