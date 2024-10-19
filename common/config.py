@@ -20,7 +20,7 @@ async def gen_config_file():
         
         log.info('🖱️ 程序可能为第一次启动或配置重置,请填写配置文件后重新启动程序')
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        log.info("\n 程序已退出")
     except Exception as e:
         log.error(f'配置文件生成失败,{stack_error(e)}')
 
@@ -35,7 +35,7 @@ async def load_config():
             config = json.loads(await f.read())
             return config
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        log.info("\n 程序已退出")
     except Exception as e:
         log.error(f"配置文件加载失败，原因: {stack_error(e)},重置配置文件中...")
         os.remove("./config.json")

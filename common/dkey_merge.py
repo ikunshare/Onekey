@@ -35,7 +35,7 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
         return True
         
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        log.info("\n 程序已退出")
     except Exception as e:
         async with lock:
             log.error(f'合并失败, 原因: {e}')

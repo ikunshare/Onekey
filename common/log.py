@@ -1,7 +1,7 @@
 import logging
 import colorlog
 
-LOG_FORMAT = '%(log_color)s[%(name)s][%(levelname)s]%(message)s'
+LOG_FORMAT = '%(log_color)s%(message)s'
 LOG_COLORS = {
     'INFO': 'cyan',
     'WARNING': 'yellow',

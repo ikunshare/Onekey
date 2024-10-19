@@ -18,7 +18,7 @@ def checkcn():
             return True
             
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        log.info("\n 程序已退出")
     except requests.RequestException as e:
         os.environ['IS_CN'] = 'yes'
         log.warning('检查服务器位置失败，已忽略，自动认为你在中国大陆')

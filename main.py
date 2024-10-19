@@ -34,7 +34,7 @@ async def main_loop():
             app_id = prompt_app_id()
             await main(app_id, repos)
         except KeyboardInterrupt:
-            log.info("程序已退出")
+            log.info("\n 程序已退出")
         except EOFError:
             break
 
@@ -43,7 +43,7 @@ async def run():
         log.info('App ID可以在SteamDB或Steam商店链接页面查看')
         await main_loop()
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        log.info("\n 程序已退出")
     except Exception as e:
         log.error(f'发生错误: {stack_error(e)}, 将在5秒后退出')
         await asyncio.sleep(5)
@@ -52,6 +52,6 @@ if __name__ == '__main__':
     try:
         asyncio.run(run())
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        log.info("\n 程序已退出")
     except SystemExit:
         sys.exit()
