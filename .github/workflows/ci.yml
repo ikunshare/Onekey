@@ -20,10 +20,10 @@ jobs:
         $version = (Get-Content package.json | ConvertFrom-Json).version
         echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
   
-    - name: Set up Python 3.13
+    - name: Set up Python 3.12
       uses: actions/setup-python@v3
       with:
-        python-version: 3.13
+        python-version: 3.12
 
     - name: Install dependencies
       run: |
@@ -34,7 +34,7 @@ jobs:
     - name: Build
       uses: Nuitka/Nuitka-Action@main
       with:
-        nuitka-version: hotfix/2.4.11
+        nuitka-version: latest
         script-name: main.py
         standalone: true
         onefile: true
