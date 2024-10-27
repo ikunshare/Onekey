@@ -11,6 +11,7 @@ temp_path = Path('./temp')
 setup_url = 'https://steamtools.net/res/SteamtoolsSetup.exe'
 setup_file = temp_path / 'SteamtoolsSetup.exe'
 
+
 async def download_setup_file(session) -> None:
     log.info('开始下载 SteamTools 安装程序...')
     try:
@@ -18,7 +19,8 @@ async def download_setup_file(session) -> None:
             if r.status == 200:
                 total_size = int(r.headers.get('Content-Length', 0))
                 chunk_size = 8192
-                progress = tqdm(total=total_size, unit='B', unit_scale=True, desc='下载安装程序')
+                progress = tqdm(total=total_size, unit='B',
+                                unit_scale=True, desc='下载安装程序')
 
                 async with aiofiles.open(setup_file, mode='wb') as f:
                     async for chunk in r.content.iter_chunked(chunk_size):
@@ -35,6 +37,7 @@ async def download_setup_file(session) -> None:
         log.error(f'下载失败: {e}')
     except ConnectionTimeoutError as e:
         log.error(f'下载时超时: {e}')
+
 
 async def migrate(st_use: bool, session) -> None:
     if st_use:

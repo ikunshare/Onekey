@@ -13,16 +13,18 @@ DEFAULT_CONFIG = {
     "教程": "https://ikunshare.com/Onekey_tutorial"
 }
 
+
 async def gen_config_file():
     try:
         async with aiofiles.open("./config.json", mode="w", encoding="utf-8") as f:
             await f.write(json.dumps(DEFAULT_CONFIG, indent=2, ensure_ascii=False, escape_forward_slashes=False))
-        
+
         log.info('🖱️ 程序可能为第一次启动或配置重置,请填写配置文件后重新启动程序')
     except KeyboardInterrupt:
         log.info("\n 程序已退出")
     except Exception as e:
         log.error(f'配置文件生成失败,{stack_error(e)}')
+
 
 async def load_config():
     if not os.path.exists('./config.json'):

@@ -1,6 +1,7 @@
 from .get_steam_path import steam_path
 from pathlib import Path
 
+
 async def greenluma_add(depot_id_list: list) -> bool:
     app_list_path = steam_path / 'AppList'
 
@@ -21,7 +22,8 @@ async def greenluma_add(depot_id_list: list) -> bool:
                 while index in depot_dict:
                     index += 1
 
-                (app_list_path / f'{index}.txt').write_text(str(depot_id), encoding='utf-8')
+                (app_list_path /
+                 f'{index}.txt').write_text(str(depot_id), encoding='utf-8')
 
                 depot_dict[index] = depot_id
 

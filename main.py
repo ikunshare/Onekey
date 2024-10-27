@@ -1,4 +1,5 @@
 import sys
+import os
 import asyncio
 import re
 
@@ -8,6 +9,9 @@ from common.log import log
 from common.stack_error import stack_error
 from common.init_text import init
 from common.main_func import main
+
+# 摘自https://github.com/MeoProject/lx-music-api-server
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 lock = asyncio.Lock()
 
@@ -20,13 +24,16 @@ repos = [
     'tymolu233/ManifestAutoUpdate',
 ]
 
+
 def prompt_app_id():
     while True:
-        app_id = input(f"{Fore.CYAN}{Back.BLACK}{Style.BRIGHT}请输入游戏AppID: {Style.RESET_ALL}").strip()
+        app_id = input(f"{Fore.CYAN}{Back.BLACK}{
+                       Style.BRIGHT}请输入游戏AppID: {Style.RESET_ALL}").strip()
         if re.match(r'^\d+$', app_id):
             return app_id
         else:
             print(f"{Fore.RED}无效的AppID, 请输入数字!{Style.RESET_ALL}")
+
 
 async def main_loop():
     while True:
@@ -37,6 +44,7 @@ async def main_loop():
             log.info("\n 程序已退出")
         except EOFError:
             break
+
 
 async def run():
     try:

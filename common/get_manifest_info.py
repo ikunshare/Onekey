@@ -10,7 +10,7 @@ from .stack_error import stack_error
 async def get_manifest(sha: str, path: str, steam_path: Path, repo: str, session) -> list:
     collected_depots = []
     depot_cache_path = steam_path / 'depotcache'
-    
+
     try:
         depot_cache_path.mkdir(exist_ok=True)
 

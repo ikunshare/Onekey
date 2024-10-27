@@ -8,6 +8,7 @@ from .get_steam_path import steam_path
 
 lock = asyncio.Lock()
 
+
 async def stool_add(depot_data: list, app_id: str) -> bool:
     lua_filename = f"{app_id}.lua"
     lua_filepath = steam_path / "config" / "stplug-in" / lua_filename
@@ -24,7 +25,7 @@ async def stool_add(depot_data: list, app_id: str) -> bool:
             log.info(f'正在处理文件: {lua_filepath}')
 
             result = subprocess.run(
-                [str(luapacka_path), str(lua_filepath)], 
+                [str(luapacka_path), str(lua_filepath)],
                 capture_output=True
             )
             if result.returncode != 0:

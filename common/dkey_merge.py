@@ -6,6 +6,7 @@ from .log import log
 
 lock = asyncio.Lock()
 
+
 async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
     if not config_path.exists():
         async with lock:
@@ -15,25 +16,26 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
     try:
         async with aiofiles.open(config_path, encoding='utf-8') as f:
             content = await f.read()
-        
+
         config = vdf.loads(content)
         steam = config.get('InstallConfigStore', {}).get('Software', {}).get('Valve') or \
-                config.get('InstallConfigStore', {}).get('Software', {}).get('valve')
+            config.get('InstallConfigStore', {}).get(
+                'Software', {}).get('valve')
 
         if steam is None:
             log.error('找不到Steam配置, 请检查配置文件')
             return False
-        
+
         depots = steam.setdefault('depots', {})
         depots.update(depots_config.get('depots', {}))
-        
+
         async with aiofiles.open(config_path, mode='w', encoding='utf-8') as f:
             new_context = vdf.dumps(config, pretty=True)
             await f.write(new_context)
 
         log.info('成功合并')
         return True
-        
+
     except KeyboardInterrupt:
         log.info("\n 程序已退出")
     except Exception as e:

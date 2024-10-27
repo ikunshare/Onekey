@@ -3,6 +3,7 @@ import requests
 from .log import log
 from .stack_error import stack_error
 
+
 def checkcn():
     try:
         req = requests.get('https://mips.kugou.com/check/iscn?&format=json')
@@ -10,13 +11,14 @@ def checkcn():
         body = req.json()
         scn = bool(body['flag'])
         if not scn:
-            log.info(f"您在非中国大陆地区({body['country']})上使用了项目, 已自动切换回Github官方下载CDN")
+            log.info(
+                f"您在非中国大陆地区({body['country']})上使用了项目, 已自动切换回Github官方下载CDN")
             os.environ['IS_CN'] = 'no'
             return False
         else:
             os.environ['IS_CN'] = 'yes'
             return True
-            
+
     except KeyboardInterrupt:
         log.info("\n 程序已退出")
     except requests.RequestException as e:

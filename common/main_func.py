@@ -13,8 +13,10 @@ from common.log import log
 from common.get_steam_path import steam_path
 from common.stack_error import stack_error
 
-isGreenLuma = any((steam_path / dll).exists() for dll in ['GreenLuma_2024_x86.dll', 'GreenLuma_2024_x64.dll', 'User32.dll'])
+isGreenLuma = any((steam_path / dll).exists()
+                  for dll in ['GreenLuma_2024_x86.dll', 'GreenLuma_2024_x64.dll', 'User32.dll'])
 isSteamTools = (steam_path / 'config' / 'stUI').is_dir()
+
 
 async def fetch_branch_info(session, url, headers):
     try:
@@ -28,6 +30,7 @@ async def fetch_branch_info(session, url, headers):
     except ConnectionTimeoutError as e:
         log.error(f'获取信息时超时: {stack_error(e)}')
         return None
+
 
 async def get_latest_repo_info(session, repos, app_id, headers):
     latest_date = None
@@ -44,32 +47,35 @@ async def get_latest_repo_info(session, repos, app_id, headers):
 
     return selected_repo, latest_date
 
+
 async def main(app_id: str, repos: list) -> bool:
     app_id_list = list(filter(str.isdecimal, app_id.strip().split('-')))
     if not app_id_list:
         log.error(f'App ID无效')
         return False
     app_id = app_id_list[0]
-    
+
     checkcn()
 
     async with ClientSession() as session:
         github_token = config.get("Github_Personal_Token", "")
-        headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
+        headers = {'Authorization': f'Bearer {
+            github_token}'} if github_token else None
         await check_github_api_rate_limit(headers, session)
 
         selected_repo, latest_date = await get_latest_repo_info(session, repos, app_id, headers)
 
         if selected_repo:
             log.info(f'选择清单仓库:{selected_repo}')
-            url = f'https://api.github.com/repos/{selected_repo}/branches/{app_id}'
+            url = f'https://api.github.com/repos/{
+                selected_repo}/branches/{app_id}'
             r_json = await fetch_branch_info(session, url, headers)
 
             if r_json and 'commit' in r_json:
                 sha = r_json['commit']['sha']
                 url = r_json['commit']['commit']['tree']['url']
                 r2_json = await fetch_branch_info(session, url, headers)
-                
+
                 if r2_json and 'tree' in r2_json:
                     collected_depots = []
                     for item in r2_json['tree']:
@@ -85,7 +91,8 @@ async def main(app_id: str, repos: list) -> bool:
                         if isGreenLuma:
                             await migrate(st_use=False, session=session)
                             await greenluma_add([app_id])
-                            depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
+                            depot_config = {'depots': {depot_id: {
+                                'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
                             await depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
                             if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
                                 log.info('找到GreenLuma,已添加解锁文件')
@@ -94,7 +101,7 @@ async def main(app_id: str, repos: list) -> bool:
                         log.info(f'入库成功: {app_id}')
                         os.system('pause')
                         return True
-            
+
         log.error(f'清单下载或生成失败: {app_id}')
         os.system('pause')
         return False

@@ -9,6 +9,7 @@ LOG_COLORS = {
     'CRITICAL': 'purple',
 }
 
+
 def init_log(level=logging.DEBUG) -> logging.Logger:
     logger = logging.getLogger('Onekey')
     logger.setLevel(level)
