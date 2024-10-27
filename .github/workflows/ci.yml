@@ -20,10 +20,10 @@ jobs:
         $version = (Get-Content package.json | ConvertFrom-Json).version
         echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
   
-    - name: Set up Python 3.11
+    - name: Set up Python 3.13
       uses: actions/setup-python@v3
       with:
-        python-version: 3.11.9
+        python-version: 3.13
 
     - name: Install dependencies
       run: |
