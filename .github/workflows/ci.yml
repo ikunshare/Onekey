@@ -34,7 +34,7 @@ jobs:
     - name: Build
       uses: Nuitka/Nuitka-Action@main
       with:
-        nuitka-version: latest
+        nuitka-version: main
         script-name: main.py
         standalone: true
         onefile: true
