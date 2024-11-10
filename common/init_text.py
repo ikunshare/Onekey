@@ -14,7 +14,7 @@ def init():
 
     log.info(f'作者: ikun0014')
     log.warning(f'本项目采用GNU General Public License v3开源许可证，请勿用于商业用途')
-    log.info(f'版本: 1.3.1')
+    log.info(f'版本: 1.3.2')
     log.info(f'项目Github仓库: https://github.com/ikunshare/Onekey')
     log.info(f'官网: ikunshare.com')
     log.warning(
