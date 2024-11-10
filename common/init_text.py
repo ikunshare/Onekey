@@ -1,8 +1,4 @@
 from .log import log
-from colorama import Fore, Back, Style, init
-
-init()
-
 
 def init():
     banner_lines = [

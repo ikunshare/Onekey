@@ -1,4 +1,5 @@
 import time
+import ujson as json
 from aiohttp import ClientError, ConnectionTimeoutError
 from .log import log
 from .stack_error import stack_error
@@ -9,7 +10,7 @@ async def check_github_api_rate_limit(headers, session):
 
     try:
         async with session.get(url, headers=headers, ssl=False) as r:
-            r_json = await r.json()
+            r_json = json.loads(await r.read())
 
             if r.status == 200:
                 rate_limit = r_json.get('rate', {})

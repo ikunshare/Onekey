@@ -1,14 +1,14 @@
 import os
-import requests
+import aiohttp
+import ujson as json
 from .log import log
 from .stack_error import stack_error
 
 
-def checkcn():
+async def checkcn(client) -> bool:
     try:
-        req = requests.get('https://mips.kugou.com/check/iscn?&format=json')
-        req.raise_for_status()
-        body = req.json()
+        req = await client.get('https://mips.kugou.com/check/iscn?&format=json')
+        body = json.loads(await req.read())
         scn = bool(body['flag'])
         if not scn:
             log.info(
@@ -21,7 +21,7 @@ def checkcn():
 
     except KeyboardInterrupt:
         log.info("\n 程序已退出")
-    except requests.RequestException as e:
+    except aiohttp.ClientError as e:
         os.environ['IS_CN'] = 'yes'
         log.warning('检查服务器位置失败，已忽略，自动认为你在中国大陆')
         log.warning(stack_error(e))

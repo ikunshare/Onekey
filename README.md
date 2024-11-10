@@ -11,10 +11,11 @@
 
 
 ## Onekey
- Onekey Steam Depot Manifest Downloader
+Onekey Steam Depot Manifest Downloader
 
 ## 使用方法
- 先去Release下最新发布，然后去steamtools官网下steamtools，日志会有点石介意别用
+去Releases处下载最新的发布，并且安装好SteamTools或者GreenLuma  
+然后打开Onekey输入App ID即可使用
 
 ## 开发
 本程序使用Python编程语言开发   
@@ -66,5 +67,4 @@ pip install -r requirements.txt
 ## 社区和支持
 加入我们的社区，参与讨论和支持：
 - [GitHub Discussions](https://github.com/ikunshare/Onekey/discussions)
-- [QQ](https://qm.qq.com/q/d7sWovfAGI)
 - [Telegram](https://t.me/ikunshare_qun)

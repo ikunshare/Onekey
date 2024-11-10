@@ -2,7 +2,6 @@ aiofiles==24.1.0
 aiohttp==3.10.10
 colorama==0.4.6
 colorlog==6.8.2
-Requests==2.32.3
-tqdm==4.66.5
+rich==13.9.4
 ujson==5.10.0
 vdf==3.4

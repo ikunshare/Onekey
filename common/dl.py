@@ -1,9 +1,7 @@
 import os
 from aiohttp import ClientError, ConnectionTimeoutError
-from tqdm.asyncio import tqdm_asyncio
-
+from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 from .log import log
-
 
 async def get(sha: str, path: str, repo: str, session, chunk_size: int = 1024) -> bytearray:
     if os.environ.get('IS_CN') == 'yes':
@@ -24,14 +22,20 @@ async def get(sha: str, path: str, repo: str, session, chunk_size: int = 1024) -
             try:
                 async with session.get(url, ssl=False) as response:
                     if response.status == 200:
-                        total_size = int(
-                            response.headers.get('Content-Length', 0))
+                        total_size = int(response.headers.get('Content-Length', 0))
                         content = bytearray()
 
-                        with tqdm_asyncio(total=total_size, unit='B', unit_scale=True, desc=f'下载 {path}', colour='#ffadad') as pbar:
+                        with Progress(
+                            TextColumn("[progress.description]{task.description}", style="#66CCFF"),
+                            BarColumn(style="#66CCFF", complete_style="#4CE49F", finished_style="#2FE9D9"),
+                            TextColumn("[progress.percentage]{task.percentage:>3.0f}%", style="#66CCFF"),
+                            TimeElapsedColumn(),
+                        ) as progress:
+                            task = progress.add_task(f"下载{path}中...", total=total_size)
+
                             async for chunk in response.content.iter_chunked(chunk_size):
                                 content.extend(chunk)
-                                pbar.update(len(chunk))
+                                progress.update(task, advance=len(chunk))
 
                         return content
                     else:

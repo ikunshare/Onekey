@@ -3,7 +3,7 @@ import aiofiles
 import vdf
 
 from .log import log
-from .manifest_down import get
+from .dl import get
 from .stack_error import stack_error
 
 

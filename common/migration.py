@@ -2,7 +2,7 @@ import subprocess
 import aiofiles
 from aiohttp import ConnectionTimeoutError
 from pathlib import Path
-from tqdm.asyncio import tqdm
+from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 from .log import log
 from .get_steam_path import steam_path
 
@@ -19,13 +19,19 @@ async def download_setup_file(session) -> None:
             if r.status == 200:
                 total_size = int(r.headers.get('Content-Length', 0))
                 chunk_size = 8192
-                progress = tqdm(total=total_size, unit='B',
-                                unit_scale=True, desc='下载安装程序')
+                with Progress(
+                    TextColumn("[progress.description]{task.description}", style="#66CCFF"),
+                    BarColumn(style="#66CCFF", complete_style="#4CE49F", finished_style="#2FE9D9"),
+                    TextColumn("[progress.percentage]{task.percentage:>3.0f}%", style="#66CCFF"),
+                    TimeElapsedColumn(),
+                ) as progress:
+                    
+                    task = progress.add_task(f"下载安装程序中...", total=total_size)
 
-                async with aiofiles.open(setup_file, mode='wb') as f:
-                    async for chunk in r.content.iter_chunked(chunk_size):
-                        await f.write(chunk)
-                        progress.update(len(chunk))
+                    async with aiofiles.open(setup_file, mode='wb') as f:
+                        async for chunk in r.content.iter_chunked(chunk_size):
+                            await f.write(chunk)
+                            progress.update(task, advance=len(chunk))
 
                 progress.close()
                 log.info('安装程序下载完成')
