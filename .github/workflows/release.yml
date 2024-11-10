@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-    if: contains(github.event.head_commit.message, '[release]')
     permissions:
       contents: write
     runs-on: windows-2019
@@ -61,13 +60,19 @@ jobs:
         git_commit_sha: ${{ github.sha }}
         git_tag_prefix: "v"
 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
+        path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ env.PACKAGE_VERSION }}
         files: build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
         prerelease: false
-        draft: false
+        draft: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
