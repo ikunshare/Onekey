@@ -9,7 +9,7 @@ jobs:
   sync:
     permissions:
       contents: write
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Sync to Gitee
       uses: Yikun/hub-mirror-action@master
