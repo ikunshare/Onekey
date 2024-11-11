@@ -19,7 +19,7 @@ Onekey Steam Depot Manifest Downloader
 
 ## 开发
 本程序使用Python编程语言开发   
-要求环境：   
+要求环境:    
 1.Python 3.10及以上   
 2.Windows 10及以上   
 3.使用Git进行版本管理   
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 ## 项目协议
  本项目基于 GPL-3.0 许可证发行，以下协议是对于 GPL-3.0 原协议的补充，如有冲突，以以下协议为准。
 
- 词语约定：“使用者”指签署本协议的使用者;“版权数据”指包括但不限于图像、音频、名字等在内的他人拥有所属版权的数据。
+ 词语约定: “使用者”指签署本协议的使用者;“版权数据”指包括但不限于图像、音频、名字等在内的他人拥有所属版权的数据。
 
  本项目的数据来源原理是从Steam官方的CDN服务器中拉取游戏清单数据，经过对数据简单地筛选与合并后进行展示，因此本项目不对数据的准确性负责。
  使用本项目的过程中可能会产生版权数据，对于这些版权数据，本项目不拥有它们的所有权，为了避免造成侵权，使用者务必在24 小时内清除使用本项目的过程中所产生的版权数据。
@@ -65,6 +65,6 @@ pip install -r requirements.txt
 查看 [FAQ](https://ikunshare.com/d/49) 获取常见问题的解答。
 
 ## 社区和支持
-加入我们的社区，参与讨论和支持：
+加入我们的社区，参与讨论和支持: 
 - [GitHub Discussions](https://github.com/ikunshare/Onekey/discussions)
 - [Telegram](https://t.me/ikunshare_qun)

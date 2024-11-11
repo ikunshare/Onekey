@@ -14,7 +14,7 @@ def get_steam_path() -> Path:
         custom_steam_path = config.get("Custom_Steam_Path", "").strip()
         return Path(custom_steam_path) if custom_steam_path else steam_path
     except KeyboardInterrupt:
-        log.info("\n 程序已退出")
+        log.info("程序已退出")
     except Exception as e:
         log.error(f'Steam路径获取失败, {stack_error(e)}, 请检查是否正确安装Steam')
         os.system('pause')

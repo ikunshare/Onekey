@@ -32,14 +32,14 @@ async def stool_add(depot_data: list, app_id: str) -> bool:
 
             log.info('处理完成')
         except KeyboardInterrupt:
-            log.info("\n 程序已退出")
+            log.info("程序已退出")
         except Exception as e:
             log.error(f'处理过程出现错误: {e}')
             return False
         finally:
             if lua_filepath.exists():
                 os.remove(lua_filepath)
-                log.info(f'🗑️ 删除临时文件: {lua_filepath}')
+                log.info(f'删除临时文件: {lua_filepath}')
 
     return True
 

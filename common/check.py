@@ -28,9 +28,9 @@ async def check_github_api_rate_limit(headers, session):
                 log.error('Github请求数检查失败, 网络错误')
 
     except KeyboardInterrupt:
-        log.info("\n 程序已退出")
+        log.info("程序已退出")
     except ClientError as e:
-        log.error(f'检查Github API 请求数失败,{stack_error(e)}')
+        log.error(f'检查Github API 请求数失败, {stack_error(e)}')
     except ConnectionTimeoutError as e:
         log.error(f'检查Github API 请求数超时: {stack_error(e)}')
     except Exception as e:

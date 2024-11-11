@@ -38,7 +38,7 @@ async def download_setup_file(session) -> None:
             else:
                 log.error('网络错误，无法下载安装程序')
     except KeyboardInterrupt:
-        log.info("\n 程序已退出")
+        log.info("程序已退出")
     except Exception as e:
         log.error(f'下载失败: {e}')
     except ConnectionTimeoutError as e:

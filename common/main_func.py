@@ -23,7 +23,7 @@ async def fetch_branch_info(session, url, headers) -> str | None:
         async with session.get(url, headers=headers, ssl=False) as response:
             return await response.json()
     except KeyboardInterrupt:
-        log.info("\n 程序已退出")
+        log.info("程序已退出")
     except Exception as e:
         log.error(f'获取信息失败: {stack_error(e)}')
         return None
@@ -88,7 +88,7 @@ async def main(app_id: str, repos: list) -> bool:
                         if isSteamTools:
                             await migrate(st_use=True, session=session)
                             await stool_add(collected_depots, app_id)
-                            log.info('找到SteamTools,已添加解锁文件')
+                            log.info('找到SteamTools, 已添加解锁文件')
 
                         if isGreenLuma:
                             await migrate(st_use=False, session=session)
@@ -97,9 +97,9 @@ async def main(app_id: str, repos: list) -> bool:
                                 'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
                             await depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
                             if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
-                                log.info('找到GreenLuma,已添加解锁文件')
+                                log.info('找到GreenLuma, 已添加解锁文件')
 
-                        log.info(f'清单最后更新时间:{latest_date}')
+                        log.info(f'清单最后更新时间: {latest_date}')
                         log.info(f'入库成功: {app_id}')
                         os.system('pause')
                         return True

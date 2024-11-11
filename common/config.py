@@ -9,7 +9,7 @@ from .log import log
 DEFAULT_CONFIG = {
     "Github_Personal_Token": "",
     "Custom_Steam_Path": "",
-    "QA1": "温馨提示：Github_Personal_Token可在Github设置的最底下开发者选项找到，详情看教程",
+    "QA1": "温馨提示: Github_Personal_Token可在Github设置的最底下开发者选项找到，详情看教程",
     "教程": "https://ikunshare.com/Onekey_tutorial"
 }
 
@@ -19,9 +19,9 @@ async def gen_config_file():
         async with aiofiles.open("./config.json", mode="w", encoding="utf-8") as f:
             await f.write(json.dumps(DEFAULT_CONFIG, indent=2, ensure_ascii=False, escape_forward_slashes=False))
 
-        log.info('🖱️ 程序可能为第一次启动或配置重置,请填写配置文件后重新启动程序')
+        log.info('程序可能为第一次启动或配置重置,请填写配置文件后重新启动程序')
     except KeyboardInterrupt:
-        log.info("\n 程序已退出")
+        log.info("程序已退出")
     except Exception as e:
         log.error(f'配置文件生成失败,{stack_error(e)}')
 
@@ -37,7 +37,7 @@ async def load_config():
             config = json.loads(await f.read())
             return config
     except KeyboardInterrupt:
-        log.info("\n 程序已退出")
+        log.info("程序已退出")
     except Exception as e:
         log.error(f"配置文件加载失败，原因: {stack_error(e)},重置配置文件中...")
         os.remove("./config.json")
