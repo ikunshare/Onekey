@@ -32,13 +32,12 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build
-      uses: Nuitka/Nuitka-Action@main
+      uses: Nuitka/Nuitka-Action@v1.1
       with:
         nuitka-version: main
         script-name: main.py
         standalone: true
         onefile: true
-        show-memory: true
         windows-uac-admin: true
         windows-icon-from-ico: icon.jpg
         company-name: ikunshare
