@@ -14,7 +14,6 @@ import vdf
 from typing import Any
 from pathlib import Path
 from colorama import init, Fore, Back, Style
-from rich.progress import Progress, BarColumn, TextColumn, TimeElapsedColumn
 
 init()
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -62,23 +61,26 @@ log = init_log()
 def init():
     """ 输出初始化信息 """
     banner_lines = [
-        f"  _____   __   _   _____   _   _    _____  __    __ ",
-        f" /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /",
-        f" | | | | |   \\| | | |__   | |/ /   | |__    \\ \\/ /",
-        f" | | | | | |\\   | |  __|  | |\\ \\   |  __|    \\  / ",
-        f" | |_| | | | \\  | | |___  | | \\ \\  | |___    / /",
-        f" \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/",
+        "  _____   __   _   _____   _   _    _____  __    __ ",
+        " /  _  \\ |  \\ | | | ____| | | / /  | ____| \\ \\  / /",
+        " | | | | |   \\| | | |__   | |/ /   | |__    \\ \\/ /",
+        " | | | | | |\\   | |  __|  | |\\ \\   |  __|    \\  / ",
+        " | |_| | | | \\  | | |___  | | \\ \\  | |___    / /",
+        " \\_____/ |_|  \\_| |_____| |_|  \\_\\ |_____|  /_/",
     ]
     for line in banner_lines:
         log.info(line)
 
-    log.info(f'作者: ikun0014')
-    log.warning(f'本项目采用GNU General Public License v3开源许可证, 请勿用于商业用途')
-    log.info(f'版本: 1.3.4')
-    log.info(f'项目Github仓库: https://github.com/ikunshare/Onekey \n Gitee: https://gitee.com/ikun0014/Onekey')
-    log.info(f'官网: ikunshare.com')
+    log.info('作者: ikun0014')
+    log.warning('本项目采用GNU General Public License v3开源许可证, 请勿用于商业用途')
+    log.info('版本: 1.3.5')
+    log.info(
+        '项目Github仓库: https://github.com/ikunshare/Onekey \n Gitee: https://gitee.com/ikun0014/Onekey'
+    )
+    log.info('官网: ikunshare.com')
     log.warning(
-        f'本项目完全开源免费, 如果你在淘宝, QQ群内通过购买方式获得, 赶紧回去骂商家死全家\n   交流群组:\n    https://t.me/ikunshare_qun')
+        '本项目完全开源免费, 如果你在淘宝, QQ群内通过购买方式获得, 赶紧回去骂商家死全家\n   交流群组:\n    https://t.me/ikunshare_qun'
+    )
     log.info('App ID可以在SteamDB, SteamUI或Steam商店链接页面查看')
 
 
@@ -126,6 +128,11 @@ config = asyncio.run(load_config())
 
 
 async def check_github_api_rate_limit(headers):
+    """ 检查Github请求数 """
+
+    if headers != None:
+        log.info(f"您已配置Github Token")
+
     url = 'https://api.github.com/rate_limit'
     try:
         r = await client.get(url, headers=headers)
@@ -210,7 +217,7 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
         return False
 
 
-async def get(sha: str, path: str, repo: str, chunk_size: int = 1024) -> bytearray:
+async def get(sha: str, path: str, repo: str):
     if os.environ.get('IS_CN') == 'yes':
         url_list = [
             f'https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}',
@@ -229,27 +236,9 @@ async def get(sha: str, path: str, repo: str, chunk_size: int = 1024) -> bytearr
             try:
                 r = await client.get(url, timeout=30)
                 if r.status_code == 200:
-                    total_size = int(
-                        r.headers.get('Content-Length', 0))
-                    content = bytearray()
-                    with Progress(
-                        TextColumn(
-                            "[progress.description]{task.description}", style="#66CCFF"),
-                        BarColumn(
-                            style="#66CCFF", complete_style="#4CE49F", finished_style="#2FE9D9"),
-                        TextColumn(
-                            "[progress.percentage]{task.percentage:>3.0f}%", style="#66CCFF"),
-                        TimeElapsedColumn(),
-                    ) as progress:
-                        task = progress.add_task(
-                            f"下载{path}中...", total=total_size)
-                        async for chunk in r.aiter_bytes(chunk_size):
-                            content.extend(chunk)
-                            progress.update(task, advance=len(chunk))
-                    return content
+                    return r.read()
                 else:
-                    log.error(
-                        f'获取失败: {path} - 状态码: {r.status_code}')
+                    log.error(f'获取失败: {path} - 状态码: {r.status_code}')
             except KeyboardInterrupt:
                 log.info("程序已退出")
             except httpx.ConnectError as e:
@@ -324,23 +313,8 @@ async def download_setup_file() -> None:
     try:
         r = await client.get(setup_url, timeout=30)
         if r.status_code == 200:
-            total_size = int(r.headers.get('Content-Length', 0))
-            chunk_size = 8192
-            with Progress(
-                TextColumn(
-                    "[progress.description]{task.description}", style="#66CCFF"),
-                BarColumn(
-                    style="#66CCFF", complete_style="#4CE49F", finished_style="#2FE9D9"),
-                TextColumn(
-                    "[progress.percentage]{task.percentage:>3.0f}%", style="#66CCFF"),
-                TimeElapsedColumn(),
-            ) as progress:
-                task = progress.add_task(
-                    f"下载安装程序中...", total=total_size)
-                async with aiofiles.open(setup_file, mode='wb') as f:
-                    async for chunk in r.aiter_bytes(chunk_size):
-                        await f.write(chunk)
-                        progress.update(task, advance=len(chunk))
+            async with aiofiles.open(setup_file, mode='wb') as f:
+                await f.write(r.read())
             log.info('安装程序下载完成')
         else:
             log.error(f'网络错误，无法下载安装程序，状态码: {r.status_code}')
@@ -517,15 +491,14 @@ async def main(app_id: str, repos: list) -> bool:
 if __name__ == '__main__':
     init()
     try:
-        while True:
-            repos = [
-                'ikun0014/ManifestHub',
-                'Auiowu/ManifestAutoUpdate',
-                'tymolu233/ManifestAutoUpdate',
-            ]
-            app_id = input(f"{Fore.CYAN}{Back.BLACK}{
-                           Style.BRIGHT}请输入游戏AppID: {Style.RESET_ALL}").strip()
-            asyncio.run(main(app_id, repos))
+        repos = [
+            'ikun0014/ManifestHub',
+            'Auiowu/ManifestAutoUpdate',
+            'tymolu233/ManifestAutoUpdate',
+        ]
+        app_id = input(f"{Fore.CYAN}{Back.BLACK}{
+                       Style.BRIGHT}请输入游戏AppID: {Style.RESET_ALL}").strip()
+        asyncio.run(main(app_id, repos))
     except KeyboardInterrupt:
         log.info("程序已退出")
     except SystemExit:
