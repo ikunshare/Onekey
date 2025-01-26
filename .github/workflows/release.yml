@@ -36,11 +36,11 @@ jobs:
       with:
         nuitka-version: main
         script-name: main.py
-        mode: standalone
+        mode: onefile
         show-memory: true
         windows-uac-admin: true
         onefile-tempdir-spec: "%TEMP%\\onekey_%PID%_%TIME%"
-        windows-icon-from-ico: res/icon.jpg
+        windows-icon-from-ico: icon.jpg
         company-name: ikunshare
         product-name: Onekey
         file-version: ${{ env.PACKAGE_VERSION }}
