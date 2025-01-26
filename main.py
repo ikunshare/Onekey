@@ -19,7 +19,7 @@ init()
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 lock = asyncio.Lock()
-client = httpx.AsyncClient(trust_env=True)
+client = httpx.AsyncClient(verify=False)
 
 
 DEFAULT_CONFIG = {
@@ -73,7 +73,7 @@ def init():
 
     log.info('作者: ikun0014')
     log.warning('本项目采用GNU General Public License v3开源许可证, 请勿用于商业用途')
-    log.info('版本: 1.3.5')
+    log.info('版本: 1.3.6')
     log.info(
         '项目Github仓库: https://github.com/ikunshare/Onekey \n Gitee: https://gitee.com/ikun0014/Onekey'
     )
@@ -104,7 +104,7 @@ async def gen_config_file():
         log.error(f'配置文件生成失败,{stack_error(e)}')
 
 
-async def load_config():
+async def load_config() -> dict:
     """ 加载配置文件 """
     if not os.path.exists('./config.json'):
         await gen_config_file()
@@ -145,8 +145,7 @@ async def check_github_api_rate_limit(headers):
                 '%Y-%m-%d %H:%M:%S', time.localtime(reset_time))
             log.info(f'剩余请求次数: {remaining_requests}')
             if remaining_requests == 0:
-                log.warning(f'GitHub API 请求数已用尽, 将在 {
-                            reset_time_formatted} 重置,建议生成一个填在配置文件里')
+                log.warning(f'GitHub API 请求数已用尽, 将在 {reset_time_formatted} 重置,建议生成一个填在配置文件里')
         else:
             log.error('Github请求数检查失败, 网络错误')
     except KeyboardInterrupt:
@@ -192,9 +191,7 @@ async def depotkey_merge(config_path: Path, depots_config: dict) -> bool:
             content = await f.read()
 
         config = vdf.loads(content)
-        steam = config.get('InstallConfigStore', {}).get('Software', {}).get('Valve') or \
-            config.get('InstallConfigStore', {}).get(
-                'Software', {}).get('valve')
+        steam = config.get('InstallConfigStore', {}).get('Software', {}).get('Valve') or config.get('InstallConfigStore', {}).get('Software', {}).get('valve')
 
         if steam is None:
             log.error('找不到Steam配置, 请检查配置文件')
@@ -271,9 +268,10 @@ async def get_manifest(sha: str, path: str, steam_path: Path, repo: str) -> list
             content = await get(sha, path, repo)
             log.info(f'密钥下载成功: {path}')
             depots_config = vdf.loads(content.decode('utf-8'))
+            depots = dict(depots_config.get('depots'))
             collected_depots = [
                 (depot_id, depot_info['DecryptionKey'])
-                for depot_id, depot_info in depots_config['depots'].items()
+                for depot_id, depot_info in depots.items()
             ]
     except KeyboardInterrupt:
         log.info("程序已退出")
@@ -298,22 +296,21 @@ def get_steam_path() -> Path:
         return Path()
 
 
-steam_path = get_steam_path()
-isGreenLuma = any((steam_path / dll).exists()
-                  for dll in ['GreenLuma_2024_x86.dll', 'GreenLuma_2024_x64.dll', 'User32.dll'])
-isSteamTools = (steam_path / 'config' / 'stUI').is_dir()
-directory = Path(steam_path) / "config" / "stplug-in"
-temp_path = Path('./temp')
-setup_url = 'https://steamtools.net/res/SteamtoolsSetup.exe'
-setup_file = temp_path / 'SteamtoolsSetup.exe'
+SP = get_steam_path()
+GL = any((SP / dll).exists() for dll in ['GreenLuma_2024_x86.dll', 'GreenLuma_2024_x64.dll', 'User32.dll'])
+ST = (SP / 'config' / 'stUI').is_dir()
+ST_PT = Path(SP) / "config" / "stplug-in"
+TP = Path('./temp')
+ST_STP_URL = 'https://steamtools.net/res/SteamtoolsSetup.exe'
+STP_FILE = TP / 'SteamtoolsSetup.exe'
 
 
 async def download_setup_file() -> None:
     log.info('开始下载 SteamTools 安装程序...')
     try:
-        r = await client.get(setup_url, timeout=30)
+        r = await client.get(ST_STP_URL, timeout=30)
         if r.status_code == 200:
-            async with aiofiles.open(setup_file, mode='wb') as f:
+            async with aiofiles.open(STP_FILE, mode='wb') as f:
                 await f.write(r.read())
             log.info('安装程序下载完成')
         else:
@@ -326,37 +323,34 @@ async def download_setup_file() -> None:
         log.error(f'下载失败: {e}')
 
 
-async def migrate(st_use: bool) -> None:
+async def migrate() -> None:
     try:
-        if st_use:
-            log.info('检测到你正在使用 SteamTools,尝试迁移旧文件')
-            if directory.exists():
-                for file in directory.iterdir():
-                    if file.is_file() and file.name.startswith("Onekey_unlock_"):
-                        new_filename = file.name[len("Onekey_unlock_"):]
-                        try:
-                            file.rename(directory / new_filename)
-                            log.info(f'Renamed: {file.name} -> {new_filename}')
-                        except Exception as e:
-                            log.error(
-                                f'重命名失败 {file.name} -> {new_filename}: {e}')
-            else:
-                log.error('故障,正在重新安装 SteamTools')
-                temp_path.mkdir(parents=True, exist_ok=True)
-                await download_setup_file(client)
-                subprocess.run(str(setup_file), check=True)
-                for file in temp_path.iterdir():
-                    file.unlink()
-                temp_path.rmdir()
+        log.info('检测到你正在使用 SteamTools,尝试迁移旧文件')
+        if SP.exists():
+            for file in SP.iterdir():
+                if file.is_file() and file.name.startswith("Onekey_unlock_"):
+                    new_filename = file.name[len("Onekey_unlock_"):]
+                    try:
+                        file.rename(SP / new_filename)
+                        log.info(f'Renamed: {file.name} -> {new_filename}')
+                    except Exception as e:
+                        log.error(
+                            f'重命名失败 {file.name} -> {new_filename}: {e}')
         else:
-            log.info('未使用 SteamTools,停止迁移')
+            log.error('故障,正在重新安装 SteamTools')
+            TP.mkdir(parents=True, exist_ok=True)
+            await download_setup_file(client)
+            subprocess.run(str(STP_FILE), check=True)
+            for file in TP.iterdir():
+                file.unlink()
+            TP.rmdir()
     except KeyboardInterrupt:
         log.info("程序已退出")
 
 
 async def stool_add(depot_data: list, app_id: str) -> bool:
     lua_filename = f"{app_id}.lua"
-    lua_filepath = steam_path / "config" / "stplug-in" / lua_filename
+    lua_filepath = SP / "config" / "stplug-in" / lua_filename
     async with lock:
         log.info(f'SteamTools 解锁文件生成: {lua_filepath}')
         try:
@@ -364,7 +358,7 @@ async def stool_add(depot_data: list, app_id: str) -> bool:
                 await lua_file.write(f'addappid({app_id}, 1, "None")\n')
                 for depot_id, depot_key in depot_data:
                     await lua_file.write(f'addappid({depot_id}, 1, "{depot_key}")\n')
-            luapacka_path = steam_path / "config" / "stplug-in" / "luapacka.exe"
+            luapacka_path = SP / "config" / "stplug-in" / "luapacka.exe"
             log.info(f'正在处理文件: {lua_filepath}')
             result = subprocess.run(
                 [str(luapacka_path), str(lua_filepath)],
@@ -387,7 +381,7 @@ async def stool_add(depot_data: list, app_id: str) -> bool:
 
 
 async def greenluma_add(depot_id_list: list) -> bool:
-    app_list_path = steam_path / 'AppList'
+    app_list_path = SP / 'AppList'
     try:
         app_list_path.mkdir(parents=True, exist_ok=True)
         for file in app_list_path.glob('*.txt'):
@@ -446,8 +440,7 @@ async def main(app_id: str, repos: list) -> bool:
         return False
     app_id = app_id_list[0]
     github_token = config.get("Github_Personal_Token", "")
-    headers = {'Authorization': f'Bearer {
-        github_token}'} if github_token else None
+    headers = {'Authorization': f'Bearer {github_token}'} if github_token else None
     await checkcn()
     await check_github_api_rate_limit(headers)
     selected_repo, latest_date = await get_latest_repo_info(repos, app_id, headers)
@@ -462,19 +455,17 @@ async def main(app_id: str, repos: list) -> bool:
             if (r2_json) and ('tree' in r2_json):
                 collected_depots = []
                 for item in r2_json['tree']:
-                    result = await get_manifest(sha, item['path'], steam_path, selected_repo)
+                    result = await get_manifest(sha, item['path'], SP, selected_repo)
                     collected_depots.extend(result)
                 if collected_depots:
-                    if isSteamTools:
-                        await migrate(st_use=True)
+                    if ST:
+                        await migrate()
                         await stool_add(collected_depots, app_id)
                         log.info('找到SteamTools, 已添加解锁文件')
-                    elif isGreenLuma:
-                        await migrate(st_use=False)
+                    elif GL:
                         await greenluma_add([app_id])
-                        depot_config = {'depots': {depot_id: {
-                            'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
-                        await depotkey_merge(steam_path / 'config' / 'config.vdf', depot_config)
+                        depot_config = {'depots': {depot_id: {'DecryptionKey': depot_key} for depot_id, depot_key in collected_depots}}
+                        await depotkey_merge(SP / 'config' / 'config.vdf', depot_config)
                         if await greenluma_add([int(i) for i in depot_config['depots'] if i.isdecimal()]):
                             log.info('找到GreenLuma, 已添加解锁文件')
                     log.info(f'清单最后更新时间: {latest_date}')
@@ -494,10 +485,8 @@ if __name__ == '__main__':
         repos = [
             'ikun0014/ManifestHub',
             'Auiowu/ManifestAutoUpdate',
-            'tymolu233/ManifestAutoUpdate',
         ]
-        app_id = input(f"{Fore.CYAN}{Back.BLACK}{
-                       Style.BRIGHT}请输入游戏AppID: {Style.RESET_ALL}").strip()
+        app_id = input(f"{Fore.CYAN}{Back.BLACK}{Style.BRIGHT}请输入游戏AppID: {Style.RESET_ALL}").strip()
         asyncio.run(main(app_id, repos))
     except KeyboardInterrupt:
         log.info("程序已退出")

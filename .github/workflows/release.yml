@@ -32,14 +32,15 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build
-      uses: Nuitka/Nuitka-Action@v1.1
+      uses: Nuitka/Nuitka-Action@main
       with:
         nuitka-version: main
         script-name: main.py
-        standalone: true
-        onefile: true
+        mode: standalone
+        show-memory: true
         windows-uac-admin: true
-        windows-icon-from-ico: icon.jpg
+        onefile-tempdir-spec: "%TEMP%\\onekey_%PID%_%TIME%"
+        windows-icon-from-ico: res/icon.jpg
         company-name: ikunshare
         product-name: Onekey
         file-version: ${{ env.PACKAGE_VERSION }}
