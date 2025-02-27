@@ -1,8 +1,8 @@
 DEFAULT_CONFIG = {
     "Github_Personal_Token": "",
     "Custom_Steam_Path": "",
-    "QA1": "Github Personal Token¿ÉÔÚGitHubÉèÖÃµÄDeveloper settingsÖĞÉú³É",
-    "½Ì³Ì": "https://ikunshare.com/Onekey_tutorial",
+    "QA1": "Github Personal Tokenå¯åœ¨GitHubè®¾ç½®çš„Developer settingsä¸­ç”Ÿæˆ",
+    "æ•™ç¨‹": "https://ikunshare.com/Onekey_tutorial",
 }
 
 import platform
@@ -22,16 +22,16 @@ from enum import Enum
 
 
 class RepoChoice(Enum):
-    IKUN = ("ikun0014/ManifestHub", "ÒÑ¶Ï¸üµÄ¾É²Ö¿â")
-    AUIOWU = ("Auiowu/ManifestAutoUpdate", "Î´ÖªÎ¬»¤×´Ì¬µÄ²Ö¿â")
-    STEAM_AUTO = ("SteamAutoCracks/ManifestHub", "¹Ù·½ÍÆ¼ö²Ö¿â")
+    IKUN = ("ikun0014/ManifestHub", "å·²æ–­æ›´çš„æ—§ä»“åº“")
+    AUIOWU = ("Auiowu/ManifestAutoUpdate", "æœªçŸ¥ç»´æŠ¤çŠ¶æ€çš„ä»“åº“")
+    STEAM_AUTO = ("SteamAutoCracks/ManifestHub", "å®˜æ–¹æ¨èä»“åº“")
 
 
 DEFAULT_CONFIG = {
     "Github_Personal_Token": "",
     "Custom_Steam_Path": "",
-    "QA1": "Github Personal Token¿ÉÔÚGitHubÉèÖÃµÄDeveloper settingsÖĞÉú³É",
-    "½Ì³Ì": "https://ikunshare.com/Onekey_tutorial",
+    "QA1": "Github Personal Tokenå¯åœ¨GitHubè®¾ç½®çš„Developer settingsä¸­ç”Ÿæˆ",
+    "æ•™ç¨‹": "https://ikunshare.com/Onekey_tutorial",
 }
 
 DEFAULT_REPO = RepoChoice.STEAM_AUTO
@@ -45,7 +45,7 @@ log = logzero.setup_logger("Onekey")
 
 
 def init() -> None:
-    """³õÊ¼»¯¿ØÖÆÌ¨Êä³ö"""
+    """åˆå§‹åŒ–æ§åˆ¶å°è¾“å‡º"""
     banner = r"""
     _____   __   _   _____   _   _    _____  __    __ 
    /  _  \ |  \ | | | ____| | | / /  | ____| \ \  / /
@@ -55,55 +55,55 @@ def init() -> None:
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
     print(banner)
-    print("×÷Õß: ikun0014 | °æ±¾: 1.3.7 | ¹ÙÍø: ikunshare.com")
-    print("ÏîÄ¿²Ö¿â: GitHub: https://github.com/ikunshare/Onekey")
-    print("ÌáÊ¾: ÇëÈ·±£ÒÑ°²×°×îĞÂ°æWindows 10/11²¢ÕıÈ·ÅäÖÃSteam")
+    print("ä½œè€…: ikun0014 | ç‰ˆæœ¬: 1.3.7 | å®˜ç½‘: ikunshare.com")
+    print("é¡¹ç›®ä»“åº“: GitHub: https://github.com/ikunshare/Onekey")
+    print("æç¤º: è¯·ç¡®ä¿å·²å®‰è£…æœ€æ–°ç‰ˆWindows 10/11å¹¶æ­£ç¡®é…ç½®Steam")
 
 
 def validate_windows_version() -> None:
-    """ÑéÖ¤Windows°æ±¾"""
+    """éªŒè¯Windowsç‰ˆæœ¬"""
     if platform.system() != "Windows":
-        log.error("½öÖ§³ÖWindows²Ù×÷ÏµÍ³")
+        log.error("ä»…æ”¯æŒWindowsæ“ä½œç³»ç»Ÿ")
         sys.exit(1)
 
     release = platform.uname().release
     if release not in WINDOWS_VERSIONS:
-        log.error(f"ĞèÒªWindows 10/11£¬µ±Ç°°æ±¾: Windows {release}")
+        log.error(f"éœ€è¦Windows 10/11ï¼Œå½“å‰ç‰ˆæœ¬: Windows {release}")
         sys.exit(1)
 
 
 async def load_config() -> Dict[str, Any]:
-    """Òì²½¼ÓÔØÅäÖÃÎÄ¼ş"""
+    """å¼‚æ­¥åŠ è½½é…ç½®æ–‡ä»¶"""
     if not CONFIG_PATH.exists():
         await generate_config()
-        log.info("ÇëÌîĞ´ÅäÖÃÎÄ¼şºóÖØĞÂÔËĞĞ³ÌĞò")
+        log.info("è¯·å¡«å†™é…ç½®æ–‡ä»¶åé‡æ–°è¿è¡Œç¨‹åº")
         sys.exit(0)
 
     try:
         async with aiofiles.open(CONFIG_PATH, "r", encoding="utf-8") as f:
             return json.loads(await f.read())
     except json.JSONDecodeError:
-        log.error("ÅäÖÃÎÄ¼şËğ»µ£¬ÕıÔÚÖØĞÂÉú³É...")
+        log.error("é…ç½®æ–‡ä»¶æŸåï¼Œæ­£åœ¨é‡æ–°ç”Ÿæˆ...")
         await generate_config()
         sys.exit(1)
     except Exception as e:
-        log.error(f"ÅäÖÃ¼ÓÔØÊ§°Ü: {str(e)}")
+        log.error(f"é…ç½®åŠ è½½å¤±è´¥: {str(e)}")
         sys.exit(1)
 
 
 async def generate_config() -> None:
-    """Éú³ÉÄ¬ÈÏÅäÖÃÎÄ¼ş"""
+    """ç”Ÿæˆé»˜è®¤é…ç½®æ–‡ä»¶"""
     try:
         async with aiofiles.open(CONFIG_PATH, "w", encoding="utf-8") as f:
             await f.write(json.dumps(DEFAULT_CONFIG, indent=2, ensure_ascii=False))
-        log.info("ÅäÖÃÎÄ¼şÒÑÉú³É")
+        log.info("é…ç½®æ–‡ä»¶å·²ç”Ÿæˆ")
     except IOError as e:
-        log.error(f"ÅäÖÃÎÄ¼ş´´½¨Ê§°Ü: {str(e)}")
+        log.error(f"é…ç½®æ–‡ä»¶åˆ›å»ºå¤±è´¥: {str(e)}")
         sys.exit(1)
 
 
 def get_steam_path(config: Dict) -> Path:
-    """»ñÈ¡Steam°²×°Â·¾¶"""
+    """è·å–Steamå®‰è£…è·¯å¾„"""
     try:
         if custom_path := config.get("Custom_Steam_Path"):
             return Path(custom_path)
@@ -111,23 +111,23 @@ def get_steam_path(config: Dict) -> Path:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, STEAM_REG_PATH) as key:
             return Path(winreg.QueryValueEx(key, "SteamPath")[0])
     except Exception as e:
-        log.error(f"SteamÂ·¾¶»ñÈ¡Ê§°Ü: {str(e)}")
+        log.error(f"Steamè·¯å¾„è·å–å¤±è´¥: {str(e)}")
         sys.exit(1)
 
 
 async def download_key(file_path: str, repo: str, sha: str) -> bytes:
-    """ÏÂÔØÃÜÔ¿ÎÄ¼ş"""
+    """ä¸‹è½½å¯†é’¥æ–‡ä»¶"""
     try:
         return await fetch_from_cdn(file_path, repo, sha)
     except Exception as e:
-        log.error(f"ÃÜÔ¿ÏÂÔØÊ§°Ü: {str(e)}")
+        log.error(f"å¯†é’¥ä¸‹è½½å¤±è´¥: {str(e)}")
         raise
 
 
 async def handle_depot_files(
     repo: str, app_id: str, steam_path: Path
 ) -> List[Tuple[str, str]]:
-    """´¦ÀíÇåµ¥ÎÄ¼şºÍÃÜÔ¿"""
+    """å¤„ç†æ¸…å•æ–‡ä»¶å’Œå¯†é’¥"""
     collected = []
     try:
         async with httpx.AsyncClient() as client:
@@ -154,27 +154,27 @@ async def handle_depot_files(
                     )
                     collected.extend(parse_key_vdf(key_content))
     except httpx.HTTPStatusError as e:
-        log.error(f"HTTP´íÎó: {e.response.status_code}")
+        log.error(f"HTTPé”™è¯¯: {e.response.status_code}")
     except Exception as e:
-        log.error(f"ÎÄ¼ş´¦ÀíÊ§°Ü: {str(e)}")
+        log.error(f"æ–‡ä»¶å¤„ç†å¤±è´¥: {str(e)}")
     return collected
 
 
 async def download_manifest(path: str, save_dir: Path, repo: str, sha: str) -> None:
-    """ÏÂÔØÇåµ¥ÎÄ¼ş"""
+    """ä¸‹è½½æ¸…å•æ–‡ä»¶"""
     save_path = save_dir / path
     if save_path.exists():
-        log.warning(f"Çåµ¥ÒÑ´æÔÚ: {path}")
+        log.warning(f"æ¸…å•å·²å­˜åœ¨: {path}")
         return
 
     content = await fetch_from_cdn(path, repo, sha)
     async with aiofiles.open(save_path, "wb") as f:
         await f.write(content)
-    log.info(f"Çåµ¥ÏÂÔØ³É¹¦: {path}")
+    log.info(f"æ¸…å•ä¸‹è½½æˆåŠŸ: {path}")
 
 
 async def fetch_from_cdn(path: str, repo: str, sha: str) -> bytes:
-    """´ÓCDN»ñÈ¡×ÊÔ´"""
+    """ä»CDNè·å–èµ„æº"""
     mirrors = (
         [
             f"https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}",
@@ -192,36 +192,36 @@ async def fetch_from_cdn(path: str, repo: str, sha: str) -> bytes:
             return res.content
         except httpx.HTTPError:
             continue
-    raise Exception("ËùÓĞ¾µÏñÔ´¾ù²»¿ÉÓÃ")
+    raise Exception("æ‰€æœ‰é•œåƒæºå‡ä¸å¯ç”¨")
 
 
 def parse_key_vdf(content: bytes) -> List[Tuple[str, str]]:
-    """½âÎöÃÜÔ¿ÎÄ¼ş"""
+    """è§£æå¯†é’¥æ–‡ä»¶"""
     try:
         depots = vdf.loads(content.decode("utf-8"))["depots"]
         return [(d_id, d_info["DecryptionKey"]) for d_id, d_info in depots.items()]
     except Exception as e:
-        log.error(f"ÃÜÔ¿½âÎöÊ§°Ü: {str(e)}")
+        log.error(f"å¯†é’¥è§£æå¤±è´¥: {str(e)}")
         return []
 
 
 async def setup_unlock_tool(
     config: Dict, depot_data: List[Tuple[str, str]], app_id: str, tool_choice: int
 ) -> bool:
-    """ÅäÖÃ½âËø¹¤¾ß"""
+    """é…ç½®è§£é”å·¥å…·"""
     if tool_choice == 1:
         return await setup_steamtools(config, depot_data, app_id)
     elif tool_choice == 2:
         return await setup_greenluma(config, depot_data)
     else:
-        log.error("ÎŞĞ§µÄ¹¤¾ßÑ¡Ôñ")
+        log.error("æ— æ•ˆçš„å·¥å…·é€‰æ‹©")
         return False
 
 
 async def setup_steamtools(
     config: Dict, depot_data: List[Tuple[str, str]], app_id: str
 ) -> bool:
-    """ÅäÖÃSteamTools"""
+    """é…ç½®SteamTools"""
     steam_path = (
         Path(config["Custom_Steam_Path"])
         if config.get("Custom_Steam_Path")
@@ -247,13 +247,13 @@ async def setup_steamtools(
     await proc.wait()
 
     if proc.returncode != 0:
-        log.error(f"Lua±àÒëÊ§°Ü: {await proc.stderr.read()}")
+        log.error(f"Luaç¼–è¯‘å¤±è´¥: {await proc.stderr.read()}")
         return False
     return True
 
 
 async def setup_greenluma(config: Dict, depot_data: List[Tuple[str, str]]) -> bool:
-    """ÅäÖÃGreenLuma"""
+    """é…ç½®GreenLuma"""
     steam_path = (
         Path(config["Custom_Steam_Path"])
         if config.get("Custom_Steam_Path")
@@ -280,39 +280,39 @@ async def setup_greenluma(config: Dict, depot_data: List[Tuple[str, str]]) -> bo
 
 
 async def main_flow():
-    """Ö÷Á÷³Ì¿ØÖÆ"""
+    """ä¸»æµç¨‹æ§åˆ¶"""
     validate_windows_version()
     init()
 
     try:
-        app_id = input("ÇëÊäÈëÓÎÏ·AppID: ").strip()
+        app_id = input("è¯·è¾“å…¥æ¸¸æˆAppID: ").strip()
         if not app_id.isdigit():
-            raise ValueError("ÎŞĞ§µÄAppID")
+            raise ValueError("æ— æ•ˆçš„AppID")
 
         print(
             "\n".join(
                 [f"{idx+1}. {item.value[1]}" for idx, item in enumerate(RepoChoice)]
             )
         )
-        repo_choice = int(input("ÇëÑ¡ÔñÇåµ¥²Ö¿â (Ä¬ÈÏ3): ") or 3)
+        repo_choice = int(input("è¯·é€‰æ‹©æ¸…å•ä»“åº“ (é»˜è®¤3): ") or 3)
         selected_repo = list(RepoChoice)[repo_choice - 1].value[0]
 
-        tool_choice = int(input("ÇëÑ¡Ôñ½âËø¹¤¾ß (1.SteamTools 2.GreenLuma): "))
+        tool_choice = int(input("è¯·é€‰æ‹©è§£é”å·¥å…· (1.SteamTools 2.GreenLuma): "))
 
         config = await load_config()
         steam_path = get_steam_path(config)
         depot_data = await handle_depot_files(selected_repo, app_id, steam_path)
 
         if await setup_unlock_tool(config, depot_data, app_id, tool_choice):
-            log.info("ÓÎÏ·½âËøÅäÖÃ³É¹¦£¡")
+            log.info("æ¸¸æˆè§£é”é…ç½®æˆåŠŸï¼")
             if tool_choice == 1:
-                log.info("ÇëÖØÆôSteamToolsÉúĞ§")
+                log.info("è¯·é‡å¯SteamToolsç”Ÿæ•ˆ")
             elif tool_choice == 2:
-                log.info("ÇëÖØÆôGreenLumaÉúĞ§")
+                log.info("è¯·é‡å¯GreenLumaç”Ÿæ•ˆ")
         else:
-            log.error("ÅäÖÃÊ§°Ü£¬Çë¼ì²éÈÕÖ¾")
+            log.error("é…ç½®å¤±è´¥ï¼Œè¯·æ£€æŸ¥æ—¥å¿—")
     except Exception as e:
-        log.error(f"ÔËĞĞ´íÎó: {str(e)}")
+        log.error(f"è¿è¡Œé”™è¯¯: {str(e)}")
         log.debug(traceback.format_exc())
     finally:
         await CLIENT.aclose()
