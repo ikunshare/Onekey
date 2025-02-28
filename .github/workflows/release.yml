@@ -37,7 +37,7 @@ jobs:
           wget "https://github.com/upx/upx/releases/download/v5.0.0/upx-5.0.0-win64.zip" -O "upx.zip"
           wget "https://7-zip.org/a/7zr.exe" -O "7z.exe"
           ./7z e upx.zip
-          pyinstaller --upx-dir "./upx" -F "main.py" -n "Onekey" -i "icon.jpg"
+          pyinstaller --upx-dir "./upx" -F "main.py" -n "Onekey" -i "icon.jpg" -o "Onekey-${{ env.PACKAGE_VERSION }}"
 
       - name: Create git tag
         uses: pkgdeps/git-tag-action@v3
