@@ -70,7 +70,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.PACKAGE_VERSION }}
-          files: build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
+          files: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
           prerelease: false
           draft: false
         env:
@@ -87,13 +87,13 @@ jobs:
           gitee_release_body: I don't know
           gitee_target_commitish: main
           gitee_upload_retry_times: 3
-          gitee_file_name: Onekey---v${{ env.PACKAGE_VERSION }}.exe
-          gitee_file_path: build/Onekey---v${{ env.PACKAGE_VERSION }}.exe
+          gitee_file_name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          gitee_file_path: build/Onekey_${{ env.PACKAGE_VERSION }}.exe
 
       - name: Upload to Telegram Channel
         run: |
           & curl -F "chat_id=${{ secrets.TELEGRAM_TO }}" `
-              -F "document=@build/Onekey---v${{ env.PACKAGE_VERSION }}.exe" `
+              -F "document=@build/Onekey_v${{ env.PACKAGE_VERSION }}.exe" `
               -F "caption=Onekey's New Update ${{ env.PACKAGE_VERSION }}" `
               -F "parse_mode=Markdown" `
               "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument"
