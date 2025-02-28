@@ -49,7 +49,7 @@ def init() -> None:
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
     print(banner)
-    print("作者: ikun0014 | 版本: 1.3.7 | 官网: ikunshare.com")
+    print("作者: ikun0014 | 版本: 1.3.8 | 官网: ikunshare.com")
     print("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
     print("提示: 请确保已安装最新版Windows 10/11并正确配置Steam")
 
