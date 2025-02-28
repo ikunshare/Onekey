@@ -28,16 +28,28 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pillow
+          pip install imageio
           pip install -r requirements.txt
 
       - name: Build
-        run: |
-          pip install pyinstaller
-          wget "https://github.com/upx/upx/releases/download/v5.0.0/upx-5.0.0-win64.zip" -O "upx.zip"
-          wget "https://7-zip.org/a/7zr.exe" -O "7z.exe"
-          ./7z e upx.zip
-          pyinstaller --upx-dir "./upx" -F "main.py" -n "Onekey" -i "icon.jpg" -o "Onekey-${{ env.PACKAGE_VERSION }}"
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: main.py
+          mode: onefile
+          show-memory: true
+          windows-uac-admin: true
+          onefile-tempdir-spec: "%TEMP%\\onekey_%PID%_%TIME%"
+          windows-icon-from-ico: icon.jpg
+          company-name: ikunshare
+          product-name: Onekey
+          file-version: ${{ env.PACKAGE_VERSION }}
+          product-version: ${{ env.PACKAGE_VERSION }}
+          file-description: 一个Steam仓库清单下载器
+          copyright: Copyright © 2025 ikun0014
+          output-file: Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          assume-yes-for-downloads: true
+          output-dir: build
 
       - name: Create git tag
         uses: pkgdeps/git-tag-action@v3

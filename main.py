@@ -43,12 +43,12 @@ def init() -> None:
    | |_| | | | \  | | |___  | | \ \  | |___    / /   
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
-    print(banner)
-    print("作者: ikun0014 | 版本: 1.3.9 | 官网: ikunshare.com")
-    print("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
-    print("ikunshare.com | 严禁倒卖")
-    print("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
-    print("开梯子必须配置Token, 你的IP我不相信能干净到哪")
+    logger.info(banner)
+    logger.info("作者: ikun0014 | 版本: 1.4.0 | 官网: ikunshare.com")
+    logger.info("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
+    logger.info("ikunshare.com | 严禁倒卖")
+    logger.info("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
+    logger.info("开梯子必须配置Token, 你的IP我不相信能干净到哪")
 
 
 async def checkcn() -> bool:
@@ -74,7 +74,6 @@ async def checkcn() -> bool:
 
 
 def stack_error(exception: Exception) -> str:
-    """处理错误堆栈"""
     stack_trace = traceback.format_exception(
         type(exception), exception, exception.__traceback__
     )
@@ -82,8 +81,6 @@ def stack_error(exception: Exception) -> str:
 
 
 async def check_github_api_rate_limit(headers):
-    """检查Github请求数"""
-
     url = "https://api.github.com/rate_limit"
     try:
         r = await CLIENT.get(url, headers=headers)
@@ -115,7 +112,6 @@ async def check_github_api_rate_limit(headers):
 async def handle_depot_files(
     repo: str, app_id: str, steam_path: Path
 ) -> List[Tuple[str, str]]:
-    """处理清单文件和密钥"""
     collected = []
     depot_map = {}
     try:
@@ -208,7 +204,6 @@ async def fetch_from_cdn(sha: str, path: str, repo: str):
 
 
 def parse_key_vdf(content: bytes) -> List[Tuple[str, str]]:
-    """解析密钥文件"""
     try:
         depots = vdf.loads(content.decode("utf-8"))["depots"]
         return [(d_id, d_info["DecryptionKey"]) for d_id, d_info in depots.items()]
@@ -223,10 +218,15 @@ async def setup_unlock_tool(
     tool_choice: int,
     depot_map: Dict,
 ) -> bool:
-    """配置解锁工具"""
-    if tool_choice == 1:
+    isGreenLuma = any(
+        (STEAM_PATH / dll).exists()
+        for dll in ["GreenLuma_2024_x86.dll", "GreenLuma_2024_x64.dll", "User32.dll"]
+    )
+    isSteamTools = (STEAM_PATH / "config" / "stUI").is_dir()
+
+    if (tool_choice == 1) and (isSteamTools):
         return await setup_steamtools(depot_data, app_id, depot_map)
-    elif tool_choice == 2:
+    elif (tool_choice == 2) and (isGreenLuma):
         return await setup_greenluma(depot_data)
     else:
         logger.error("你选的啥？")
@@ -236,11 +236,10 @@ async def setup_unlock_tool(
 async def setup_steamtools(
     depot_data: List[Tuple[str, str]], app_id: str, depot_map: Dict
 ) -> bool:
-    """配置SteamTools"""
     st_path = STEAM_PATH / "config" / "stplug-in"
     st_path.mkdir(exist_ok=True)
 
-    choice = input(f"是否锁定版本(推荐在选择仓库3时使用)?(y/n): \n").lower()
+    choice = input(f"是否锁定版本(推荐在选择仓库1时使用)?(y/n): \n").lower()
 
     if choice == "y":
         versionlock = True
@@ -279,7 +278,6 @@ async def setup_steamtools(
 
 
 async def setup_greenluma(depot_data: List[Tuple[str, str]]) -> bool:
-    """配置GreenLuma"""
     applist_dir = STEAM_PATH / "AppList"
     applist_dir.mkdir(exist_ok=True)
 
@@ -301,11 +299,10 @@ async def setup_greenluma(depot_data: List[Tuple[str, str]]) -> bool:
 
 
 async def main_flow(app_id: str):
-    """主流程控制"""
-
     app_id_list = list(filter(str.isdecimal, app_id.strip().split("-")))
     if not app_id_list:
         logger.error(f"App ID无效")
+        os.system("pause")
         return False
 
     app_id = app_id_list[0]
@@ -330,13 +327,11 @@ async def main_flow(app_id: str):
 
         if await setup_unlock_tool(depot_data, app_id, tool_choice, depot_map):
             logger.info("游戏解锁配置成功！")
-            if tool_choice == 1:
-                logger.info("请重启SteamTools生效")
-            elif tool_choice == 2:
-                logger.info("请重启GreenLuma生效")
+            logger.info("重启Steam后生效")
         else:
             logger.error("配置失败，请检查日志")
 
+        os.system("pause")
         return True
     except Exception as e:
         logger.error(f"运行错误: {stack_error(e)}")
@@ -351,12 +346,10 @@ async def main_flow(app_id: str):
 if __name__ == "__main__":
     try:
         init()
-        while True:
-            app_id = input(f"请输入游戏AppID: \n").strip()
-            asyncio.run(main_flow(app_id))
-    except asyncio.CancelledError:
+        app_id = input(f"请输入游戏AppID: \n").strip()
+        asyncio.run(main_flow(app_id))
+    except (asyncio.CancelledError, KeyboardInterrupt):
         os.system("pause")
-    except KeyboardInterrupt:
-        os.system("pause")
-    finally:
+    except Exception as e:
+        logger.error(f"错误：{stack_error(e)}")
         os.system("pause")
