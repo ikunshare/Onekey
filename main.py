@@ -1,41 +1,36 @@
-import platform
-import sys
 import os
+import sys
 import traceback
-import logzero
 import asyncio
 import aiofiles
 import httpx
-import winreg
-import ujson as json
 import vdf
 import time
-from typing import Any, Tuple, List, Dict
+from typing import Tuple, List, Dict
 from pathlib import Path
 from enum import Enum
+from common import log
+from common.variable import (
+    CLIENT,
+    HEADER,
+    STEAM_PATH,
+)
+
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 class RepoChoice(Enum):
-    IKUN = ("ikun0014/ManifestHub", "已断更的旧仓库")
+    STEAMTOOLS_DUMP = ("SteamAutoCracks/ManifestHub", "推荐使用")
+    IKUN = ("ikun0014/ManifestHub", "没号更不了")
     AUIOWU = ("Auiowu/ManifestAutoUpdate", "未知维护状态的仓库")
-    STEAM_AUTO = ("SteamAutoCracks/ManifestHub", "官方推荐仓库")
 
 
-DEFAULT_CONFIG = {
-    "Github_Personal_Token": "",
-    "Custom_Steam_Path": "",
-    "QA1": "Github Personal Token可在GitHub设置的Developer settings中生成",
-    "教程": "https://ikunshare.com/Onekey_tutorial",
-}
-
-DEFAULT_REPO = RepoChoice.STEAM_AUTO
-WINDOWS_VERSIONS = ["10", "11"]
-STEAM_REG_PATH = r"Software\Valve\Steam"
-CONFIG_PATH = Path("./config.json")
 LOCK = asyncio.Lock()
+DEFAULT_REPO = RepoChoice.STEAMTOOLS_DUMP
 
-client = httpx.AsyncClient(verify=False)
-log = logzero.setup_logger("Onekey")
+
+logger = log.log("Onekey")
 
 
 def init() -> None:
@@ -49,83 +44,20 @@ def init() -> None:
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
     print(banner)
-    print("作者: ikun0014 | 版本: 1.3.8 | 官网: ikunshare.com")
+    print("作者: ikun0014 | 版本: 1.3.9 | 官网: ikunshare.com")
     print("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
-    print("提示: 请确保已安装最新版Windows 10/11并正确配置Steam")
-
-
-def validate_windows_version() -> None:
-    """验证Windows版本"""
-    if platform.system() != "Windows":
-        log.error("仅支持Windows操作系统")
-        sys.exit(1)
-
-    release = platform.uname().release
-    if release not in WINDOWS_VERSIONS:
-        log.error(f"需要Windows 10/11，当前版本: Windows {release}")
-        sys.exit(1)
-
-
-async def load_config() -> Dict[str, Any]:
-    """异步加载配置文件"""
-    if not CONFIG_PATH.exists():
-        await generate_config()
-        log.info("请填写配置文件后重新运行程序")
-        sys.exit(0)
-
-    try:
-        async with aiofiles.open(CONFIG_PATH, "r", encoding="utf-8") as f:
-            return json.loads(await f.read())
-    except json.JSONDecodeError:
-        log.error("配置文件损坏，正在重新生成...")
-        await generate_config()
-        sys.exit(1)
-    except Exception as e:
-        log.error(f"配置加载失败: {str(e)}")
-        sys.exit(1)
-
-
-CONFIG = asyncio.run(load_config())
-GITHUB_TOKEN = str(CONFIG.get("Github_Personal_Token", ""))
-if GITHUB_TOKEN:
-    masked_token = f"{GITHUB_TOKEN[:3]}***" if len(GITHUB_TOKEN) > 3 else "***"
-    log.info(f"你的Github Token: {masked_token}")
-else:
-    log.info("未配置Github Token")
-HEADER = {"Authorization": f"Bearer {GITHUB_TOKEN}"} if GITHUB_TOKEN else None
-
-
-async def generate_config() -> None:
-    """生成默认配置文件"""
-    try:
-        async with aiofiles.open(CONFIG_PATH, "w", encoding="utf-8") as f:
-            await f.write(json.dumps(DEFAULT_CONFIG, indent=2, ensure_ascii=False))
-        log.info("配置文件已生成")
-    except IOError as e:
-        log.error(f"配置文件创建失败: {str(e)}")
-        sys.exit(1)
-
-
-def get_steam_path(config: Dict) -> Path:
-    """获取Steam安装路径"""
-    try:
-        if custom_path := config.get("Custom_Steam_Path"):
-            return Path(custom_path)
-
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, STEAM_REG_PATH) as key:
-            return Path(winreg.QueryValueEx(key, "SteamPath")[0])
-    except Exception as e:
-        log.error(f"Steam路径获取失败: {str(e)}")
-        sys.exit(1)
+    print("ikunshare.com | 严禁倒卖")
+    print("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
+    print("开梯子必须配置Token, 你的IP我不相信能干净到哪")
 
 
 async def checkcn() -> bool:
     try:
-        req = await client.get("https://mips.kugou.com/check/iscn?&format=json")
+        req = await CLIENT.get("https://mips.kugou.com/check/iscn?&format=json")
         body = req.json()
         scn = bool(body["flag"])
         if not scn:
-            log.info(
+            logger.info(
                 f"您在非中国大陆地区({body['country']})上使用了项目, 已自动切换回Github官方下载CDN"
             )
             os.environ["IS_CN"] = "no"
@@ -134,10 +66,10 @@ async def checkcn() -> bool:
             os.environ["IS_CN"] = "yes"
             return True
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        logger.info("程序已退出")
     except httpx.ConnectError as e:
         os.environ["IS_CN"] = "yes"
-        log.warning("检查服务器位置失败，已忽略，自动认为你在中国大陆")
+        logger.warning("检查服务器位置失败，已忽略，自动认为你在中国大陆")
         return False
 
 
@@ -152,12 +84,9 @@ def stack_error(exception: Exception) -> str:
 async def check_github_api_rate_limit(headers):
     """检查Github请求数"""
 
-    if headers != None:
-        log.info(f"您已配置Github Token")
-
     url = "https://api.github.com/rate_limit"
     try:
-        r = await client.get(url, headers=headers)
+        r = await CLIENT.get(url, headers=headers)
         r_json = r.json()
         if r.status_code == 200:
             rate_limit = r_json.get("rate", {})
@@ -166,21 +95,21 @@ async def check_github_api_rate_limit(headers):
             reset_time_formatted = time.strftime(
                 "%Y-%m-%d %H:%M:%S", time.localtime(reset_time)
             )
-            log.info(f"剩余请求次数: {remaining_requests}")
+            logger.info(f"剩余请求次数: {remaining_requests}")
             if remaining_requests == 0:
-                log.warning(
+                logger.warning(
                     f"GitHub API 请求数已用尽, 将在 {reset_time_formatted} 重置,建议生成一个填在配置文件里"
                 )
         else:
-            log.error("Github请求数检查失败, 网络错误")
+            logger.error("Github请求数检查失败, 网络错误")
     except KeyboardInterrupt:
-        log.info("程序已退出")
+        logger.info("程序已退出")
     except httpx.ConnectError as e:
-        log.error(f"检查Github API 请求数失败, {stack_error(e)}")
+        logger.error(f"检查Github API 请求数失败, {stack_error(e)}")
     except httpx.ConnectTimeout as e:
-        log.error(f"检查Github API 请求数超时: {stack_error(e)}")
+        logger.error(f"检查Github API 请求数超时: {stack_error(e)}")
     except Exception as e:
-        log.error(f"发生错误: {stack_error(e)}")
+        logger.error(f"发生错误: {stack_error(e)}")
 
 
 async def handle_depot_files(
@@ -191,11 +120,11 @@ async def handle_depot_files(
     depot_map = {}
     try:
         branch_url = f"https://api.github.com/repos/{repo}/branches/{app_id}"
-        branch_res = await client.get(branch_url, headers=HEADER)
+        branch_res = await CLIENT.get(branch_url, headers=HEADER)
         branch_res.raise_for_status()
 
         tree_url = branch_res.json()["commit"]["commit"]["tree"]["url"]
-        tree_res = await client.get(tree_url)
+        tree_res = await CLIENT.get(tree_url)
         tree_res.raise_for_status()
 
         depot_cache = steam_path / "depotcache"
@@ -206,12 +135,12 @@ async def handle_depot_files(
             if file_path.endswith(".manifest"):
                 save_path = depot_cache / file_path
                 if save_path.exists():
-                    log.warning(f"已存在清单: {save_path}")
+                    logger.warning(f"已存在清单: {save_path}")
                     continue
                 content = await fetch_from_cdn(
                     branch_res.json()["commit"]["sha"], file_path, repo
                 )
-                log.info(f"清单下载成功: {file_path}")
+                logger.info(f"清单下载成功: {file_path}")
                 async with aiofiles.open(save_path, "wb") as f:
                     await f.write(content)
             elif "key.vdf" in file_path.lower():
@@ -238,9 +167,9 @@ async def handle_depot_files(
             depot_map[depot_id].sort(key=lambda x: int(x), reverse=True)
 
     except httpx.HTTPStatusError as e:
-        log.error(f"HTTP错误: {e.response.status_code}")
+        logger.error(f"HTTP错误: {e.response.status_code}")
     except Exception as e:
-        log.error(f"文件处理失败: {str(e)}")
+        logger.error(f"文件处理失败: {str(e)}")
     return collected, depot_map
 
 
@@ -259,22 +188,22 @@ async def fetch_from_cdn(sha: str, path: str, repo: str):
     while retry > 0:
         for url in url_list:
             try:
-                r = await client.get(url, headers=HEADER, timeout=30)
+                r = await CLIENT.get(url, headers=HEADER, timeout=30)
                 if r.status_code == 200:
                     return r.read()
                 else:
-                    log.error(f"获取失败: {path} - 状态码: {r.status_code}")
+                    logger.error(f"获取失败: {path} - 状态码: {r.status_code}")
             except KeyboardInterrupt:
-                log.info("程序已退出")
+                logger.info("程序已退出")
             except httpx.ConnectError as e:
-                log.error(f"获取失败: {path} - 连接错误: {str(e)}")
+                logger.error(f"获取失败: {path} - 连接错误: {str(e)}")
             except httpx.ConnectTimeout as e:
-                log.error(f"连接超时: {url} - 错误: {str(e)}")
+                logger.error(f"连接超时: {url} - 错误: {str(e)}")
 
         retry -= 1
-        log.warning(f"重试剩余次数: {retry} - {path}")
+        logger.warning(f"重试剩余次数: {retry} - {path}")
 
-    log.error(f"超过最大重试次数: {path}")
+    logger.error(f"超过最大重试次数: {path}")
     raise Exception(f"无法下载: {path}")
 
 
@@ -284,12 +213,11 @@ def parse_key_vdf(content: bytes) -> List[Tuple[str, str]]:
         depots = vdf.loads(content.decode("utf-8"))["depots"]
         return [(d_id, d_info["DecryptionKey"]) for d_id, d_info in depots.items()]
     except Exception as e:
-        log.error(f"密钥解析失败: {str(e)}")
+        logger.error(f"密钥解析失败: {str(e)}")
         return []
 
 
 async def setup_unlock_tool(
-    config: Dict,
     depot_data: List[Tuple[str, str]],
     app_id: str,
     tool_choice: int,
@@ -297,27 +225,22 @@ async def setup_unlock_tool(
 ) -> bool:
     """配置解锁工具"""
     if tool_choice == 1:
-        return await setup_steamtools(config, depot_data, app_id, depot_map)
+        return await setup_steamtools(depot_data, app_id, depot_map)
     elif tool_choice == 2:
-        return await setup_greenluma(config, depot_data)
+        return await setup_greenluma(depot_data)
     else:
-        log.error("无效的工具选择")
+        logger.error("你选的啥？")
         return False
 
 
 async def setup_steamtools(
-    config: Dict, depot_data: List[Tuple[str, str]], app_id: str, depot_map: Dict
+    depot_data: List[Tuple[str, str]], app_id: str, depot_map: Dict
 ) -> bool:
     """配置SteamTools"""
-    steam_path = (
-        Path(config["Custom_Steam_Path"])
-        if config.get("Custom_Steam_Path")
-        else get_steam_path(config)
-    )
-    st_path = steam_path / "config" / "stplug-in"
+    st_path = STEAM_PATH / "config" / "stplug-in"
     st_path.mkdir(exist_ok=True)
 
-    choice = input(f"是否锁定版本（推荐在选择仓库3时使用）？(y/n): ").lower()
+    choice = input(f"是否锁定版本(推荐在选择仓库3时使用)?(y/n): \n").lower()
 
     if choice == "y":
         versionlock = True
@@ -345,24 +268,19 @@ async def setup_steamtools(
     await proc.wait()
 
     if proc.returncode != 0:
-        log.error(f"Lua编译失败: {await proc.stderr.read()}")
+        logger.error(f"Lua编译失败: {await proc.stderr.read()}")
         return False
 
     if lua_file.exists():
         os.remove(lua_file)
-        log.info(f"删除临时文件: {lua_file}")
+        logger.info(f"删除临时文件: {lua_file}")
 
     return True
 
 
-async def setup_greenluma(config: Dict, depot_data: List[Tuple[str, str]]) -> bool:
+async def setup_greenluma(depot_data: List[Tuple[str, str]]) -> bool:
     """配置GreenLuma"""
-    steam_path = (
-        Path(config["Custom_Steam_Path"])
-        if config.get("Custom_Steam_Path")
-        else get_steam_path(config)
-    )
-    applist_dir = steam_path / "AppList"
+    applist_dir = STEAM_PATH / "AppList"
     applist_dir.mkdir(exist_ok=True)
 
     for f in applist_dir.glob("*.txt"):
@@ -371,7 +289,7 @@ async def setup_greenluma(config: Dict, depot_data: List[Tuple[str, str]]) -> bo
     for idx, (d_id, _) in enumerate(depot_data, 1):
         (applist_dir / f"{idx}.txt").write_text(str(d_id))
 
-    config_path = steam_path / "config" / "config.vdf"
+    config_path = STEAM_PATH / "config" / "config.vdf"
     async with aiofiles.open(config_path, "r+") as f:
         content = vdf.loads(await f.read())
         content.setdefault("depots", {}).update(
@@ -382,17 +300,18 @@ async def setup_greenluma(config: Dict, depot_data: List[Tuple[str, str]]) -> bo
     return True
 
 
-async def main_flow():
+async def main_flow(app_id: str):
     """主流程控制"""
-    validate_windows_version()
-    await checkcn()
-    init()
+
+    app_id_list = list(filter(str.isdecimal, app_id.strip().split("-")))
+    if not app_id_list:
+        logger.error(f"App ID无效")
+        return False
+
+    app_id = app_id_list[0]
 
     try:
-        app_id = input("请输入游戏AppID: ").strip()
-        if not app_id.isdigit():
-            raise ValueError("无效的AppID")
-
+        await checkcn()
         await check_github_api_rate_limit(HEADER)
 
         print(
@@ -400,37 +319,44 @@ async def main_flow():
                 [f"{idx+1}. {item.value[1]}" for idx, item in enumerate(RepoChoice)]
             )
         )
-        repo_choice = int(input("请选择清单仓库 (默认3): ") or 3)
+        repo_choice = int(input("请选择清单仓库 (默认1): \n") or 1)
         selected_repo = list(RepoChoice)[repo_choice - 1].value[0]
 
-        tool_choice = int(input("请选择解锁工具 (1.SteamTools 2.GreenLuma): "))
+        tool_choice = int(input("请选择解锁工具 (1.SteamTools 2.GreenLuma): \n"))
 
-        config = await load_config()
-        steam_path = get_steam_path(config)
         depot_data, depot_map = await handle_depot_files(
-            selected_repo, app_id, steam_path
+            selected_repo, app_id, STEAM_PATH
         )
 
-        if await setup_unlock_tool(config, depot_data, app_id, tool_choice, depot_map):
-            log.info("游戏解锁配置成功！")
+        if await setup_unlock_tool(depot_data, app_id, tool_choice, depot_map):
+            logger.info("游戏解锁配置成功！")
             if tool_choice == 1:
-                log.info("请重启SteamTools生效")
+                logger.info("请重启SteamTools生效")
             elif tool_choice == 2:
-                log.info("请重启GreenLuma生效")
+                logger.info("请重启GreenLuma生效")
         else:
-            log.error("配置失败，请检查日志")
+            logger.error("配置失败，请检查日志")
+
+        return True
     except Exception as e:
-        log.error(f"运行错误: {str(e)}")
-        log.debug(traceback.format_exc())
+        logger.error(f"运行错误: {stack_error(e)}")
+        return False
+    except KeyboardInterrupt:
+        return False
     finally:
-        await client.aclose()
-        os.system("pause")
+        await CLIENT.aclose()
+        return True
 
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main_flow())
+        init()
+        while True:
+            app_id = input(f"请输入游戏AppID: \n").strip()
+            asyncio.run(main_flow(app_id))
     except asyncio.CancelledError:
         os.system("pause")
     except KeyboardInterrupt:
+        os.system("pause")
+    finally:
         os.system("pause")
