@@ -88,7 +88,7 @@ jobs:
           gitee_target_commitish: main
           gitee_upload_retry_times: 3
           gitee_file_name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          gitee_file_path: build/Onekey_${{ env.PACKAGE_VERSION }}.exe
+          gitee_file_path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
 
       - name: Upload to Telegram Channel
         run: |
