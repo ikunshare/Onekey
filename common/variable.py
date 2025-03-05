@@ -1,3 +1,4 @@
+import os
 import httpx
 import sys
 import winreg
@@ -42,7 +43,7 @@ def load_config() -> dict:
     if not Path("./config.json").exists():
         generate_config()
         print("请填写配置文件后重新运行程序")
-        sys.exit(0)
+        os.system("pause")
 
     try:
         with open(Path("./config.json"), "r", encoding="utf-8") as f:
@@ -62,4 +63,10 @@ DEBUG_MODE = CONFIG.get("Debug_Mode", False)
 LOG_FILE = CONFIG.get("Logging_Files", True)
 GITHUB_TOKEN = str(CONFIG.get("Github_Personal_Token", ""))
 STEAM_PATH = get_steam_path(CONFIG)
+IS_CN = True
 HEADER = {"Authorization": f"Bearer {GITHUB_TOKEN}"} if GITHUB_TOKEN else None
+REPO_LIST = [
+    "SteamAutoCracks/ManifestHub",
+    "ikun0014/ManifestHub",
+    "Auiowu/ManifestAutoUpdate",
+]
