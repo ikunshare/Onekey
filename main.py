@@ -44,7 +44,7 @@ def init() -> None:
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
     logger.info(banner)
-    logger.info("作者: ikun0014 | 版本: 1.4.0 | 官网: ikunshare.com")
+    logger.info("作者: ikun0014 | 版本: 1.4.1 | 官网: ikunshare.com")
     logger.info("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
     logger.info("ikunshare.com | 严禁倒卖")
     logger.info("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
