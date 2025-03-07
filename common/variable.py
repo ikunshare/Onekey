@@ -24,8 +24,7 @@ DEFAULT_CONFIG = {
     "Custom_Steam_Path": "",
     "Debug_Mode": False,
     "Logging_Files": True,
-    "QA1": "Github Personal Token可在GitHub设置的Developer settings中生成",
-    "教程": "https://ikunshare.com/Onekey_tutorial",
+    "Help": "Github Personal Token可在GitHub设置的Developer settings中生成",
 }
 
 

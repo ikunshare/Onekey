@@ -36,11 +36,11 @@ def init() -> None:
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
     LOG.info(banner)
-    LOG.info("作者: ikun0014 | 版本: 1.4.1 | 官网: ikunshare.com")
+    LOG.info("作者: ikun0014 | 版本: 1.4.2 | 官网: ikunshare.com")
     LOG.info("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
-    LOG.info("ikunshare.com | 严禁倒卖")
-    LOG.info("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
-    LOG.info("开梯子必须配置Token, 你的IP我不相信能干净到哪")
+    LOG.warning("ikunshare.com | 严禁倒卖")
+    LOG.warning("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
+    LOG.warning("开梯子必须配置Token, 你的IP我不相信能干净到哪")
 
 
 async def checkcn() -> bool:
@@ -59,6 +59,7 @@ async def checkcn() -> bool:
             return True
     except KeyboardInterrupt:
         LOG.info("程序已退出")
+        return True
     except httpx.ConnectError as e:
         variable.IS_CN = True
         LOG.warning("检查服务器位置失败，已忽略，自动认为你在中国大陆")
@@ -101,7 +102,7 @@ async def check_github_api_rate_limit(headers):
         LOG.error(f"发生错误: {stack_error(e)}")
 
 
-async def get_latest_repo_info(repos: list, app_id: str, headers) -> Any | None:
+async def get_latest_repo_info(repos: list, app_id: str, headers) -> Any | str | None:
     latest_date = None
     selected_repo = None
     for repo in repos:
@@ -111,9 +112,8 @@ async def get_latest_repo_info(repos: list, app_id: str, headers) -> Any | None:
         if r_json and "commit" in r_json:
             date = r_json["commit"]["commit"]["author"]["date"]
             if (latest_date is None) or (date > latest_date):
-                latest_date = date
-                selected_repo = repo
-
+                latest_date = str(date)
+                selected_repo = str(repo)
     return selected_repo, latest_date
 
 
@@ -125,7 +125,7 @@ async def handle_depot_files(
     try:
         selected_repo, latest_date = await get_latest_repo_info(
             repos, app_id, headers=HEADER
-        )
+        )  # type: ignore
 
         if selected_repo:
             branch_url = (
@@ -184,7 +184,7 @@ async def handle_depot_files(
         LOG.error(f"HTTP错误: {e.response.status_code}")
     except Exception as e:
         LOG.error(f"文件处理失败: {str(e)}")
-    return collected, depot_map
+    return collected, depot_map  # type: ignore
 
 
 async def fetch_from_cdn(sha: str, path: str, repo: str):
@@ -258,7 +258,7 @@ async def setup_steamtools(
     st_path = STEAM_PATH / "config" / "stplug-in"
     st_path.mkdir(exist_ok=True)
 
-    choice = input(f"是否锁定版本(推荐在选择仓库1时使用)?(y/n): \n").lower()
+    choice = input(f"是否锁定版本(推荐在选择仓库1时使用)?(y/n): ").lower()
 
     if choice == "y":
         versionlock = True
@@ -286,7 +286,7 @@ async def setup_steamtools(
     await proc.wait()
 
     if proc.returncode != 0:
-        LOG.error(f"Lua编译失败: {await proc.stderr.read()}")
+        LOG.error(f"Lua编译失败: {await proc.stderr.read()}")  # type: ignore
         return False
 
     if lua_file.exists():
@@ -330,14 +330,14 @@ async def main_flow(app_id: str):
         await checkcn()
         await check_github_api_rate_limit(HEADER)
 
-        tool_choice = int(input("请选择解锁工具 (1.SteamTools 2.GreenLuma): \n"))
+        tool_choice = int(input("请选择解锁工具 (1.SteamTools 2.GreenLuma): "))
         depot_data, depot_map = await handle_depot_files(REPO_LIST, app_id, STEAM_PATH)
 
-        if await setup_unlock_tool(depot_data, app_id, tool_choice, depot_map):
+        if await setup_unlock_tool(depot_data, app_id, tool_choice, depot_map):  # type: ignore
             LOG.info("游戏解锁配置成功！")
             LOG.info("重启Steam后生效")
         else:
-            LOG.error("配置失败，请检查日志")
+            LOG.error("配置失败")
 
         os.system("pause")
         return True
@@ -354,7 +354,7 @@ async def main_flow(app_id: str):
 if __name__ == "__main__":
     try:
         init()
-        app_id = input(f"请输入游戏AppID: \n").strip()
+        app_id = input(f"请输入游戏AppID: ").strip()
         asyncio.run(main_flow(app_id))
     except (asyncio.CancelledError, KeyboardInterrupt):
         os.system("pause")
