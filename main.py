@@ -36,7 +36,7 @@ def init() -> None:
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
     LOG.info(banner)
-    LOG.info("作者: ikun0014 | 版本: 1.4.4 | 官网: ikunshare.com")
+    LOG.info("作者: ikun0014 | 版本: 1.4.5 | 官网: ikunshare.com")
     LOG.info("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
     LOG.warning("ikunshare.com | 严禁倒卖")
     LOG.warning("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
@@ -237,15 +237,10 @@ async def setup_unlock_tool(
     tool_choice: int,
     depot_map: Dict,
 ) -> bool:
-    isGreenLuma = any(
-        (STEAM_PATH / dll).exists()
-        for dll in ["GreenLuma_2024_x86.dll", "GreenLuma_2024_x64.dll", "User32.dll"]
-    )
-    isSteamTools = (STEAM_PATH / "config" / "stUI").is_dir()
 
-    if (tool_choice == 1) and (isSteamTools):
+    if tool_choice == 1:
         return await setup_steamtools(depot_data, app_id, depot_map)
-    elif (tool_choice == 2) and (isGreenLuma):
+    elif tool_choice == 2:
         return await setup_greenluma(depot_data)
     else:
         LOG.error("你选的啥？")
@@ -276,22 +271,6 @@ async def setup_steamtools(
     lua_file = st_path / f"{app_id}.lua"
     async with aiofiles.open(lua_file, "w") as f:
         await f.write(lua_content)
-
-    proc = await asyncio.create_subprocess_exec(
-        str(st_path / "luapacka.exe"),
-        str(lua_file),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    await proc.wait()
-
-    if proc.returncode != 0:
-        LOG.error(f"Lua编译失败: {await proc.stderr.read()}")  # type: ignore
-        return False
-
-    if lua_file.exists():
-        os.remove(lua_file)
-        LOG.info(f"删除临时文件: {lua_file}")
 
     return True
 
