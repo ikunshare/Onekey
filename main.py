@@ -190,7 +190,6 @@ async def handle_depot_files(
 async def fetch_from_cdn(sha: str, path: str, repo: str):
     if variable.IS_CN:
         url_list = [
-            f"https://jsdelivr.pai233.top/gh/{repo}@{sha}/{path}",
             f"https://cdn.jsdmirror.com/gh/{repo}@{sha}/{path}",
             f"https://raw.gitmirror.com/{repo}/{sha}/{path}",
             f"https://raw.dgithub.xyz/{repo}/{sha}/{path}",
