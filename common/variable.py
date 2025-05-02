@@ -1,4 +1,4 @@
-import os
+import time
 import httpx
 import sys
 import winreg
@@ -41,8 +41,9 @@ def generate_config() -> None:
 def load_config() -> dict:
     if not Path("./config.json").exists():
         generate_config()
-        print("请填写配置文件后重新运行程序")
-        os.system("pause")
+        print("请填写配置文件后重新运行程序，5秒后退出")
+        time.sleep(5)
+        sys.exit(1)
 
     try:
         with open(Path("./config.json"), "r", encoding="utf-8") as f:
@@ -68,4 +69,5 @@ REPO_LIST = [
     "SteamAutoCracks/ManifestHub",
     "ikun0014/ManifestHub",
     "Auiowu/ManifestAutoUpdate",
+    "tymolu233/ManifestAutoUpdate-fix",
 ]

@@ -1,4 +1,3 @@
-aiofiles
 httpx
 logzero
 ujson
