@@ -93,6 +93,7 @@ jobs:
       - name: Upload to Telegram Channel
         run: |
           & curl -F "chat_id=${{ secrets.TELEGRAM_TO }}" `
+              -F "thread_id=${{ secrets.TELEGRAM_THREAD }}" `
               -F "document=@build/Onekey_v${{ env.PACKAGE_VERSION }}.exe" `
               -F "caption=Onekey's New Update ${{ env.PACKAGE_VERSION }}" `
               -F "parse_mode=Markdown" `
