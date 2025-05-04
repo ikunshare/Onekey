@@ -13,6 +13,10 @@
 ## Onekey
 Onekey Steam Depot Manifest Downloader
 
+## 先让我挂些人
+- 沧海颐粟，早期倒卖大手子，现在不知道跑哪了，通过一点手段查到在景德镇
+- 玩家资源站，这两个月出现的，也是很嚣张了，B站https://space.bilibili.com/242622952，已被拉黑
+
 ## 使用方法
 去Releases处下载最新的发布，并且安装好SteamTools或者GreenLuma  
 然后打开Onekey输入App ID即可使用
@@ -68,3 +72,4 @@ pip install -r requirements.txt
 加入我们的社区，参与讨论和支持: 
 - [GitHub Discussions](https://github.com/ikunshare/Onekey/discussions)
 - [Telegram](https://t.me/ikunshare_qun)
+- [QQ](https://qm.qq.com/q/NPRVbglteK)
