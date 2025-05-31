@@ -1,22 +1,28 @@
-import os
-import sys
+try:
+    import os
+    import sys
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-import vdf
-import time
-import httpx
-import asyncio
-import traceback
-from typing import Any, Tuple, List, Dict
-from pathlib import Path
-from common import log, variable
-from common.variable import (
-    CLIENT,
-    HEADER,
-    STEAM_PATH,
-    REPO_LIST,
-)
+    import vdf
+    import time
+    import httpx
+    import asyncio
+    import traceback
+    from typing import Any, Tuple, List, Dict
+    from pathlib import Path
+    from common import log, variable
+    from common.variable import (
+        CLIENT,
+        HEADER,
+        STEAM_PATH,
+        REPO_LIST,
+    )
+except ImportError as e:
+    import os
+
+    print(e)
+    os.system("pause")
 
 
 LOCK = asyncio.Lock()
@@ -35,9 +41,9 @@ def init() -> None:
    \_____/ |_|  \_| |_____| |_|  \_\ |_____|  /_/    
     """
     LOG.info(banner)
-    LOG.info("作者: ikun0014 | 版本: 1.4.7 | 官网: ikunshare.com")
+    LOG.info("作者: ikun0014 | 版本: 1.4.8 | 官网: ikunshare.top")
     LOG.info("项目仓库: GitHub: https://github.com/ikunshare/Onekey")
-    LOG.warning("ikunshare.com | 严禁倒卖")
+    LOG.warning("ikunshare.top | 严禁倒卖")
     LOG.warning("提示: 请确保已安装Windows 10/11并正确配置Steam;SteamTools/GreenLuma")
     LOG.warning("开梯子必须配置Token, 你的IP我不相信能干净到哪")
 
@@ -137,7 +143,7 @@ async def HandleDepotFiles(
             tree_res = await CLIENT.get(tree_url)
             tree_res.raise_for_status()
 
-            depot_cache = steam_path / "depotcache"
+            depot_cache = Path(f"{steam_path}/depotcache")
             depot_cache.mkdir(exist_ok=True)
 
             LOG.info(f"当前选择清单仓库: https://github.com/{selected_repo}")
@@ -246,7 +252,7 @@ def SetupUnlock(
 
 
 def SetupTools(depot_data: List[Tuple[str, str]], app_id: str, depot_map: Dict) -> bool:
-    st_path = STEAM_PATH / "config" / "stplug-in"
+    st_path = Path(f"{STEAM_PATH}/config/stplug-in")
     st_path.mkdir(exist_ok=True)
 
     choice = input(
@@ -274,7 +280,7 @@ def SetupTools(depot_data: List[Tuple[str, str]], app_id: str, depot_map: Dict) 
 
 
 def SetupGreenLuma(depot_data: List[Tuple[str, str]]) -> bool:
-    applist_dir = STEAM_PATH / "AppList"
+    applist_dir = Path(f"{STEAM_PATH}/AppList")
     applist_dir.mkdir(exist_ok=True)
 
     for f in applist_dir.glob("*.txt"):
@@ -283,7 +289,7 @@ def SetupGreenLuma(depot_data: List[Tuple[str, str]]) -> bool:
     for idx, (d_id, _) in enumerate(depot_data, 1):
         (applist_dir / f"{idx}.txt").write_text(str(d_id))
 
-    config_path = STEAM_PATH / "config" / "config.vdf"
+    config_path = Path(f"{STEAM_PATH}/config/config.vdf")
     with open(config_path, "r+") as f:
         content = vdf.loads(f.read())
         content.setdefault("depots", {}).update(

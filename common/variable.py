@@ -1,9 +1,15 @@
-import time
-import httpx
-import sys
-import winreg
-import ujson as json
-from pathlib import Path
+try:
+    import time
+    import httpx
+    import sys
+    import winreg
+    import ujson as json
+    from pathlib import Path
+except ImportError as e:
+    print(e)
+    import os
+
+    os.system("pause")
 
 
 def get_steam_path(config: dict) -> Path:

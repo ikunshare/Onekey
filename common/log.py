@@ -1,9 +1,15 @@
-import os
-import colorama
-import logging
-import logzero
-from logzero import setup_logger, LogFormatter
-from .variable import LOG_FILE, DEBUG_MODE
+try:
+    import os
+    import colorama
+    import logging
+    import logzero
+    from logzero import setup_logger, LogFormatter
+    from .variable import LOG_FILE, DEBUG_MODE
+except ImportError as e:
+    print(e)
+    import os
+
+    os.system("pause")
 
 if not os.path.exists(f"./logs"):
     os.makedirs(f"./logs")

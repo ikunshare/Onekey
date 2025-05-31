@@ -66,7 +66,7 @@ pip install -r requirements.txt
  </a>
 
 ## 常见问题解答（FAQ）
-查看 [FAQ](https://ikunshare.com/d/49) 获取常见问题的解答。
+查看 [FAQ](https://ikunshare.top/d/49) 获取常见问题的解答。
 
 ## 社区和支持
 加入我们的社区，参与讨论和支持: 
