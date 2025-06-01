@@ -47,6 +47,7 @@ jobs:
           product-version: ${{ env.PACKAGE_VERSION }}
           file-description: 一个Steam仓库清单下载器
           copyright: Copyright © 2025 ikun0014
+          include-package: common
           output-file: Onekey_v${{ env.PACKAGE_VERSION }}.exe
           assume-yes-for-downloads: true
           output-dir: build
