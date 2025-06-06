@@ -2,3 +2,4 @@ httpx
 logzero
 ujson
 Pillow
+vdf
