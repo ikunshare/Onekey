@@ -7,6 +7,8 @@
 [![GitHub All Releases](https://img.shields.io/github/downloads/ikunshare/Onekey/total?style=for-the-badge&color=violet)](https://github.com/ikunshare/Onekey/releases)
 [![GitHub License](https://img.shields.io/github/license/ikunshare/Onekey?style=for-the-badge)](https://github.com/ikunshare/Onekey/blob/main/LICENSE)
 
+[![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com "Powered by DartNode - Free VPS for Open Source")
+
 </div>
 
 
