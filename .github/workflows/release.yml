@@ -20,37 +20,21 @@ jobs:
           $version = (Get-Content package.json | ConvertFrom-Json).version
           echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
 
-      - name: Set up Python 3.13.1
-        uses: actions/setup-python@v3
+      - name: Create Executable
+        uses: sayyid5416/pyinstaller@main
         with:
-          python-version: 3.13.1
+          python_ver: "3.13.1"
+          spec: "main.py"
+          requirements: "requirements.txt"
+          options: --onefile, --name Onekey_v${{ env.PACKAGE_VERSION }}, --uac-admin, --uac-uiaccess, --icon ./icon.jpg
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install imageio
-          pip install -r requirements.txt
-
-      - name: Build
-        uses: Nuitka/Nuitka-Action@main
+      - name: Run UPX
+        uses: crazy-max/ghaction-upx@master
         with:
-          nuitka-version: main
-          script-name: main.py
-          mode: onefile
-          show-memory: true
-          windows-uac-admin: true
-          onefile-tempdir-spec: "%TEMP%\\onekey_%PID%_%TIME%"
-          windows-icon-from-ico: icon.jpg
-          company-name: ikunshare
-          product-name: Onekey
-          file-version: ${{ env.PACKAGE_VERSION }}
-          product-version: ${{ env.PACKAGE_VERSION }}
-          file-description: 一个Steam仓库清单下载器
-          copyright: Copyright © 2025 ikun0014
-          include-package: common
-          output-file: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          assume-yes-for-downloads: true
-          output-dir: build
+          version: latest
+          files: |
+            ./dist/*.exe
+          args: -fq
 
       - name: Create git tag
         uses: pkgdeps/git-tag-action@v3
@@ -61,17 +45,11 @@ jobs:
           git_commit_sha: ${{ github.sha }}
           git_tag_prefix: "v"
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
-
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.PACKAGE_VERSION }}
-          files: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          files: dist/Onekey_v${{ env.PACKAGE_VERSION }}.exe
           prerelease: false
           draft: false
         env:
@@ -89,13 +67,13 @@ jobs:
           gitee_target_commitish: main
           gitee_upload_retry_times: 3
           gitee_file_name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          gitee_file_path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          gitee_file_path: dist/Onekey_v${{ env.PACKAGE_VERSION }}.exe
 
       - name: Upload to Telegram Channel
         run: |
           & curl -F "chat_id=${{ secrets.TELEGRAM_TO }}" `
               -F "thread_id=${{ secrets.TELEGRAM_THREAD }}" `
-              -F "document=@build/Onekey_v${{ env.PACKAGE_VERSION }}.exe" `
+              -F "document=@dist/Onekey_v${{ env.PACKAGE_VERSION }}.exe" `
               -F "caption=Onekey's New Update ${{ env.PACKAGE_VERSION }}" `
               -F "parse_mode=Markdown" `
               "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument"
