@@ -51,7 +51,7 @@ jobs:
       - name: Build executable
         run: |
           pyinstaller --onefile `
-            --icon "./icon.jpg"
+            --icon "./icon.jpg" `
             --name "Onekey_v${{ steps.get_version.outputs.VERSION }}" `
             --add-data "src;src" `
             --hidden-import=winreg `
