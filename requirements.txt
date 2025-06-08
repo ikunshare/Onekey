@@ -1,5 +1,4 @@
-httpx
-logzero
-ujson
-Pillow
-vdf
+colorama==0.4.6
+httpx==0.28.1
+logzero==1.7.0
+vdf==3.4
