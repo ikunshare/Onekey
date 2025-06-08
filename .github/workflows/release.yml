@@ -40,13 +40,6 @@ jobs:
           pip install Pillow
           pip install pyinstaller
 
-      - name: Create icon if not exists
-        shell: powershell
-        run: |
-          if (-not (Test-Path "icon.ico")) {
-            Write-Host "Icon file not found, using default Windows icon"
-            $iconPath = "C:\Windows\System32\shell32.dll,0"
-          }
 
       - name: Build executable
         run: |
@@ -71,27 +64,22 @@ jobs:
             ./dist/*.exe
           args: "-fq"
 
+      - name: Create git tag
+        uses: pkgdeps/git-tag-action@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo: ${{ github.repository }}
+          version: ${{ env.PACKAGE_VERSION }}
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: "v"
 
-      - name: Create Tag
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          $version = "${{ steps.get_version.outputs.VERSION }}"
-
-          # Check if tag exists
-          $tagExists = git tag -l "v$version"
-          if (-not $tagExists) {
-            git tag -a "v$version" -m "Release version $version"
-            git push origin "v$version"
-          }
-
-      - name: Create Release
+      - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/Onekey_v${{ steps.get_version.outputs.VERSION }}.exe
-          draft: false
+          tag_name: v${{ env.PACKAGE_VERSION }}
+          files: dist/Onekey_v${{ env.PACKAGE_VERSION }}.exe
           prerelease: false
-          generate_release_notes: true
+          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
