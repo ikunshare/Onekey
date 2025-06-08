@@ -71,19 +71,8 @@ jobs:
             ./dist/*.exe
           args: "-fq"
 
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/Onekey_v${{ steps.get_version.outputs.VERSION }}.exe
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create tag and release (if not tagged)
-        if: github.ref == 'refs/heads/main'
+      - name: Create Tag
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
@@ -95,6 +84,16 @@ jobs:
             git tag -a "v$version" -m "Release version $version"
             git push origin "v$version"
           }
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/Onekey_v${{ steps.get_version.outputs.VERSION }}.exe
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to Gitee Release
         if: success() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
