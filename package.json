@@ -1,6 +1,6 @@
 {
   "name": "onekey",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "一个Steam仓库清单下载器",
   "main": "index.js",
   "scripts": {
