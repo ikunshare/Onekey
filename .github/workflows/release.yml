@@ -51,9 +51,8 @@ jobs:
       - name: Build executable
         run: |
           pyinstaller --onefile `
+            -i "./icon.jpg"
             --name "Onekey_v${{ steps.get_version.outputs.VERSION }}" `
-            --uac-admin `
-            --uac-uiaccess `
             --add-data "src;src" `
             --hidden-import=winreg `
             --hidden-import=httpx `
