@@ -69,22 +69,21 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_repo: ${{ github.repository }}
-          version: ${{ env.PACKAGE_VERSION }}
+          version: ${{ steps.get_version.outputs.VERSION }}
           git_commit_sha: ${{ github.sha }}
           git_tag_prefix: "v"
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.PACKAGE_VERSION }}
-          files: dist/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          files: dist/Onekey_v${{ steps.get_version.outputs.VERSION }}.exe
           prerelease: false
           draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to Gitee Release
-        if: success() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
         continue-on-error: true
         uses: nicennnnnnnlee/action-gitee-release@v1.0.5
         with:
@@ -100,7 +99,6 @@ jobs:
           gitee_file_path: dist/Onekey_v${{ steps.get_version.outputs.VERSION }}.exe
 
       - name: Upload to Telegram Channel
-        if: success() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
         continue-on-error: true
         shell: powershell
         run: |
