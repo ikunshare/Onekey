@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onekey - 首次使用向导</title>
+
+    <!-- Material Design 3 -->
+    <link
+      href="https://cdn.jsdmirror.com/gh/ikun0014/font@main/style.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+
+  <body>
+    <div class="oobe-container">
+      <!-- 顶部应用栏 -->
+      <div class="oobe-card">
+        <div class="oobe-header">
+          <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            title="切换主题"
+          >
+            <span class="material-icons">light_mode</span>
+          </button>
+          <div class="oobe-logo">
+            <span class="material-icons" style="font-size: inherit"
+              >extension</span
+            >
+          </div>
+          <h1 class="oobe-title">欢迎使用 Onekey</h1>
+          <p class="oobe-subtitle">一键解锁，畅享游戏体验</p>
+        </div>
+
+        <div class="oobe-content">
+          <div class="step-indicator">
+            <div class="step-dot active" data-step="0"></div>
+            <div class="step-dot" data-step="1"></div>
+            <div class="step-dot" data-step="2"></div>
+          </div>
+
+          <!-- 步骤 1: 欢迎 -->
+          <div class="oobe-step active" data-step="0">
+            <div class="welcome-text">
+              <h3>🎮 欢迎来到 Onekey 世界</h3>
+              <p>
+                Onekey 是一个强大的 Steam
+                游戏解锁工具，帮助您轻松管理和解锁游戏。
+              </p>
+              <p>在开始使用之前，我们需要验证您的授权卡密。</p>
+              <p><strong>特点：</strong></p>
+              <p>• 支持 SteamTools 和 GreenLuma 两种解锁方式</p>
+              <p>• 直观的 Web 界面，操作简单</p>
+              <p>• 实时日志显示，过程透明</p>
+              <p>• 前端代码完全开源, 绝对不盗号/挖矿</p>
+              <a href="http://103.217.184.26:911" target="_blank">• 点我购买卡密</a>
+            </div>
+          </div>
+
+          <!-- 步骤 2: 卡密验证 -->
+          <div class="oobe-step" data-step="1">
+            <div class="welcome-text">
+              <h3>🔑 激活您的卡密</h3>
+              <p>请输入您的授权卡密以激活 Onekey 工具。</p>
+            </div>
+
+            <div class="key-input-section">
+              <div class="input-group">
+                <label for="activationKey" class="input-label">授权卡密</label>
+                <input
+                  type="text"
+                  id="activationKey"
+                  class="text-field"
+                  placeholder="请输入您的卡密"
+                  autocomplete="off"
+                />
+                <div class="input-helper">
+                  卡密格式：[PREFIX]_XXXXXXXX-XXXXXXXXXXXXXXXX
+                </div>
+              </div>
+
+              <div class="key-status" id="keyStatus">
+                <div class="status-header">
+                  <span class="material-icons" id="statusIcon">info</span>
+                  <span id="statusMessage">验证中...</span>
+                </div>
+                <div class="key-info" id="keyInfo"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 步骤 4: 完成 -->
+          <div class="oobe-step" data-step="3">
+            <div class="welcome-text">
+              <h3>🎉 设置完成</h3>
+              <p>恭喜！您已成功激活 Onekey 工具。</p>
+              <p>现在您可以开始使用所有功能了。</p>
+              <div
+                class="key-info"
+                id="finalKeyInfo"
+                style="margin-top: 24px"
+              ></div>
+            </div>
+          </div>
+
+          <div class="oobe-actions">
+            <button
+              type="button"
+              id="prevBtn"
+              class="btn btn-text"
+              style="display: none"
+            >
+              <span class="material-icons">arrow_back</span>
+              上一步
+            </button>
+            <button
+              type="button"
+              id="nextBtn"
+              class="btn btn-primary btn-large"
+            >
+              <span class="material-icons">arrow_forward</span>
+              下一步
+            </button>
+            <button
+              type="button"
+              id="verifyBtn"
+              class="btn btn-primary btn-large"
+              style="display: none"
+            >
+              <span class="material-icons">verified</span>
+              验证卡密
+            </button>
+            <button
+              type="button"
+              id="finishBtn"
+              class="btn btn-primary btn-large"
+              style="display: none"
+            >
+              <span class="material-icons">check</span>
+              开始使用
+            </button>
+          </div>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="snackbar" class="snackbar">
+      <div class="snackbar-content">
+        <span id="snackbarMessage"></span>
+        <button id="snackbarClose" class="snackbar-action">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      class OOBEManager {
+        constructor() {
+          this.currentStep = 0;
+          this.totalSteps = 3;
+          this.keyData = null;
+
+          this.initializeEventListeners();
+          this.updateStepDisplay();
+        }
+
+        initializeEventListeners() {
+          document.getElementById("nextBtn").addEventListener("click", () => {
+            this.nextStep();
+          });
+
+          document.getElementById("prevBtn").addEventListener("click", () => {
+            this.prevStep();
+          });
+
+          document.getElementById("verifyBtn").addEventListener("click", () => {
+            this.verifyKey();
+          });
+
+          document.getElementById("finishBtn").addEventListener("click", () => {
+            this.finishSetup();
+          });
+
+          document
+            .getElementById("activationKey")
+            .addEventListener("input", () => {
+              this.resetKeyStatus();
+            });
+
+          document
+            .getElementById("activationKey")
+            .addEventListener("keypress", (e) => {
+              if (e.key === "Enter") {
+                this.verifyKey();
+              }
+            });
+
+          document
+            .getElementById("snackbarClose")
+            .addEventListener("click", () => {
+              this.hideSnackbar();
+            });
+        }
+
+        nextStep() {
+          if (this.currentStep < this.totalSteps - 1) {
+            this.currentStep++;
+            this.updateStepDisplay();
+          }
+        }
+
+        prevStep() {
+          if (this.currentStep > 0) {
+            this.currentStep--;
+            this.updateStepDisplay();
+          }
+        }
+
+        updateStepDisplay() {
+          document.querySelectorAll(".step-dot").forEach((dot, index) => {
+            dot.classList.remove("active", "completed");
+            if (index < this.currentStep) {
+              dot.classList.add("completed");
+            } else if (index === this.currentStep) {
+              dot.classList.add("active");
+            }
+          });
+
+          document.querySelectorAll(".oobe-step").forEach((step, index) => {
+            step.classList.toggle("active", index === this.currentStep);
+          });
+
+          this.updateButtons();
+        }
+
+        updateButtons() {
+          const prevBtn = document.getElementById("prevBtn");
+          const nextBtn = document.getElementById("nextBtn");
+          const verifyBtn = document.getElementById("verifyBtn");
+          const finishBtn = document.getElementById("finishBtn");
+
+          [prevBtn, nextBtn, verifyBtn, finishBtn].forEach((btn) => {
+            btn.style.display = "none";
+          });
+
+          if (this.currentStep > 0) {
+            prevBtn.style.display = "flex";
+          }
+
+          switch (this.currentStep) {
+            case 0:
+              nextBtn.style.display = "flex";
+              break;
+            case 1:
+              verifyBtn.style.display = "flex";
+              break;
+            case 2:
+              finishBtn.style.display = "flex";
+              break;
+          }
+        }
+
+        resetKeyStatus() {
+          const keyStatus = document.getElementById("keyStatus");
+          keyStatus.classList.remove("show", "success", "error");
+        }
+
+        async verifyKey() {
+          const keyInput = document.getElementById("activationKey");
+          const key = keyInput.value.trim();
+
+          if (!key) {
+            this.showSnackbar("请输入卡密", "error");
+            return;
+          }
+
+          if (!key.match(/^[A-Z0-9_-]+$/)) {
+            this.showKeyStatus("error", "卡密格式不正确", "error");
+            return;
+          }
+
+          this.showLoading(true);
+
+          try {
+            const response = await fetch("/api/getKeyInfo", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ key: key }),
+            });
+
+            const data = await response.json();
+
+            if (data.key && data.info) {
+              this.keyData = data.info;
+              this.showKeyStatus("success", "卡密验证成功！", "check_circle");
+              this.displayKeyInfo(data.info);
+
+              setTimeout(() => {
+                this.nextStep();
+                this.showFinalKeyInfo(data.info);
+              }, 2000);
+            } else {
+              this.showKeyStatus(
+                "error",
+                data.message || "卡密不存在或已过期",
+                "error",
+              );
+            }
+          } catch (error) {
+            this.showKeyStatus("error", "验证失败，请检查网络连接", "error");
+            console.error("Key verification error:", error);
+          } finally {
+            this.showLoading(false);
+          }
+        }
+
+        showKeyStatus(type, message, icon) {
+          const keyStatus = document.getElementById("keyStatus");
+          const statusIcon = document.getElementById("statusIcon");
+          const statusMessage = document.getElementById("statusMessage");
+
+          statusIcon.textContent = icon;
+          statusMessage.textContent = message;
+
+          keyStatus.className = `key-status show ${type}`;
+        }
+
+        displayKeyInfo(keyInfo) {
+          const keyInfoContainer = document.getElementById("keyInfo");
+          const expiresAt = new Date(keyInfo.expiresAt);
+          const isExpired = expiresAt < new Date();
+
+          const typeNames = {
+            day: "日卡",
+            week: "周卡",
+            month: "月卡",
+            year: "年卡",
+            permanent: "永久卡",
+          };
+
+          keyInfoContainer.innerHTML = `
+                    <div class="key-info-item">
+                        <span class="material-icons">label</span>
+                        <span>类型：${typeNames[keyInfo.type] || keyInfo.type}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">schedule</span>
+                        <span>到期：${expiresAt.toLocaleDateString()}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">analytics</span>
+                        <span>使用次数：${keyInfo.usageCount}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">${keyInfo.isActive && !isExpired ? "check_circle" : "cancel"}</span>
+                        <span>状态：${keyInfo.isActive && !isExpired ? "有效" : "无效"}</span>
+                    </div>
+                `;
+        }
+
+        showFinalKeyInfo(keyInfo) {
+          const finalKeyInfo = document.getElementById("finalKeyInfo");
+          const expiresAt = new Date(keyInfo.expiresAt);
+
+          const typeNames = {
+            day: "日卡",
+            week: "周卡",
+            month: "月卡",
+            year: "年卡",
+            permanent: "永久卡",
+          };
+
+          finalKeyInfo.innerHTML = `
+                    <div class="key-info-item">
+                        <span class="material-icons">verified_user</span>
+                        <span><strong>卡密类型：</strong>${typeNames[keyInfo.type] || keyInfo.type}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">event</span>
+                        <span><strong>有效期至：</strong>${expiresAt.toLocaleDateString()} ${expiresAt.toLocaleTimeString()}</span>
+                    </div>
+                `;
+        }
+
+        async finishSetup() {
+          if (!this.keyData) {
+            this.showSnackbar("卡密数据丢失，请重新验证", "error");
+            this.currentStep = 1;
+            this.updateStepDisplay();
+            return;
+          }
+
+          this.showLoading(true);
+
+          try {
+            const response = await fetch("/api/config/update", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                key: document.getElementById("activationKey").value.trim(),
+                steam_path: "",
+                debug_mode: false,
+                logging_files: true,
+                show_console: false,
+              }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              this.showSnackbar("配置保存成功，正在跳转...", "success");
+              setTimeout(() => {
+                window.location.href = "/";
+              }, 1500);
+            } else {
+              throw new Error(data.message || "保存配置失败");
+            }
+          } catch (error) {
+            this.showSnackbar("保存配置失败：" + error.message, "error");
+            console.error("Save config error:", error);
+          } finally {
+            this.showLoading(false);
+          }
+        }
+
+        showLoading(show) {
+          const overlay = document.getElementById("loadingOverlay");
+          overlay.classList.toggle("show", show);
+        }
+
+        showSnackbar(message, type = "info") {
+          const snackbar = document.getElementById("snackbar");
+          const snackbarMessage = document.getElementById("snackbarMessage");
+
+          snackbarMessage.textContent = message;
+          snackbar.className = `snackbar ${type} show`;
+
+          setTimeout(() => {
+            this.hideSnackbar();
+          }, 4000);
+        }
+
+        hideSnackbar() {
+          const snackbar = document.getElementById("snackbar");
+          snackbar.classList.remove("show");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new OOBEManager();
+      });
+    </script>
+    <script src="{{ url_for('static', path='js/theme.js') }}"></script>
+  </body>
+</html>

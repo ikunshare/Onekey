@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onekey - Settings</title>
+
+    <!-- Material Design 3 -->
+    <link
+      href="https://cdn.jsdmirror.com/gh/ikun0014/font@main/style.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/settings.css" />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- 顶部应用栏 -->
+      <header class="app-bar">
+        <div class="app-bar-content">
+          <button class="btn btn-text" onclick="goBack()">
+            <span class="material-icons">arrow_back</span>
+          </button>
+          <span class="material-icons app-icon">settings</span>
+          <h1 class="app-title">设置</h1>
+        </div>
+      </header>
+
+      <!-- 主内容区域 -->
+      <main class="main-content settings-main">
+        <!-- 卡密管理卡片 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">verified</span>
+            <h2>卡密管理</h2>
+          </div>
+          <div class="card-content">
+            <div class="settings-section">
+              <div id="keyInfoSection">
+                <div class="loading">正在加载卡密信息...</div>
+              </div>
+
+              <div class="key-change-section">
+                <h4
+                  style="
+                    margin: 0 0 16px 0;
+                    color: var(--md-sys-color-on-surface);
+                  "
+                >
+                  <span
+                    class="material-icons"
+                    style="vertical-align: middle; margin-right: 8px"
+                    >swap_horiz</span
+                  >
+                  更换卡密
+                </h4>
+                <div class="key-input-group">
+                  <div class="input-group" style="flex: 1; margin: 0">
+                    <label for="newKey" class="input-label">新卡密</label>
+                    <input
+                      type="text"
+                      id="newKey"
+                      class="text-field"
+                      placeholder="请输入新的卡密"
+                      autocomplete="off"
+                    />
+                    <div class="input-helper">
+                      格式：[PREFIX]_XXXXXXXX-XXXXXXXXXXXXXXXX
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    id="verifyNewKey"
+                    class="btn btn-secondary"
+                  >
+                    <span class="material-icons">check</span>
+                    验证
+                  </button>
+                  <button
+                    type="button"
+                    id="changeKey"
+                    class="btn btn-primary"
+                    style="display: none"
+                  >
+                    <span class="material-icons">save</span>
+                    保存
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steam 配置卡片 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">games</span>
+            <h2>Steam 配置</h2>
+          </div>
+          <div class="card-content">
+            <div class="settings-section">
+              <div class="input-group">
+                <label for="steamPath" class="input-label"
+                  >Steam 安装路径</label
+                >
+                <div class="path-input-group">
+                  <input
+                    type="text"
+                    id="steamPath"
+                    class="text-field"
+                    placeholder="留空自动检测，或手动输入Steam安装路径"
+                  />
+                  <button
+                    type="button"
+                    id="detectSteamPath"
+                    class="btn btn-secondary"
+                  >
+                    <span class="material-icons">search</span>
+                    自动检测
+                  </button>
+                </div>
+                <div class="input-helper">
+                  程序会尝试自动检测Steam安装路径，如果检测失败请手动输入。
+                  通常位于：C:\Program Files (x86)\Steam
+                </div>
+              </div>
+              <div class="status-indicator" id="steamPathStatus">
+                <span class="material-icons status-icon">info</span>
+                <span class="status-text">等待检测...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 应用程序配置卡片 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">tune</span>
+            <h2>应用程序配置</h2>
+          </div>
+          <div class="card-content">
+            <div class="settings-section">
+              <div class="setting-item">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="debugMode" />
+                  <span class="checkbox-button"></span>
+                  <div class="checkbox-content">
+                    <span class="checkbox-label">调试模式</span>
+                    <span class="checkbox-description"
+                      >启用详细的调试日志输出</span
+                    >
+                  </div>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="loggingFiles" />
+                  <span class="checkbox-button"></span>
+                  <div class="checkbox-content">
+                    <span class="checkbox-label">保存日志文件</span>
+                    <span class="checkbox-description"
+                      >将日志保存到文件中，便于问题排查</span
+                    >
+                  </div>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="showConsole" />
+                  <span class="checkbox-button"></span>
+                  <div class="checkbox-content">
+                    <span class="checkbox-label">显示终端窗口</span>
+                    <span class="checkbox-description"
+                      >启动时显示终端窗口和日志输出</span
+                    >
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按钮卡片 -->
+        <div class="card">
+          <div class="card-content">
+            <div class="action-buttons">
+              <button type="button" id="saveConfig" class="btn btn-primary">
+                <span class="material-icons">save</span>
+                保存配置
+              </button>
+              <button type="button" id="resetConfig" class="btn btn-secondary">
+                <span class="material-icons">restore</span>
+                重置为默认值
+              </button>
+              <button type="button" id="testConfig" class="btn btn-secondary">
+                <span class="material-icons">check_circle</span>
+                测试配置
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 配置信息显示卡片 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">info</span>
+            <h2>配置状态</h2>
+          </div>
+          <div class="card-content">
+            <div class="config-status-grid" id="configStatusGrid">
+              <div class="loading">正在加载配置状态...</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div id="confirmDialog" class="dialog-overlay">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3 id="dialogTitle">确认操作</h3>
+        </div>
+        <div class="dialog-content">
+          <p id="dialogMessage">确定要执行此操作吗？</p>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" id="dialogCancel" class="btn btn-text">
+            取消
+          </button>
+          <button type="button" id="dialogConfirm" class="btn btn-primary">
+            确认
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="snackbar" class="snackbar">
+      <div class="snackbar-content">
+        <span id="snackbarMessage"></span>
+        <button id="snackbarClose" class="snackbar-action">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 脚本 -->
+    <script src="{{ url_for('static', path='js/settings.js') }}"></script>
+    <script src="{{ url_for('static', path='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', path='js/project-info.js') }}"></script>
+  </body>
+</html>

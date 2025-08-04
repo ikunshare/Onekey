@@ -1,0 +1,9 @@
+vdf
+httpx
+Pillow
+pystray
+uvicorn
+logzero
+colorama
+fastapi[all]
+steam[client]

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onekey - Home</title>
+
+    <!-- Material Design 3 -->
+    <link
+      href="https://cdn.jsdmirror.com/gh/ikun0014/font@main/style.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- 顶部应用栏 -->
+      <header class="app-bar">
+        <div class="app-bar-content">
+          <span class="material-icons app-icon">games</span>
+          <h1 class="app-title">Onekey</h1>
+          <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            title="切换主题"
+          >
+            <span class="material-icons">light_mode</span>
+          </button>
+          <a href="/settings" class="btn btn-text settings-link">
+            <span class="material-icons">settings</span>
+            <span class="settings-text">设置</span>
+          </a>
+          <a href="/about" class="btn btn-text about-link">
+            <span class="material-icons">info</span>
+            <span class="about-text">关于本项目</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- 主内容区域 -->
+      <main class="main-content">
+        <!-- 配置状态卡片 -->
+        <div class="card config-card">
+          <div class="card-header">
+            <span class="material-icons">settings</span>
+            <h2>配置状态</h2>
+          </div>
+          <div class="card-content">
+            <div class="config-status" id="configStatus">
+              <div class="loading">正在检查配置...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 游戏解锁卡片 -->
+        <div class="card unlock-card">
+          <div class="card-header">
+            <span class="material-icons">lock_open</span>
+            <h2>游戏解锁</h2>
+          </div>
+          <div class="card-content">
+            <form id="unlockForm" class="unlock-form">
+              <div class="input-group">
+                <label for="appId" class="input-label">Steam App ID</label>
+                <input
+                  type="text"
+                  id="appId"
+                  name="appId"
+                  class="text-field"
+                  placeholder="请输入游戏的App ID"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  autofocus
+                  required
+                />
+                <div class="input-feedback" id="appIdFeedback"></div>
+                <div class="input-helper">例如: 730 (CS2), 570 (Dota 2)</div>
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">解锁工具</label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="toolType"
+                      value="steamtools"
+                      checked
+                    />
+                    <span class="radio-button"></span>
+                    <span class="radio-label"
+                      >SteamTools(更新积极, 推荐使用)</span
+                    >
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="toolType" value="greenluma" />
+                    <span class="radio-button"></span>
+                    <span class="radio-label">GreenLuma(一年一更, 无GUI)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="input-group" id="+DLCGroup">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="+DLC" name="+DLC" />
+                  <span class="checkbox-button"></span>
+                  <span class="checkbox-label">检索并入库所有DLC</span>
+                </label>
+                <div class="input-helper">
+                  需要注意: 有些DLC的Depot与游戏本体在一起, 不会分离
+                </div>
+              </div>
+
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary" id="unlockBtn">
+                  <span class="material-icons">play_arrow</span>
+                  开始解锁
+                </button>
+                <button type="button" class="btn btn-secondary" id="resetBtn">
+                  <span class="material-icons">refresh</span>
+                  重置
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- 进度日志卡片 -->
+        <div class="card progress-card">
+          <div class="card-header">
+            <span class="material-icons">timeline</span>
+            <h2>执行日志</h2>
+            <div class="card-actions">
+              <button class="btn btn-text" id="clearLogBtn">
+                <span class="material-icons">clear_all</span>
+                清空
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="progress-container" id="progressContainer">
+              <div class="progress-placeholder">
+                <span class="material-icons">info</span>
+                <p>等待任务开始...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="snackbar" class="snackbar">
+      <div class="snackbar-content">
+        <span id="snackbarMessage"></span>
+        <button id="snackbarClose" class="snackbar-action">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 脚本 -->
+    <script src="{{ url_for('static', path='js/app.js') }}"></script>
+    <script src="{{ url_for('static', path='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', path='js/project-info.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - name: 拉取仓库
+        uses: actions/checkout@v4
+
+      - name: 获取版本
+        shell: powershell
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: 安装Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.13.1
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install imageio
+          pip install -r requirements.txt
+
+      - name: 编译
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: main.py
+          mode: onefile
+          show-memory: true
+          onefile-tempdir-spec: "%TEMP%\\onekey_%PID%_%TIME%"
+          windows-icon-from-ico: icon.jpg
+          company-name: "ikunshare"
+          product-name: "Onekey"
+          include-data-dir: |
+            ./web/templates=web/templates
+            ./web/static=web/static
+          file-version: ${{ env.PACKAGE_VERSION }}
+          product-version: ${{ env.PACKAGE_VERSION }}
+          file-description: "Onekey Depot Manifest Downloader."
+          copyright: "Copyright © 2025 ikunshare All Rights Reserved."
+          output-file: Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          assume-yes-for-downloads: true
+          output-dir: build
+
+      - name: 创建标签
+        uses: pkgdeps/git-tag-action@v3
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          github_repo: ikunshare/Onekey
+          version: ${{ env.PACKAGE_VERSION }}
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: "v"
+
+      - name: 上传包
+        uses: actions/upload-artifact@v4
+        with:
+          name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+
+      - name: 发布
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.PACKAGE_VERSION }}
+          files: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          prerelease: false
+          draft: false
+          repository: ikunshare/Onekey
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: 发布到Gitee
+        uses: nicennnnnnnlee/action-gitee-release@v1.0.5
+        with:
+          gitee_owner: ikun0014
+          gitee_repo: Onekey
+          gitee_token: ${{ secrets.GITEE_TOKEN }}
+          gitee_tag_name: v${{ env.PACKAGE_VERSION }}
+          gitee_release_name: v${{ env.PACKAGE_VERSION }}
+          gitee_release_body: I don't know
+          gitee_target_commitish: main
+          gitee_upload_retry_times: 3
+          gitee_file_name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          gitee_file_path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
