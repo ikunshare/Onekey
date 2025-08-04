@@ -55,7 +55,7 @@ jobs:
         uses: pkgdeps/git-tag-action@v3
         with:
           github_token: ${{ secrets.GH_TOKEN }}
-          github_repo: ikunshare/Onekey
+          github_repo: ${{ github.repository }}
           version: ${{ env.PACKAGE_VERSION }}
           git_commit_sha: ${{ github.sha }}
           git_tag_prefix: "v"
@@ -73,7 +73,6 @@ jobs:
           files: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
           prerelease: false
           draft: false
-          repository: ikunshare/Onekey
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
