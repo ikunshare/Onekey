@@ -54,7 +54,7 @@ jobs:
       - name: 创建标签
         uses: pkgdeps/git-tag-action@v3
         with:
-          github_token: ${{ secrets.GH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           github_repo: ${{ github.repository }}
           version: ${{ env.PACKAGE_VERSION }}
           git_commit_sha: ${{ github.sha }}
@@ -74,7 +74,7 @@ jobs:
           prerelease: false
           draft: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 发布到Gitee
         uses: nicennnnnnnlee/action-gitee-release@v1.0.5
