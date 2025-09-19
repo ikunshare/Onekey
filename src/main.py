@@ -5,6 +5,7 @@ from .logger import Logger
 from .models import DepotInfo, ManifestInfo, SteamAppInfo, SteamAppManifestInfo
 from .network.client import HttpClient
 from .manifest_handler import ManifestHandler
+from . import constants
 
 
 class OnekeyApp:
@@ -18,6 +19,14 @@ class OnekeyApp:
             log_file=self.config.app_config.logging_files,
         )
         self.client = HttpClient()
+
+    async def check_ip(self):
+        req = await self.client.get(
+            "https://mips.kugou.com/check/iscn",
+        )
+        req.raise_for_status()
+        body = req.json()
+        constants.IS_CN = bool(body["ip_flag"])
 
     async def fetch_key(self):
         trans = {
@@ -156,6 +165,7 @@ class OnekeyApp:
                 self.logger.error("Steam路径未配置或无效，无法继续")
                 return False
 
+            await self.check_ip()
             await self.fetch_key()
 
             manifests = []
