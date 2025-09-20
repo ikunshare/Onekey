@@ -9,7 +9,7 @@ CONFIG_FILE: Path = Path("config.json")
 
 def check_ip():
     try:
-        with Client(verify=False, timeout=5.0) as client:
+        with Client(timeout=5.0) as client:
             req = client.get(
                 "https://mips.kugou.com/check/iscn",
             )

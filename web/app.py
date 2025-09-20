@@ -206,9 +206,6 @@ templates = Jinja2Templates(directory=f"{base_path}/templates")
 web_app = WebOnekeyApp(manager)
 
 
-
-
-
 @app.get("/")
 async def index(request: Request):
     """主页"""
@@ -395,7 +392,7 @@ async def get_key_info(request: Request):
         if not key:
             return JSONResponse({"success": False, "message": "卡密不能为空"})
 
-        async with httpx.AsyncClient(timeout=10.0, verify=False) as client:
+        async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
                 f"{STEAM_API_BASE}/getKeyInfo",
                 json={"key": key},
