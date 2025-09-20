@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from src import constants
 from src.constants import STEAM_API_BASE
 
 
@@ -205,6 +206,9 @@ templates = Jinja2Templates(directory=f"{base_path}/templates")
 web_app = WebOnekeyApp(manager)
 
 
+
+
+
 @app.get("/")
 async def index(request: Request):
     """主页"""
@@ -391,7 +395,7 @@ async def get_key_info(request: Request):
         if not key:
             return JSONResponse({"success": False, "message": "卡密不能为空"})
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, verify=False) as client:
             response = await client.post(
                 f"{STEAM_API_BASE}/getKeyInfo",
                 json={"key": key},

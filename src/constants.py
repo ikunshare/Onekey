@@ -1,10 +1,28 @@
 """常量定义"""
 
 from pathlib import Path
+from httpx import Client
 
 LOG_DIR: Path = Path("logs")
-IS_CN: bool = True
 CONFIG_FILE: Path = Path("config.json")
+
+
+def check_ip():
+    try:
+        with Client(verify=False, timeout=5.0) as client:
+            req = client.get(
+                "https://mips.kugou.com/check/iscn",
+            )
+            req.raise_for_status()
+            body = req.json()
+            print("已获取IP属地")
+            return bool(body["flag"])
+    except:
+        print("获取IP属地失败, 默认您位于中国大陆境内")
+        return True
+
+
+IS_CN: bool = check_ip()
 
 
 STEAM_API_BASE: str = "https://steam.ikunshare.com/api"
