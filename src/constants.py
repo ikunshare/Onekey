@@ -2,13 +2,13 @@
 
 from pathlib import Path
 
-LOG_DIR = Path("logs")
-IS_CN = False
-CONFIG_FILE = Path("config.json")
+LOG_DIR: Path = Path("logs")
+IS_CN: bool = True
+CONFIG_FILE: Path = Path("config.json")
 
 
-STEAM_API_BASE = "https://steam.ikunshare.com/api"
-STEAM_CACHE_CDN_LIST = (
+STEAM_API_BASE: str = "https://steam.ikunshare.com/api"
+STEAM_CACHE_CDN_LIST: list = (
     [
         "http://alibaba.cdn.steampipe.steamcontent.com",
         "http://steampipe.steamcontent.tnkjmec.com",

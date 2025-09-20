@@ -8,7 +8,7 @@ class HttpClient:
     """HTTP客户端封装"""
 
     def __init__(self):
-        self._client = httpx.AsyncClient(verify=False, timeout=60, proxy=None)
+        self._client = httpx.AsyncClient(timeout=60)
 
     async def get(self, url: str, headers: Optional[Dict] = None) -> httpx.Response:
         """GET请求"""
@@ -23,4 +23,3 @@ class HttpClient:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
-

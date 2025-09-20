@@ -26,7 +26,7 @@ class OnekeyApp:
         )
         req.raise_for_status()
         body = req.json()
-        constants.IS_CN = bool(body["ip_flag"])
+        constants.IS_CN = bool(body["flag"])
 
     async def fetch_key(self):
         trans = {
