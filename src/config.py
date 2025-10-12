@@ -7,6 +7,7 @@ from typing import Dict, Optional
 
 from .constants import CONFIG_FILE
 from .models import AppConfig
+from .utils.i18n import t
 
 DEFAULT_CONFIG = {
     "KEY": "",
@@ -14,6 +15,7 @@ DEFAULT_CONFIG = {
     "Logging_Files": True,
     "Show_Console": False,
     "Custom_Steam_Path": "",
+    "Language": "zh",
 }
 
 
@@ -32,11 +34,11 @@ class ConfigManager:
         try:
             with open(self.config_path, "w", encoding="utf-8") as f:
                 json.dump(DEFAULT_CONFIG, f, indent=2, ensure_ascii=False)
-            print("配置文件已生成")
+            print(t("config.generated"))
             os.system("pause")
             sys.exit(1)
         except IOError as e:
-            print(f"配置文件创建失败: {str(e)}")
+            print(t("config.create_failed", error=str(e)))
             os.system("pause")
             sys.exit(1)
 
@@ -55,37 +57,40 @@ class ConfigManager:
                 debug_mode=self._config_data.get("Debug_Mode", False),
                 logging_files=self._config_data.get("Logging_Files", True),
                 show_console=self._config_data.get("Show_Console", True),
+                language=self._config_data.get("Language", "zh"),
             )
 
             self.steam_path = self._get_steam_path()
         except json.JSONDecodeError:
-            print("配置文件损坏，正在重新生成...")
+            print(t("config.corrupted"))
             self._generate_config()
-            print("配置文件已重新生成，使用默认配置继续运行")
+            print(t("config.regenerated"))
             self.app_config = AppConfig(
                 key=DEFAULT_CONFIG.get("KEY", ""),
                 custom_steam_path=DEFAULT_CONFIG.get("Custom_Steam_Path", ""),
                 debug_mode=DEFAULT_CONFIG.get("Debug_Mode", False),
                 logging_files=DEFAULT_CONFIG.get("Logging_Files", True),
                 show_console=DEFAULT_CONFIG.get("Show_Console", True),
+                language=DEFAULT_CONFIG.get("Language", "zh"),
             )
             try:
                 self.steam_path = self._get_steam_path()
-            except:
+            except Exception:
                 self.steam_path = None
         except Exception as e:
-            print(f"配置加载失败: {str(e)}")
-            print("使用默认配置继续运行")
+            print(t("config.load_failed", error=str(e)))
+            print(t("config.use_default"))
             self.app_config = AppConfig(
                 key=DEFAULT_CONFIG.get("KEY", ""),
                 custom_steam_path=DEFAULT_CONFIG.get("Custom_Steam_Path", ""),
                 debug_mode=DEFAULT_CONFIG.get("Debug_Mode", False),
                 logging_files=DEFAULT_CONFIG.get("Logging_Files", True),
                 show_console=DEFAULT_CONFIG.get("Show_Console", True),
+                language=DEFAULT_CONFIG.get("Language", "zh"),
             )
             try:
                 self.steam_path = self._get_steam_path()
-            except:
+            except Exception:
                 self.steam_path = None
 
     def _get_steam_path(self) -> Optional[Path]:
@@ -99,6 +104,6 @@ class ConfigManager:
             ) as key:
                 return Path(winreg.QueryValueEx(key, "SteamPath")[0])
         except Exception as e:
-            print(f"Steam路径获取失败: {str(e)}")
-            print("程序将继续运行，但部分功能可能不可用")
+            print(t("config.steam_path_failed", error=str(e)))
+            print(t("config.continue_partial"))
             return None

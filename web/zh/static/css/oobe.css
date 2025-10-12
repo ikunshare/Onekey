@@ -1,0 +1,230 @@
+.oobe-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    var(--md-sys-color-primary-container) 0%,
+    var(--md-sys-color-secondary-container) 100%
+  );
+  padding: 20px;
+}
+
+.oobe-card {
+  max-width: 500px;
+  width: 100%;
+  background: var(--md-sys-color-surface);
+  border-radius: var(--md-sys-shape-corner-extra-large);
+  box-shadow: var(--md-sys-elevation-level3);
+  overflow: hidden;
+  animation: slideInUp 0.6s ease-out;
+}
+
+.oobe-header {
+  background: linear-gradient(
+    45deg,
+    var(--md-sys-color-primary),
+    var(--md-sys-color-tertiary)
+  );
+  color: var(--md-sys-color-on-primary);
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.oobe-logo {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.oobe-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.oobe-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.oobe-content {
+  padding: 32px;
+}
+
+.oobe-step {
+  display: none;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.oobe-step.active {
+  display: block;
+}
+
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--md-sys-color-outline);
+  margin: 0 6px;
+  transition: all 0.3s ease;
+}
+
+.step-dot.active {
+  background: var(--md-sys-color-primary);
+  transform: scale(1.2);
+}
+
+.step-dot.completed {
+  background: var(--md-sys-color-tertiary);
+}
+
+.welcome-text {
+  text-align: center;
+  margin-bottom: 32px;
+  text-decoration: none;
+}
+
+.welcome-text h3 {
+  color: var(--md-sys-color-on-surface);
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.welcome-text p {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.welcome-text a {
+  color: var(--md-sys-color-on-surface-variant);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.key-input-section {
+  margin-bottom: 24px;
+}
+
+.key-status {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-variant);
+  display: none;
+}
+
+.key-status.show {
+  display: block;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.key-status.success {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #2e7d32;
+}
+
+.key-status.error {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #c62828;
+}
+
+.key-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.key-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.key-info-item .material-icons {
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+.oobe-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.btn-large {
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--md-sys-shape-corner-extra-large);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.loading-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--md-sys-color-outline);
+  border-top: 4px solid var(--md-sys-color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@media (max-width: 600px) {
+  .oobe-container {
+    padding: 12px;
+  }
+
+  .oobe-header {
+    padding: 32px 24px;
+  }
+
+  .oobe-content {
+    padding: 24px;
+  }
+
+  .key-info {
+    grid-template-columns: 1fr;
+  }
+
+  .oobe-actions {
+    flex-direction: column;
+  }
+}

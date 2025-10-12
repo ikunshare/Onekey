@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onekey - Settings</title>
+
+    <!-- Material Design 3 -->
+    <link
+      href="https://cdn.jsdmirror.com/gh/ikun0014/font@main/LXGWWenKaiMono-Regular/result.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/settings.css" />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- Top App Bar -->
+      <header class="app-bar">
+        <div class="app-bar-content">
+          <button class="btn btn-text" onclick="goBack()">
+            <span class="material-icons">arrow_back</span>
+          </button>
+          <span class="material-icons app-icon">settings</span>
+          <h1 class="app-title">Settings</h1>
+        </div>
+      </header>
+
+      <!-- Main Content Area -->
+      <main class="main-content settings-main">
+        <!-- Key Management Card -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">verified</span>
+            <h2>Key Management</h2>
+          </div>
+          <div class="card-content">
+            <div class="settings-section">
+              <div id="keyInfoSection">
+                <div class="loading">Loading key information...</div>
+              </div>
+
+              <div class="key-change-section">
+                <h4
+                  style="
+                    margin: 0 0 16px 0;
+                    color: var(--md-sys-color-on-surface);
+                  "
+                >
+                  <span
+                    class="material-icons"
+                    style="vertical-align: middle; margin-right: 8px"
+                    >swap_horiz</span
+                  >
+                  Change Key
+                </h4>
+                <div class="key-input-group">
+                  <div class="input-group" style="flex: 1; margin: 0">
+                    <label for="newKey" class="input-label">New Key</label>
+                    <input
+                      type="text"
+                      id="newKey"
+                      class="text-field"
+                      placeholder="Please enter new key"
+                      autocomplete="off"
+                    />
+                    <div class="input-helper">
+                      Format: [PREFIX]_XXXXXXXX-XXXXXXXXXXXXXXXX
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    id="verifyNewKey"
+                    class="btn btn-secondary"
+                  >
+                    <span class="material-icons">check</span>
+                    Verify
+                  </button>
+                  <button
+                    type="button"
+                    id="changeKey"
+                    class="btn btn-primary"
+                    style="display: none"
+                  >
+                    <span class="material-icons">save</span>
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steam Configuration Card -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">games</span>
+            <h2>Steam Configuration</h2>
+          </div>
+          <div class="card-content">
+            <div class="settings-section">
+              <div class="input-group">
+                <label for="steamPath" class="input-label"
+                  >Steam Installation Path</label
+                >
+                <div class="path-input-group">
+                  <input
+                    type="text"
+                    id="steamPath"
+                    class="text-field"
+                    placeholder="Leave blank for auto-detect, or manually enter Steam installation path"
+                  />
+                  <button
+                    type="button"
+                    id="detectSteamPath"
+                    class="btn btn-secondary"
+                  >
+                    <span class="material-icons">search</span>
+                    Auto Detect
+                  </button>
+                </div>
+                <div class="input-helper">
+                  The program will attempt to automatically detect the Steam
+                  installation path. If detection fails, please enter it
+                  manually. Usually located at: C:\Program Files (x86)\Steam
+                </div>
+              </div>
+              <div class="status-indicator" id="steamPathStatus">
+                <span class="material-icons status-icon">info</span>
+                <span class="status-text">Waiting for detection...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Application Configuration Card -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">tune</span>
+            <h2>Application Configuration</h2>
+          </div>
+          <div class="card-content">
+            <div class="settings-section">
+              <div class="setting-item">
+                <label class="setting-label">Language Selection</label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="language"
+                      value="zh"
+                      id="language-zh"
+                    />
+                    <span class="radio-button"></span>
+                    <span class="radio-label">Simplified Chinese</span>
+                  </label>
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="language"
+                      value="en"
+                      id="language-en"
+                      checked
+                    />
+                    <span class="radio-button"></span>
+                    <span class="radio-label">English</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="debugMode" />
+                  <span class="checkbox-button"></span>
+                  <div class="checkbox-content">
+                    <span class="checkbox-label">Debug Mode</span>
+                    <span class="checkbox-description"
+                      >Enable detailed debug log output</span
+                    >
+                  </div>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="loggingFiles" />
+                  <span class="checkbox-button"></span>
+                  <div class="checkbox-content">
+                    <span class="checkbox-label">Save Log Files</span>
+                    <span class="checkbox-description"
+                      >Save logs to files for troubleshooting</span
+                    >
+                  </div>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="showConsole" />
+                  <span class="checkbox-button"></span>
+                  <div class="checkbox-content">
+                    <span class="checkbox-label">Show Console Window</span>
+                    <span class="checkbox-description"
+                      >Display console window and log output on startup</span
+                    >
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons Card -->
+        <div class="card">
+          <div class="card-content">
+            <div class="action-buttons">
+              <button type="button" id="saveConfig" class="btn btn-primary">
+                <span class="material-icons">save</span>
+                Save Configuration
+              </button>
+              <button type="button" id="resetConfig" class="btn btn-secondary">
+                <span class="material-icons">restore</span>
+                Reset to Default
+              </button>
+              <button type="button" id="testConfig" class="btn btn-secondary">
+                <span class="material-icons">check_circle</span>
+                Test Configuration
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuration Information Display Card -->
+        <div class="card">
+          <div class="card-header">
+            <span class="material-icons">info</span>
+            <h2>Configuration Status</h2>
+          </div>
+          <div class="card-content">
+            <div class="config-status-grid" id="configStatusGrid">
+              <div class="loading">Loading configuration status...</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmDialog" class="dialog-overlay">
+      <div class="dialog">
+        <div class="dialog-header">
+          <h3 id="dialogTitle">Confirm Action</h3>
+        </div>
+        <div class="dialog-content">
+          <p id="dialogMessage">
+            Are you sure you want to perform this action?
+          </p>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" id="dialogCancel" class="btn btn-text">
+            Cancel
+          </button>
+          <button type="button" id="dialogConfirm" class="btn btn-primary">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Snackbar -->
+    <div id="snackbar" class="snackbar">
+      <div class="snackbar-content">
+        <span id="snackbarMessage"></span>
+        <button id="snackbarClose" class="snackbar-action">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', path='js/settings.js') }}"></script>
+    <script src="{{ url_for('static', path='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', path='js/project-info.js') }}"></script>
+  </body>
+</html>

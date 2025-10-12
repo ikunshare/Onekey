@@ -50,3 +50,4 @@ class AppConfig:
     debug_mode: bool = False
     logging_files: bool = True
     show_console: bool = True
+    language: str = "zh"

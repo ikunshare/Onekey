@@ -5,6 +5,7 @@ from .logger import Logger
 from .models import DepotInfo, ManifestInfo, SteamAppInfo, SteamAppManifestInfo
 from .network.client import HttpClient
 from .manifest_handler import ManifestHandler
+from .utils.i18n import t
 
 
 class OnekeyApp:
@@ -19,28 +20,27 @@ class OnekeyApp:
         )
         self.client = HttpClient()
 
-    async def fetch_key(self):
-        trans = {
-            "week": "周卡",
-            "month": "月卡",
-            "year": "年卡",
-            "permanent": "永久卡",
-        }
+    async def fetch_key(self) -> bool:
+        """获取并验证卡密信息"""
         try:
             response = await self.client._client.post(
                 f"{STEAM_API_BASE}/getKeyInfo",
                 json={"key": self.config.app_config.key},
             )
             body = response.json()
+
             if not body["info"]:
-                self.logger.error("卡密不存在")
+                self.logger.error(t("api.key_not_exist"))
                 return False
-            self.logger.info(f"卡密类型: {trans[body['info']['type']]}")
-            if trans[body["info"]["type"]] != "永久卡":
-                self.logger.info(f"卡密过期时间: {body['info']['expiresAt']}")
+
+            key_type = body["info"]["type"]
+            self.logger.info(t("api.key_type", type=t(f"key_type.{key_type}")))
+
+            if key_type != "permanent":
+                self.logger.info(t("api.key_expires", time=body["info"]["expiresAt"]))
             return True
         except Exception as e:
-            self.logger.error(f"获取卡密信息失败: {str(e)}")
+            self.logger.error(t("api.key_info_failed", error=str(e)))
             return True
 
     async def fetch_app_data(
@@ -53,7 +53,7 @@ class OnekeyApp:
         dlc_manifests = []
 
         try:
-            self.logger.info(f"正在获取游戏 {app_id} 的信息...")
+            self.logger.info(t("api.fetching_game", app_id=app_id))
 
             response = await self.client._client.post(
                 f"{STEAM_API_BASE}/getGame",
@@ -62,24 +62,26 @@ class OnekeyApp:
             )
 
             if response.status_code == 401:
-                self.logger.error("API密钥无效")
-                return []
+                self.logger.error(t("api.invalid_key"))
+                return SteamAppInfo(), SteamAppManifestInfo(mainapp=[], dlcs=[])
 
             if response.status_code != 200:
-                self.logger.error(f"API请求失败，状态码: {response.status_code}")
-                return []
+                self.logger.error(t("api.request_failed", code=response.status_code))
+                return SteamAppInfo(), SteamAppManifestInfo(mainapp=[], dlcs=[])
 
             data = response.json()
 
             if not data:
-                self.logger.error("未找到此游戏的清单信息")
-                return []
+                self.logger.error(t("api.no_manifest"))
+                return SteamAppInfo(), SteamAppManifestInfo(mainapp=[], dlcs=[])
 
-            self.logger.info(f"游戏名称: {data.get('name', 'Unknown')}")
-            self.logger.info(f"Depot数量: {data.get('depotCount', 'Unknown')}")
+            self.logger.info(t("api.game_name", name=data.get("name", "Unknown")))
+            self.logger.info(
+                t("api.depot_count", count=data.get("depotCount", "Unknown"))
+            )
 
             if and_dlc:
-                for item in data["gameManifests"]:
+                for item in data.get("gameManifests", []):
                     manifest = ManifestInfo(
                         app_id=item["app_id"],
                         depot_id=item["depot_id"],
@@ -89,10 +91,14 @@ class OnekeyApp:
                     )
                     main_app_manifests.append(manifest)
 
-                for item in data["dlcManifests"]:
-                    self.logger.info(f"DLC名称: {item.get('dlcName', 'Unknown')}")
-                    self.logger.info(f"DLC AppId: {item.get('dlcId', 'Unknown')}")
-                    for manifests in item["manifests"]:
+                for item in data.get("dlcManifests", []):
+                    self.logger.info(
+                        t("api.dlc_name", name=item.get("dlcName", "Unknown"))
+                    )
+                    self.logger.info(
+                        t("api.dlc_appid", id=item.get("dlcId", "Unknown"))
+                    )
+                    for manifests in item.get("manifests", []):
                         manifest = ManifestInfo(
                             app_id=manifests["app_id"],
                             depot_id=manifests["depot_id"],
@@ -102,7 +108,7 @@ class OnekeyApp:
                         )
                         dlc_manifests.append(manifest)
             else:
-                for item in data["manifests"]:
+                for item in data.get("manifests", []):
                     manifest = ManifestInfo(
                         app_id=item["app_id"],
                         depot_id=item["depot_id"],
@@ -111,24 +117,26 @@ class OnekeyApp:
                         url=item["url"],
                     )
                     main_app_manifests.append(manifest)
+
         except Exception as e:
-            self.logger.error(f"获取主游戏信息失败: {str(e)}")
-            return SteamAppManifestInfo(mainapp=[], dlcs=[])
+            self.logger.error(t("api.fetch_failed", error=str(e)))
+            return SteamAppInfo(), SteamAppManifestInfo(mainapp=[], dlcs=[])
 
         return SteamAppInfo(
             app_id,
-            data["name"],
+            data.get("name", ""),
             data.get("totalDLCCount", data.get("dlcCount", 0)),
-            data["depotCount"],
+            data.get("depotCount", 0),
             data.get("workshopDecryptionKey", "None"),
         ), SteamAppManifestInfo(mainapp=main_app_manifests, dlcs=dlc_manifests)
 
     def prepare_depot_data(
         self, manifests: List[ManifestInfo]
-    ) -> tuple[List[DepotInfo], Dict[str, List[str]]]:
+    ) -> Tuple[List[DepotInfo], Dict[str, List[str]]]:
         """准备仓库数据"""
         depot_data = []
         depot_dict = {}
+
         for manifest in manifests:
             if manifest.depot_id not in depot_dict:
                 depot_dict[manifest.depot_id] = {
@@ -147,34 +155,43 @@ class OnekeyApp:
 
         return depot_data, depot_dict
 
-    async def run(self, app_id: str, tool_type: str, dlc: bool):
+    async def run(self, app_id: str, tool_type: str, dlc: bool) -> bool:
         """
         为Web版本提供的运行方法。
+
+        Args:
+            app_id: Steam应用ID
+            tool_type: 解锁工具类型 (steamtools/greenluma)
+            dlc: 是否包含DLC
+
+        Returns:
+            是否成功执行
         """
         try:
             if not self.config.steam_path:
-                self.logger.error("Steam路径未配置或无效，无法继续")
+                self.logger.error(t("task.no_steam_path"))
                 return False
 
             await self.fetch_key()
 
-            manifests = []
-
             app_info, manifests = await self.fetch_app_data(app_id, dlc)
 
-            if not manifests:
+            if not manifests.mainapp and not manifests.dlcs:
                 return False
 
             manifest_handler = ManifestHandler(
                 self.client, self.logger, self.config.steam_path
             )
+
             processed_manifests = await manifest_handler.process_manifests(manifests)
+
             if not processed_manifests:
-                self.logger.error("没有成功处理的清单")
+                self.logger.error(t("task.no_manifest_processed"))
                 return False
 
             depot_data, _ = self.prepare_depot_data(processed_manifests)
-            self.logger.info(f"选择的解锁工具: {tool_type}")
+            self.logger.info(t("tool.selected", tool=tool_type))
+
             if tool_type == "steamtools":
                 from .tools.steamtools import SteamTools
 
@@ -186,18 +203,19 @@ class OnekeyApp:
                 tool = GreenLuma(self.config.steam_path)
                 success = await tool.setup(depot_data, app_id)
             else:
-                self.logger.error("无效的工具选择")
+                self.logger.error(t("tool.invalid_selection"))
                 return False
 
             if success:
-                self.logger.info("游戏解锁配置成功！")
-                self.logger.info("重启Steam后生效")
+                self.logger.info(t("tool.config_success"))
+                self.logger.info(t("tool.restart_steam"))
                 return True
             else:
-                self.logger.error("配置失败")
+                self.logger.error(t("tool.config_failed"))
                 return False
+
         except Exception as e:
-            self.logger.error(f"运行错误: {e}")
+            self.logger.error(t("task.run_error", error=str(e)))
             return False
         finally:
             await self.client.close()

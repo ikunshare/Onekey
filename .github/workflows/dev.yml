@@ -19,37 +19,20 @@ jobs:
           echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
 
       - name: 安装Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.13.1
+          python-version: "3.11"
 
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install imageio
           pip install -r requirements.txt
+          pip install nuitka
 
       - name: 编译
-        uses: Nuitka/Nuitka-Action@main
-        with:
-          nuitka-version: main
-          script-name: main.py
-          mode: onefile
-          show-memory: true
-          onefile-tempdir-spec: "%TEMP%\\onekey_%PID%_%TIME%"
-          windows-icon-from-ico: icon.jpg
-          company-name: "ikunshare"
-          product-name: "Onekey"
-          include-data-dir: |
-            ./web/templates=web/templates
-            ./web/static=web/static
-          file-version: ${{ env.PACKAGE_VERSION }}
-          product-version: ${{ env.PACKAGE_VERSION }}
-          file-description: "Onekey Depot Manifest Downloader."
-          copyright: "Copyright © 2025 ikunshare All Rights Reserved."
-          output-file: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          assume-yes-for-downloads: true
-          output-dir: build
+        run: |
+          python -m nuitka --standalone --onefile --assume-yes-for-downloads --show-memory --show-progress --onefile-tempdir-spec="%TEMP%\\onekey_%PID%_%TIME%" --windows-icon-from-ico="icon.jpg" --company-name="ikunshare" --product-name="Onekey" --file-version="${{ env.PACKAGE_VERSION }}" --product-version="${{ env.PACKAGE_VERSION }}" --file-description="Onekey Depot Manifest Downloader." --copyright="Copyright © 2025 ikunshare All Rights Reserved." --include-data-dir="web=web" --output-dir="build" --output-filename="Onekey_v${{ env.PACKAGE_VERSION }}.exe" main.py
 
       - name: 上传包
         uses: actions/upload-artifact@v4

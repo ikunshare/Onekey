@@ -15,9 +15,9 @@ class SettingsManager {
 
     document.getElementById("resetConfig").addEventListener("click", () => {
       this.showConfirmDialog(
-        "重置配置",
-        "确定要重置所有配置为默认值吗？此操作不可恢复。",
-        () => this.resetConfig()
+        "Reset configuration",
+        "Are you sure you want to reset all configurations to default? This operation is irreversible.",
+        () => this.resetConfig(),
       );
     });
 
@@ -39,9 +39,9 @@ class SettingsManager {
 
     document.getElementById("changeKey").addEventListener("click", () => {
       this.showConfirmDialog(
-        "更换卡密",
-        "确定要更换为新的卡密吗？更换后需要重新验证。",
-        () => this.changeKey()
+        "Change card password",
+        "Are you sure you want to change to a new card password? Re-verification is required after replacement.",
+        () => this.changeKey(),
       );
     });
 
@@ -78,10 +78,13 @@ class SettingsManager {
         this.populateForm();
         this.updateConfigStatus();
       } else {
-        this.showSnackbar("加载配置失败: " + data.message, "error");
+        this.showSnackbar(
+          "Failed to load configuration: " + data.message,
+          "error",
+        );
       }
     } catch (error) {
-      this.showSnackbar("无法连接到服务器", "error");
+      this.showSnackbar("Unable to connect to server", "error");
       console.error("Load config error:", error);
     }
   }
@@ -98,8 +101,8 @@ class SettingsManager {
                     <div class="expiry-warning">
                         <span class="material-icons">warning</span>
                         <div>
-                            <strong>未设置卡密</strong><br>
-                            请在下方输入您的授权卡密
+                            <strong>No card password set</strong><br>
+                            Please enter your authorization card password below
                         </div>
                     </div>
                 `;
@@ -124,8 +127,8 @@ class SettingsManager {
                     <div class="expiry-warning">
                         <span class="material-icons">error</span>
                         <div>
-                            <strong>卡密验证失败</strong><br>
-                            当前卡密无效或已过期，请更换新的卡密
+                            <strong>Card password verification failed</strong><br>
+                            The current card password is invalid or expired, please replace it with a new one
                         </div>
                     </div>
                 `;
@@ -135,8 +138,8 @@ class SettingsManager {
                 <div class="expiry-warning">
                     <span class="material-icons">error</span>
                     <div>
-                        <strong>获取卡密信息失败</strong><br>
-                        请检查网络连接或联系客服
+                        <strong>Failed to obtain card password information</strong><br>
+                        Please check the network connection or contact customer service
                     </div>
                 </div>
             `;
@@ -158,23 +161,23 @@ class SettingsManager {
     const isExpiringSoon = daysLeft <= 7 && daysLeft > 0;
 
     const typeNames = {
-      day: "日卡",
-      week: "周卡",
-      month: "月卡",
-      year: "年卡",
-      permanent: "永久卡",
+      day: "day card",
+      week: "Weekly card",
+      month: "monthly card",
+      year: "Annual Pass",
+      permanent: "permanent card",
     };
 
     let statusBadge = "";
     if (isExpired && keyInfo.type != "permanent") {
       statusBadge =
-        '<span class="key-status-badge expired"><span class="material-icons" style="font-size: 14px;">cancel</span>已过期</span>';
+        '<span class="key-status-badge expired"><span class="material-icons" style="font-size: 14px;">cancel</span>Expired</span>';
     } else if (!keyInfo.isActive) {
       statusBadge =
-        '<span class="key-status-badge inactive"><span class="material-icons" style="font-size: 14px;">pause</span>未激活</span>';
+        '<span class="key-status-badge inactive"><span class="material-icons" style="font-size: 14px;">pause</span>Not activated</span>';
     } else {
       statusBadge =
-        '<span class="key-status-badge active"><span class="material-icons" style="font-size: 14px;">check_circle</span>正常</span>';
+        '<span class="key-status-badge active"><span class="material-icons" style="font-size: 14px;">check_circle</span>normal</span>';
     }
 
     let warningSection = "";
@@ -183,8 +186,8 @@ class SettingsManager {
                 <div class="expiry-warning">
                     <span class="material-icons">schedule</span>
                     <div>
-                        <strong>即将到期提醒</strong><br>
-                        您的卡密将在 ${daysLeft} 天后到期，请及时续费
+                        <strong>upcoming expiry reminder</strong><br>
+                        Your card password will expire in ${daysLeft} days, please renew in time
                     </div>
                 </div>
             `;
@@ -195,20 +198,20 @@ class SettingsManager {
                 <div class="key-info-card">
                     <span class="material-icons key-info-icon">fingerprint</span>
                     <div class="key-info-content">
-                        <div class="key-info-label">卡密</div>
+                        <div class="key-info-label">Cardamom</div>
                         <div class="key-info-value">${keyInfo.key.substring(
                           0,
-                          8
+                          8,
                         )}...${keyInfo.key.substring(
-      keyInfo.key.length - 8
-    )}</div>
+                          keyInfo.key.length - 8,
+                        )}</div>
                     </div>
                 </div>
                 
                 <div class="key-info-card">
                     <span class="material-icons key-info-icon">label</span>
                     <div class="key-info-content">
-                        <div class="key-info-label">类型</div>
+                        <div class="key-info-label">Type</div>
                         <div class="key-info-value">${
                           typeNames[keyInfo.type] || keyInfo.type
                         }</div>
@@ -218,7 +221,7 @@ class SettingsManager {
                 <div class="key-info-card">
                     <span class="material-icons key-info-icon">toggle_on</span>
                     <div class="key-info-content">
-                        <div class="key-info-label">状态</div>
+                        <div class="key-info-label">State</div>
                         <div class="key-info-value">${statusBadge}</div>
                     </div>
                 </div>
@@ -226,27 +229,27 @@ class SettingsManager {
                 <div class="key-info-card">
                     <span class="material-icons key-info-icon">event</span>
                     <div class="key-info-content">
-                        <div class="key-info-label">到期时间</div>
+                        <div class="key-info-label">Expiration time</div>
                         <div class="key-info-value">${expiresAt.toLocaleDateString()} ${expiresAt
-      .toLocaleTimeString()
-      .substring(0, 5)}</div>
+                          .toLocaleTimeString()
+                          .substring(0, 5)}</div>
                     </div>
                 </div>
 
                 <div class="key-info-card">
                     <span class="material-icons key-info-icon">analytics</span>
                     <div class="key-info-content">
-                        <div class="key-info-label">使用次数</div>
+                        <div class="key-info-label">Number of uses</div>
                         <div class="key-info-value">${keyInfo.usageCount} / ${
-      keyInfo.totalUsage || "∞"
-    }</div>
+                          keyInfo.totalUsage || "∞"
+                        }</div>
                     </div>
                 </div>
 
                 <div class="key-info-card">
                     <span class="material-icons key-info-icon">schedule</span>
                     <div class="key-info-content">
-                        <div class="key-info-label">创建时间</div>
+                        <div class="key-info-label">Creation time</div>
                         <div class="key-info-value">${createdAt.toLocaleDateString()}</div>
                     </div>
                 </div>
@@ -260,12 +263,12 @@ class SettingsManager {
     const key = newKeyInput.value.trim();
 
     if (!key) {
-      this.showSnackbar("请输入新卡密", "error");
+      this.showSnackbar("Please enter new card password", "error");
       return;
     }
 
     if (!key.match(/^[A-Z0-9_-]+$/)) {
-      this.showSnackbar("卡密格式不正确", "error");
+      this.showSnackbar("The card password format is incorrect", "error");
       return;
     }
 
@@ -274,7 +277,7 @@ class SettingsManager {
 
     verifyBtn.disabled = true;
     verifyBtn.innerHTML =
-      '<span class="material-icons">hourglass_empty</span>验证中...';
+      '<span class="material-icons">hourglass_empty</span>Verifying...';
 
     try {
       const response = await fetch("/api/getKeyInfo", {
@@ -289,42 +292,51 @@ class SettingsManager {
 
       if (data.key && data.info) {
         this.newKeyData = data.info;
-        this.showSnackbar("新卡密验证成功！", "success");
+        this.showSnackbar(
+          "New card password verification successful!",
+          "success",
+        );
 
         changeBtn.style.display = "flex";
         verifyBtn.style.display = "none";
 
         const typeNames = {
-          day: "日卡",
-          week: "周卡",
-          month: "月卡",
-          year: "年卡",
-          permanent: "永久卡",
+          day: "day card",
+          week: "Weekly card",
+          month: "Monthly card",
+          year: "Annual Pass",
+          permanent: "permanent card",
         };
 
         const expiresAt = new Date(data.info.expiresAt);
         this.showSnackbar(
-          `验证成功！新卡密类型：${
-            typeNames[data.info.type]
-          }，有效期至：${expiresAt.toLocaleDateString()}`,
-          "success"
+          `Verification successful! New card password type:
+            ${typeNames[data.info.type]}
+          }, valid until:${expiresAt.toLocaleDateString()}`,
+          "success",
         );
       } else {
-        this.showSnackbar("新卡密无效或已过期", "error");
+        this.showSnackbar(
+          "The new card password is invalid or expired",
+          "error",
+        );
         this.newKeyData = null;
       }
     } catch (error) {
-      this.showSnackbar("验证失败，请检查网络连接", "error");
+      this.showSnackbar(
+        "Verification failed, please check network connection",
+        "error",
+      );
       console.error("New key verification error:", error);
     } finally {
       verifyBtn.disabled = false;
-      verifyBtn.innerHTML = '<span class="material-icons">check</span>验证';
+      verifyBtn.innerHTML = '<span class="material-icons">check</span>Verify';
     }
   }
 
   async changeKey() {
     if (!this.newKeyData) {
-      this.showSnackbar("请先验证新卡密", "error");
+      this.showSnackbar("Please verify the new card password first", "error");
       return;
     }
 
@@ -350,17 +362,20 @@ class SettingsManager {
       const data = await response.json();
 
       if (data.success) {
-        this.showSnackbar("卡密更换成功！", "success");
+        this.showSnackbar("Card secret changed successfully!", "success");
 
         await this.loadKeyInfo();
 
         this.resetNewKeyStatus();
         document.getElementById("newKey").value = "";
       } else {
-        this.showSnackbar("更换失败: " + data.message, "error");
+        this.showSnackbar("Replacement failed: " + data.message, "error");
       }
     } catch (error) {
-      this.showSnackbar("更换卡密时发生错误", "error");
+      this.showSnackbar(
+        "An error occurred while changing the card password",
+        "error",
+      );
       console.error("Change key error:", error);
     }
 
@@ -410,13 +425,16 @@ class SettingsManager {
       const data = await response.json();
 
       if (data.success) {
-        this.showSnackbar("配置已保存", "success");
+        this.showSnackbar("Configuration saved", "success");
         await this.loadConfig();
       } else {
-        this.showSnackbar("保存失败: " + data.message, "error");
+        this.showSnackbar("Save failed: " + data.message, "error");
       }
     } catch (error) {
-      this.showSnackbar("保存配置时发生错误", "error");
+      this.showSnackbar(
+        "An error occurred while saving the configuration",
+        "error",
+      );
       console.error("Save config error:", error);
     }
   }
@@ -430,13 +448,19 @@ class SettingsManager {
       const data = await response.json();
 
       if (data.success) {
-        this.showSnackbar("配置已重置（卡密保持不变）", "success");
+        this.showSnackbar(
+          "The configuration has been reset (the card password remains unchanged)",
+          "success",
+        );
         await this.loadConfig();
       } else {
-        this.showSnackbar("重置失败: " + data.message, "error");
+        this.showSnackbar("Reset failed: " + data.message, "error");
       }
     } catch (error) {
-      this.showSnackbar("重置配置时发生错误", "error");
+      this.showSnackbar(
+        "An error occurred while resetting the configuration",
+        "error",
+      );
       console.error("Reset config error:", error);
     }
 
@@ -444,7 +468,7 @@ class SettingsManager {
   }
 
   async testConfig() {
-    this.showSnackbar("正在测试配置...", "info");
+    this.showSnackbar("Testing configuration...", "info");
 
     try {
       const response = await fetch("/api/config");
@@ -454,9 +478,9 @@ class SettingsManager {
         let messages = [];
 
         if (data.config.steam_path) {
-          messages.push("✓ Steam 路径配置正常");
+          messages.push("✓ Steam Path configuration is normal");
         } else {
-          messages.push("✗ Steam 路径配置异常");
+          messages.push("✗ Steam Abnormal path configuration");
         }
 
         if (this.currentKeyInfo) {
@@ -468,18 +492,27 @@ class SettingsManager {
           }
 
           if (this.currentKeyInfo.isActive && !isExpired) {
-            messages.push("✓ 卡密状态正常");
+            messages.push("✓ Card secret status is normal");
           } else {
-            messages.push("✗ 卡密状态异常");
+            messages.push("✗ Abnormal card secret status");
           }
         }
 
-        this.showSnackbar(`配置测试完成: ${messages.join(", ")}`, "success");
+        this.showSnackbar(
+          `Configuration test completed: ${messages.join(", ")}`,
+          "success",
+        );
       } else {
-        this.showSnackbar("配置测试失败: " + data.message, "error");
+        this.showSnackbar(
+          "Configuration test failed: " + data.message,
+          "error",
+        );
       }
     } catch (error) {
-      this.showSnackbar("配置测试时发生错误", "error");
+      this.showSnackbar(
+        "An error occurred while configuring the test",
+        "error",
+      );
       console.error("Test config error:", error);
     }
   }
@@ -496,7 +529,10 @@ class SettingsManager {
     document.getElementById("steamPath").value = suggestedPath;
 
     this.validateSteamPath();
-    this.showSnackbar("已设置为常见路径，请确认是否正确", "info");
+    this.showSnackbar(
+      "It has been set as a common path, please confirm whether it is correct",
+      "info",
+    );
   }
 
   validateSteamPath() {
@@ -507,20 +543,20 @@ class SettingsManager {
       statusElement.className = "status-indicator";
       statusElement.innerHTML = `
                 <span class="material-icons status-icon">info</span>
-                <span class="status-text">将使用自动检测的路径</span>
+                <span class="status-text">The automatically detected path will be used</span>
             `;
     } else {
       if (steamPath.toLowerCase().includes("steam")) {
         statusElement.className = "status-indicator success";
         statusElement.innerHTML = `
                     <span class="material-icons status-icon">check_circle</span>
-                    <span class="status-text">路径格式看起来正确</span>
+                    <span class="status-text">The path format looks correct</span>
                 `;
       } else {
         statusElement.className = "status-indicator warning";
         statusElement.innerHTML = `
                     <span class="material-icons status-icon">warning</span>
-                    <span class="status-text">路径可能不正确，请确认</span>
+                    <span class="status-text">The path may be incorrect, please confirm</span>
                 `;
       }
     }
@@ -536,22 +572,22 @@ class SettingsManager {
       statusCards.push({
         type: "success",
         icon: "folder",
-        title: "Steam 路径",
-        description: `路径有效: ${config.steam_path}`,
+        title: "Steam path",
+        description: `Path is valid: ${config.steam_path}`,
       });
     } else if (config.steam_path) {
       statusCards.push({
         type: "warning",
         icon: "folder_off",
-        title: "Steam 路径",
-        description: "路径已设置但可能无效",
+        title: "Steam path",
+        description: "Path is set but may be invalid",
       });
     } else {
       statusCards.push({
         type: "error",
         icon: "error",
-        title: "Steam 路径",
-        description: "未设置或自动检测失败",
+        title: "Steam path",
+        description: "Not set or auto-detection failed",
       });
     }
 
@@ -559,8 +595,8 @@ class SettingsManager {
       statusCards.push({
         type: "warning",
         icon: "bug_report",
-        title: "调试模式",
-        description: "已启用，会输出详细日志",
+        title: "Debug mode",
+        description: "Enabled, detailed logs will be output",
       });
     }
 
@@ -568,8 +604,8 @@ class SettingsManager {
       statusCards.push({
         type: "success",
         icon: "description",
-        title: "日志文件",
-        description: "已启用，日志将保存到文件",
+        title: "Log file",
+        description: "Enabled, logs will be saved to file",
       });
     }
 
@@ -583,7 +619,7 @@ class SettingsManager {
                     <div class="status-card-description">${card.description}</div>
                 </div>
             </div>
-        `
+        `,
       )
       .join("");
   }

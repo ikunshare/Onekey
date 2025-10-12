@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onekey - Home</title>
+
+    <!-- Material Design 3 -->
+    <link
+      href="https://cdn.jsdmirror.com/gh/ikun0014/font@main/LXGWWenKaiMono-Regular/result.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- Top App Bar -->
+      <header class="app-bar">
+        <div class="app-bar-content">
+          <span class="material-icons app-icon">games</span>
+          <h1 class="app-title">Onekey</h1>
+          <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            title="Toggle Theme"
+          >
+            <span class="material-icons">light_mode</span>
+          </button>
+          <a href="/settings" class="btn btn-text settings-link">
+            <span class="material-icons">settings</span>
+            <span class="settings-text">Settings</span>
+          </a>
+          <a href="/about" class="btn btn-text about-link">
+            <span class="material-icons">info</span>
+            <span class="about-text">About</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <!-- Configuration Status Card -->
+        <div class="card config-card">
+          <div class="card-header">
+            <span class="material-icons">settings</span>
+            <h2>Configuration Status</h2>
+          </div>
+          <div class="card-content">
+            <div class="config-status" id="configStatus">
+              <div class="loading">Checking configuration...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Game Unlock Card -->
+        <div class="card unlock-card">
+          <div class="card-header">
+            <span class="material-icons">lock_open</span>
+            <h2>Game Unlock</h2>
+          </div>
+          <div class="card-content">
+            <form id="unlockForm" class="unlock-form">
+              <div class="input-group">
+                <label for="appId" class="input-label">Steam App ID</label>
+                <input
+                  type="text"
+                  id="appId"
+                  name="appId"
+                  class="text-field"
+                  placeholder="Enter game App ID"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  autofocus
+                  required
+                />
+                <div class="input-feedback" id="appIdFeedback"></div>
+                <div class="input-helper">Example: 730 (CS2), 570 (Dota 2)</div>
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">Unlock Tool</label>
+                <div class="radio-group">
+                  <label class="radio-item">
+                    <input
+                      type="radio"
+                      name="toolType"
+                      value="steamtools"
+                      checked
+                    />
+                    <span class="radio-button"></span>
+                    <span class="radio-label"
+                      >SteamTools (actively updated, recommended)</span
+                    >
+                  </label>
+                  <label class="radio-item">
+                    <input type="radio" name="toolType" value="greenluma" />
+                    <span class="radio-button"></span>
+                    <span class="radio-label"
+                      >GreenLuma (updated yearly, no GUI)</span
+                    >
+                  </label>
+                </div>
+              </div>
+
+              <div class="input-group" id="+DLCGroup">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="+DLC" name="+DLC" />
+                  <span class="checkbox-button"></span>
+                  <span class="checkbox-label"
+                    >Retrieve and include all DLCs</span
+                  >
+                </label>
+                <div class="input-helper">
+                  Note: Some DLC depots are bundled with the base game and not
+                  separated
+                </div>
+              </div>
+
+              <div class="button-group">
+                <button type="submit" class="btn btn-primary" id="unlockBtn">
+                  <span class="material-icons">play_arrow</span>
+                  Start Unlock
+                </button>
+                <button type="button" class="btn btn-secondary" id="resetBtn">
+                  <span class="material-icons">refresh</span>
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Progress Log Card -->
+        <div class="card progress-card">
+          <div class="card-header">
+            <span class="material-icons">timeline</span>
+            <h2>Execution Log</h2>
+            <div class="card-actions">
+              <button class="btn btn-text" id="clearLogBtn">
+                <span class="material-icons">clear_all</span>
+                Clear
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="progress-container" id="progressContainer">
+              <div class="progress-placeholder">
+                <span class="material-icons">info</span>
+                <p>Waiting for task to start...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Snackbar -->
+    <div id="snackbar" class="snackbar">
+      <div class="snackbar-content">
+        <span id="snackbarMessage"></span>
+        <button id="snackbarClose" class="snackbar-action">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', path='js/app.js') }}"></script>
+    <script src="{{ url_for('static', path='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', path='js/project-info.js') }}"></script>
+  </body>
+</html>

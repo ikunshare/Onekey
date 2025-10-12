@@ -47,7 +47,6 @@ git clone https://github.com/ikunshare/Onekey
 pip install -r requirements.txt
 ```
 
-
 ## Star 趋势图
 
 [![Stargazers over time](https://starchart.cc/ikunshare/Onekey.svg)](https://starchart.cc/ikunshare/Onekey)

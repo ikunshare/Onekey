@@ -13,8 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from src import constants
 from src.constants import STEAM_API_BASE
+from src.utils.i18n import t
 
 
 # 添加项目根目录到Python路径
@@ -38,8 +38,8 @@ try:
     from src.main import OnekeyApp
     from src.config import ConfigManager
 except ImportError as e:
-    print(f"导入错误: {e}")
-    print("请确保在项目根目录中运行此程序")
+    print(t("error.import", error=str(e)))
+    print(t("error.ensure_root"))
     sys.exit(1)
 
 
@@ -199,8 +199,15 @@ app.add_middleware(
 manager = ConnectionManager()
 
 # 修复：为静态文件路由添加name参数
-app.mount("/static", StaticFiles(directory=f"{base_path}/static"), name="static")
-templates = Jinja2Templates(directory=f"{base_path}/templates")
+config = ConfigManager()
+app.mount(
+    "/static",
+    StaticFiles(directory=f"{base_path}/{config.app_config.language}/static"),
+    name="static",
+)
+templates = Jinja2Templates(
+    directory=f"{base_path}/{config.app_config.language}/templates"
+)
 
 # 创建Web应用实例
 web_app = WebOnekeyApp(manager)
@@ -326,6 +333,7 @@ async def update_config(request: Request):
             "Debug_Mode": data.get("debug_mode", False),
             "Logging_Files": data.get("logging_files", True),
             "Show_Console": data.get("show_console", True),
+            "Language": data.get("language", "zh"),
         }
 
         # 保存配置
@@ -376,6 +384,7 @@ async def get_detailed_config():
                     config.steam_path.exists() if config.steam_path else False
                 ),
                 "key": getattr(config.app_config, "key", ""),
+                "language": config.app_config.language,
             },
         }
     except Exception as e:
@@ -428,11 +437,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 )
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        print("客户端断开连接")
+        print(t("web.client_disconnected"))
     except Exception as e:
-        print(f"WebSocket 错误: {e}")
+        print(t("web.websocket_error", error=str(e)))
         manager.disconnect(websocket)
 
 
-print("启动Onekey Web GUI...")
-print("请在浏览器中访问: http://localhost:5000")
+print(t("web.starting"))
+print(t("web.visit"))

@@ -6,6 +6,7 @@ from .constants import STEAM_CACHE_CDN_LIST
 from .models import ManifestInfo, SteamAppManifestInfo
 from .logger import Logger
 from .network.client import HttpClient
+from .utils.i18n import t
 
 
 class ManifestHandler:
@@ -28,7 +29,7 @@ class ManifestHandler:
                     if r.status_code == 200:
                         return r.content
                 except Exception as e:
-                    self.logger.debug(f"从 {url} 下载失败: {str(e)}")
+                    self.logger.debug(t("manifest.download.failed", url=url, error=e))
 
     def process_manifest(
         self, manifest_data: bytes, manifest_info: ManifestInfo, remove_old: bool = True
@@ -62,7 +63,7 @@ class ManifestHandler:
                             and parts[1] != str(manifest_id)
                         ):
                             file.unlink(missing_ok=True)
-                            self.logger.info(f"删除旧清单: {file.name}")
+                            self.logger.info(t("manifest.delete_old", name=file.name))
 
             with open(manifest_path, "wb") as f:
                 f.write(manifest.serialize(compress=False))
@@ -70,11 +71,17 @@ class ManifestHandler:
             with open(config_path, "w", encoding="utf-8") as f:
                 vdf.dump(d, f, pretty=True)
 
-            self.logger.info(f"清单处理成功: {depot_id}_{manifest_id}.manifest")
+            self.logger.info(
+                t(
+                    "manifest.process.success",
+                    depot_id=depot_id,
+                    manifest_id=manifest_id,
+                )
+            )
             return True
 
         except Exception as e:
-            self.logger.error(f"处理清单时出错: {str(e)}")
+            self.logger.error(t("manifest.process.failed", error=e))
             return False
 
     async def process_manifests(
@@ -93,12 +100,16 @@ class ManifestHandler:
             )
 
             if manifest_path.exists():
-                self.logger.warning(f"清单已存在: {manifest_path.name}")
+                self.logger.warning(t("manifest.exists", name=manifest_path.name))
                 processed.append(manifest_info)
                 continue
 
             self.logger.info(
-                f"正在下载清单: {manifest_info.depot_id}_{manifest_info.manifest_id}"
+                t(
+                    "manifest.downloading",
+                    depot_id=manifest_info.depot_id,
+                    manifest_id=manifest_info.manifest_id,
+                )
             )
             manifest_data = await self.download_manifest(manifest_info)
 
@@ -107,11 +118,19 @@ class ManifestHandler:
                     processed.append(manifest_info)
                 else:
                     self.logger.error(
-                        f"处理清单失败: {manifest_info.depot_id}_{manifest_info.manifest_id}"
+                        t(
+                            "manifest.downloading.failed",
+                            depot_id=manifest_info.depot_id,
+                            manifest_id=manifest_info.manifest_id,
+                        )
                     )
             else:
                 self.logger.error(
-                    f"下载清单失败: {manifest_info.depot_id}_{manifest_info.manifest_id}"
+                    t(
+                        "manifest.process.failed2",
+                        depot_id=manifest_info.depot_id,
+                        manifest_id=manifest_info.manifest_id,
+                    )
                 )
 
         return processed

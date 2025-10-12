@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onekey - First Time Setup Wizard</title>
+
+    <!-- Material Design 3 -->
+    <link
+      href="https://cdn.jsdmirror.com/gh/ikun0014/font@main/LXGWWenKaiMono-Regular/result.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+
+  <body>
+    <div class="oobe-container">
+      <!-- Top App Bar -->
+      <div class="oobe-card">
+        <div class="oobe-header">
+          <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            title="Toggle Theme"
+          >
+            <span class="material-icons">light_mode</span>
+          </button>
+          <div class="oobe-logo">
+            <span class="material-icons" style="font-size: inherit"
+              >extension</span
+            >
+          </div>
+          <h1 class="oobe-title">Welcome to Onekey</h1>
+          <p class="oobe-subtitle">One-click unlock, enjoy gaming experience</p>
+        </div>
+
+        <div class="oobe-content">
+          <div class="step-indicator">
+            <div class="step-dot active" data-step="0"></div>
+            <div class="step-dot" data-step="1"></div>
+            <div class="step-dot" data-step="2"></div>
+          </div>
+
+          <!-- Step 1: Welcome -->
+          <div class="oobe-step active" data-step="0">
+            <div class="welcome-text">
+              <h3>🎮 Welcome to the Onekey World</h3>
+              <p>
+                Onekey is a powerful Steam game unlock tool that helps you
+                easily manage and unlock games.
+              </p>
+              <p>
+                Before getting started, we need to verify your activation key.
+              </p>
+              <p><strong>Features:</strong></p>
+              <p>• Supports both SteamTools and GreenLuma unlock methods</p>
+              <p>• Intuitive web interface, simple operation</p>
+              <p>• Real-time log display, transparent process</p>
+              <p>
+                • Frontend code completely open source, absolutely no account
+                theft/mining
+              </p>
+              <a href="https://shop.ikunshare.com" target="_blank"
+                >• Click here to purchase activation key</a
+              >
+            </div>
+          </div>
+
+          <!-- Step 2: Key Verification -->
+          <div class="oobe-step" data-step="1">
+            <div class="welcome-text">
+              <h3>🔑 Activate Your Key</h3>
+              <p>
+                Please enter your activation key to activate the Onekey tool.
+              </p>
+            </div>
+
+            <div class="key-input-section">
+              <div class="input-group">
+                <label for="activationKey" class="input-label"
+                  >Activation Key</label
+                >
+                <input
+                  type="text"
+                  id="activationKey"
+                  class="text-field"
+                  placeholder="Please enter your key"
+                  autocomplete="off"
+                />
+                <div class="input-helper">
+                  Key format: [PREFIX]_XXXXXXXX-XXXXXXXXXXXXXXXX
+                </div>
+              </div>
+
+              <div class="key-status" id="keyStatus">
+                <div class="status-header">
+                  <span class="material-icons" id="statusIcon">info</span>
+                  <span id="statusMessage">Verifying...</span>
+                </div>
+                <div class="key-info" id="keyInfo"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Complete -->
+          <div class="oobe-step" data-step="3">
+            <div class="welcome-text">
+              <h3>🎉 Setup Complete</h3>
+              <p>
+                Congratulations! You have successfully activated the Onekey
+                tool.
+              </p>
+              <p>Now you can start using all features.</p>
+              <div
+                class="key-info"
+                id="finalKeyInfo"
+                style="margin-top: 24px"
+              ></div>
+            </div>
+          </div>
+
+          <div class="oobe-actions">
+            <button
+              type="button"
+              id="prevBtn"
+              class="btn btn-text"
+              style="display: none"
+            >
+              <span class="material-icons">arrow_back</span>
+              Previous
+            </button>
+            <button
+              type="button"
+              id="nextBtn"
+              class="btn btn-primary btn-large"
+            >
+              <span class="material-icons">arrow_forward</span>
+              Next
+            </button>
+            <button
+              type="button"
+              id="verifyBtn"
+              class="btn btn-primary btn-large"
+              style="display: none"
+            >
+              <span class="material-icons">verified</span>
+              Verify Key
+            </button>
+            <button
+              type="button"
+              id="finishBtn"
+              class="btn btn-primary btn-large"
+              style="display: none"
+            >
+              <span class="material-icons">check</span>
+              Start Using
+            </button>
+          </div>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Snackbar -->
+    <div id="snackbar" class="snackbar">
+      <div class="snackbar-content">
+        <span id="snackbarMessage"></span>
+        <button id="snackbarClose" class="snackbar-action">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      class OOBEManager {
+        constructor() {
+          this.currentStep = 0;
+          this.totalSteps = 3;
+          this.keyData = null;
+
+          this.initializeEventListeners();
+          this.updateStepDisplay();
+        }
+
+        initializeEventListeners() {
+          document.getElementById("nextBtn").addEventListener("click", () => {
+            this.nextStep();
+          });
+
+          document.getElementById("prevBtn").addEventListener("click", () => {
+            this.prevStep();
+          });
+
+          document.getElementById("verifyBtn").addEventListener("click", () => {
+            this.verifyKey();
+          });
+
+          document.getElementById("finishBtn").addEventListener("click", () => {
+            this.finishSetup();
+          });
+
+          document
+            .getElementById("activationKey")
+            .addEventListener("input", () => {
+              this.resetKeyStatus();
+            });
+
+          document
+            .getElementById("activationKey")
+            .addEventListener("keypress", (e) => {
+              if (e.key === "Enter") {
+                this.verifyKey();
+              }
+            });
+
+          document
+            .getElementById("snackbarClose")
+            .addEventListener("click", () => {
+              this.hideSnackbar();
+            });
+        }
+
+        nextStep() {
+          if (this.currentStep < this.totalSteps - 1) {
+            this.currentStep++;
+            this.updateStepDisplay();
+          }
+        }
+
+        prevStep() {
+          if (this.currentStep > 0) {
+            this.currentStep--;
+            this.updateStepDisplay();
+          }
+        }
+
+        updateStepDisplay() {
+          document.querySelectorAll(".step-dot").forEach((dot, index) => {
+            dot.classList.remove("active", "completed");
+            if (index < this.currentStep) {
+              dot.classList.add("completed");
+            } else if (index === this.currentStep) {
+              dot.classList.add("active");
+            }
+          });
+
+          document.querySelectorAll(".oobe-step").forEach((step, index) => {
+            step.classList.toggle("active", index === this.currentStep);
+          });
+
+          this.updateButtons();
+        }
+
+        updateButtons() {
+          const prevBtn = document.getElementById("prevBtn");
+          const nextBtn = document.getElementById("nextBtn");
+          const verifyBtn = document.getElementById("verifyBtn");
+          const finishBtn = document.getElementById("finishBtn");
+
+          [prevBtn, nextBtn, verifyBtn, finishBtn].forEach((btn) => {
+            btn.style.display = "none";
+          });
+
+          if (this.currentStep > 0) {
+            prevBtn.style.display = "flex";
+          }
+
+          switch (this.currentStep) {
+            case 0:
+              nextBtn.style.display = "flex";
+              break;
+            case 1:
+              verifyBtn.style.display = "flex";
+              break;
+            case 2:
+              finishBtn.style.display = "flex";
+              break;
+          }
+        }
+
+        resetKeyStatus() {
+          const keyStatus = document.getElementById("keyStatus");
+          keyStatus.classList.remove("show", "success", "error");
+        }
+
+        async verifyKey() {
+          const keyInput = document.getElementById("activationKey");
+          const key = keyInput.value.trim();
+
+          if (!key) {
+            this.showSnackbar("Please enter the key", "error");
+            return;
+          }
+
+          if (!key.match(/^[A-Z0-9_-]+$/)) {
+            this.showKeyStatus("error", "Invalid key format", "error");
+            return;
+          }
+
+          this.showLoading(true);
+
+          try {
+            const response = await fetch("/api/getKeyInfo", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ key: key }),
+            });
+
+            const data = await response.json();
+
+            if (data.key && data.info) {
+              this.keyData = data.info;
+              this.showKeyStatus(
+                "success",
+                "Key verified successfully!",
+                "check_circle",
+              );
+              this.displayKeyInfo(data.info);
+
+              setTimeout(() => {
+                this.nextStep();
+                this.showFinalKeyInfo(data.info);
+              }, 2000);
+            } else {
+              this.showKeyStatus(
+                "error",
+                data.message || "Key does not exist or has expired",
+                "error",
+              );
+            }
+          } catch (error) {
+            this.showKeyStatus(
+              "error",
+              "Verification failed, please check network connection",
+              "error",
+            );
+            console.error("Key verification error:", error);
+          } finally {
+            this.showLoading(false);
+          }
+        }
+
+        showKeyStatus(type, message, icon) {
+          const keyStatus = document.getElementById("keyStatus");
+          const statusIcon = document.getElementById("statusIcon");
+          const statusMessage = document.getElementById("statusMessage");
+
+          statusIcon.textContent = icon;
+          statusMessage.textContent = message;
+
+          keyStatus.className = `key-status show ${type}`;
+        }
+
+        displayKeyInfo(keyInfo) {
+          const keyInfoContainer = document.getElementById("keyInfo");
+          const expiresAt = new Date(keyInfo.expiresAt);
+          const isExpired = expiresAt < new Date();
+
+          const typeNames = {
+            day: "Daily",
+            week: "Weekly",
+            month: "Monthly",
+            year: "Yearly",
+            permanent: "Permanent",
+          };
+
+          keyInfoContainer.innerHTML = `
+                    <div class="key-info-item">
+                        <span class="material-icons">label</span>
+                        <span>Type: ${typeNames[keyInfo.type] || keyInfo.type}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">schedule</span>
+                        <span>Expires: ${expiresAt.toLocaleDateString()}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">analytics</span>
+                        <span>Usage Count: ${keyInfo.usageCount}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">${keyInfo.isActive && !isExpired ? "check_circle" : "cancel"}</span>
+                        <span>Status: ${keyInfo.isActive && !isExpired ? "Valid" : "Invalid"}</span>
+                    </div>
+                `;
+        }
+
+        showFinalKeyInfo(keyInfo) {
+          const finalKeyInfo = document.getElementById("finalKeyInfo");
+          const expiresAt = new Date(keyInfo.expiresAt);
+
+          const typeNames = {
+            day: "Daily",
+            week: "Weekly",
+            month: "Monthly",
+            year: "Yearly",
+            permanent: "Permanent",
+          };
+
+          finalKeyInfo.innerHTML = `
+                    <div class="key-info-item">
+                        <span class="material-icons">verified_user</span>
+                        <span><strong>Key Type: </strong>${typeNames[keyInfo.type] || keyInfo.type}</span>
+                    </div>
+                    <div class="key-info-item">
+                        <span class="material-icons">event</span>
+                        <span><strong>Valid Until: </strong>${expiresAt.toLocaleDateString()} ${expiresAt.toLocaleTimeString()}</span>
+                    </div>
+                `;
+        }
+
+        async finishSetup() {
+          if (!this.keyData) {
+            this.showSnackbar("Key data lost, please verify again", "error");
+            this.currentStep = 1;
+            this.updateStepDisplay();
+            return;
+          }
+
+          this.showLoading(true);
+
+          try {
+            const response = await fetch("/api/config/update", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                key: document.getElementById("activationKey").value.trim(),
+                steam_path: "",
+                debug_mode: false,
+                logging_files: true,
+                show_console: false,
+              }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              this.showSnackbar(
+                "Configuration saved successfully, redirecting...",
+                "success",
+              );
+              setTimeout(() => {
+                window.location.href = "/";
+              }, 1500);
+            } else {
+              throw new Error(data.message || "Failed to save configuration");
+            }
+          } catch (error) {
+            this.showSnackbar(
+              "Failed to save configuration: " + error.message,
+              "error",
+            );
+            console.error("Save config error:", error);
+          } finally {
+            this.showLoading(false);
+          }
+        }
+
+        showLoading(show) {
+          const overlay = document.getElementById("loadingOverlay");
+          overlay.classList.toggle("show", show);
+        }
+
+        showSnackbar(message, type = "info") {
+          const snackbar = document.getElementById("snackbar");
+          const snackbarMessage = document.getElementById("snackbarMessage");
+
+          snackbarMessage.textContent = message;
+          snackbar.className = `snackbar ${type} show`;
+
+          setTimeout(() => {
+            this.hideSnackbar();
+          }, 4000);
+        }
+
+        hideSnackbar() {
+          const snackbar = document.getElementById("snackbar");
+          snackbar.classList.remove("show");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new OOBEManager();
+      });
+    </script>
+    <script src="{{ url_for('static', path='js/theme.js') }}"></script>
+  </body>
+</html>
