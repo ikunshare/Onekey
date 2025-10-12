@@ -32,7 +32,7 @@ jobs:
 
       - name: 编译
         run: |
-          python -m nuitka --standalone --onefile --assume-yes-for-downloads --show-memory --show-progress --onefile-tempdir-spec="%TEMP%\\onekey_%PID%_%TIME%" --windows-icon-from-ico="icon.jpg" --company-name="ikunshare" --product-name="Onekey" --file-version="${{ env.PACKAGE_VERSION }}" --product-version="${{ env.PACKAGE_VERSION }}" --file-description="Onekey Depot Manifest Downloader." --copyright="Copyright © 2025 ikunshare All Rights Reserved." --include-data-dir="web=web" --output-dir="build" --output-filename="Onekey_v${{ env.PACKAGE_VERSION }}.exe" main.py
+          python -m nuitka --standalone --onefile --assume-yes-for-downloads --show-memory --show-progress --onefile-tempdir-spec="%TEMP%\\onekey_%PID%_%TIME%" --windows-icon-from-ico="icon.jpg" --company-name="ikunshare" --product-name="Onekey" --file-version="${{ env.PACKAGE_VERSION }}" --product-version="${{ env.PACKAGE_VERSION }}" --file-description="Onekey Depot Manifest Downloader." --copyright="Copyright © 2025 ikunshare All Rights Reserved." --include-data-dir="web=web" --output-dir="build" --output-filename="Onekey_v${{ env.PACKAGE_VERSION }}.exe" --include-data-file="./icon.jpg=./icon.jpg" main.py
 
       - name: 创建标签
         uses: pkgdeps/git-tag-action@v3
