@@ -17,7 +17,7 @@ def check_ip():
             body = req.json()
             print("已获取IP属地")
             return bool(body["flag"])
-    except:
+    except BaseException:
         print("获取IP属地失败, 默认您位于中国大陆境内")
         return True
 

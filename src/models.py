@@ -46,6 +46,7 @@ class AppConfig:
     """应用配置"""
 
     key: str = ""
+    port: int = 5000
     custom_steam_path: str = ""
     debug_mode: bool = False
     logging_files: bool = True

@@ -11,6 +11,7 @@ from .utils.i18n import t
 
 DEFAULT_CONFIG = {
     "KEY": "",
+    "Port": 5000,
     "Debug_Mode": False,
     "Logging_Files": True,
     "Show_Console": False,
@@ -53,6 +54,7 @@ class ConfigManager:
 
             self.app_config = AppConfig(
                 key=self._config_data.get("KEY", ""),
+                port=self._config_data.get("Port", 5000),
                 custom_steam_path=self._config_data.get("Custom_Steam_Path", ""),
                 debug_mode=self._config_data.get("Debug_Mode", False),
                 logging_files=self._config_data.get("Logging_Files", True),
@@ -67,6 +69,7 @@ class ConfigManager:
             print(t("config.regenerated"))
             self.app_config = AppConfig(
                 key=DEFAULT_CONFIG.get("KEY", ""),
+                port=DEFAULT_CONFIG.get("Port", 5000),
                 custom_steam_path=DEFAULT_CONFIG.get("Custom_Steam_Path", ""),
                 debug_mode=DEFAULT_CONFIG.get("Debug_Mode", False),
                 logging_files=DEFAULT_CONFIG.get("Logging_Files", True),
@@ -82,6 +85,7 @@ class ConfigManager:
             print(t("config.use_default"))
             self.app_config = AppConfig(
                 key=DEFAULT_CONFIG.get("KEY", ""),
+                port=DEFAULT_CONFIG.get("Port", 5000),
                 custom_steam_path=DEFAULT_CONFIG.get("Custom_Steam_Path", ""),
                 debug_mode=DEFAULT_CONFIG.get("Debug_Mode", False),
                 logging_files=DEFAULT_CONFIG.get("Logging_Files", True),

@@ -63,7 +63,7 @@ class ConnectionManager:
         for connection in self.active_connections:
             try:
                 await connection.send_text(message)
-            except:
+            except BaseException:
                 # 连接可能已关闭
                 pass
 
@@ -121,7 +121,7 @@ class WebOnekeyApp:
                 try:
                     if hasattr(self.onekey_app, "client"):
                         await self.onekey_app.client.close()
-                except:
+                except BaseException:
                     pass
             self.onekey_app = None
 
@@ -302,7 +302,7 @@ async def get_task_status():
 
 
 @app.get("/about")
-async def settings_page(request: Request):
+async def about_page(request: Request):
     """关于页面"""
     return templates.TemplateResponse("about.html", {"request": request})
 
@@ -329,6 +329,7 @@ async def update_config(request: Request):
         # 准备新的配置数据
         new_config = {
             "KEY": data.get("key", ""),
+            "Port": config_manager.app_config.port,
             "Custom_Steam_Path": data.get("steam_path", ""),
             "Debug_Mode": data.get("debug_mode", False),
             "Logging_Files": data.get("logging_files", True),
@@ -444,4 +445,4 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 print(t("web.starting"))
-print(t("web.visit"))
+print(t("web.visit", port=config.app_config.port))

@@ -52,7 +52,7 @@ def create_system_tray() -> bool:
 
         def on_open_browser(icon, item):
             try:
-                webbrowser.open("http://localhost:5000")
+                webbrowser.open(f"http://localhost:{config_manager.app_config.port}")
             except Exception:
                 pass
 
@@ -91,16 +91,16 @@ def create_system_tray() -> bool:
         return False
 
 
-def open_browser_delayed() -> None:
+def open_browser_delayed(port: int) -> None:
     """延迟打开浏览器"""
     time.sleep(2)
     try:
-        webbrowser.open("http://localhost:5000")
+        webbrowser.open(f"http://localhost:{port}")
         if config_manager.app_config.show_console:
-            print(t("main.browser_opened"))
+            print(t("main.browser_opened", port=port))
     except Exception:
         if config_manager.app_config.show_console:
-            print(t("main.browser_open_failed"))
+            print(t("main.browser_open_failed", port=port))
 
 
 def start_web_server() -> None:
@@ -109,7 +109,11 @@ def start_web_server() -> None:
     from uvicorn import Config
     from uvicorn.server import Server
 
-    server = Server(Config(app, host="0.0.0.0", port=5000, log_level="error"))
+    server = Server(
+        Config(
+            app, host="0.0.0.0", port=config_manager.app_config.port, log_level="error"
+        )
+    )
     server.run()
 
 
@@ -133,7 +137,9 @@ def main() -> None:
                 print(t("main.tray_created"))
 
         # 启动浏览器
-        browser_thread = threading.Thread(target=open_browser_delayed)
+        browser_thread = threading.Thread(
+            target=open_browser_delayed, args=(config.port,)
+        )
         browser_thread.daemon = True
         browser_thread.start()
 
