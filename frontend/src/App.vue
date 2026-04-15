@@ -152,7 +152,7 @@ import {
 import { NIcon } from 'naive-ui'
 import { useI18n } from './i18n'
 import { useAppStore } from './stores/app'
-import { RestartSteam, LoadKernel, PatchVDF, GetAnnouncements, GetKernelSettings, SetKernelSettings, CheckUpdate } from '../wailsjs/go/main/App'
+import { RestartSteam, LoadKernel, PatchVDF, GetAnnouncements, GetKernelSettings, SetKernelSettings, CheckUpdate, GetDetailedConfig } from '../wailsjs/go/main/App'
 import { WindowMinimise, WindowToggleMaximise, Quit, EventsOn, BrowserOpenURL } from '../wailsjs/runtime/runtime'
 import { marked } from 'marked'
 
@@ -350,6 +350,20 @@ async function saveKernelSettings() {
 }
 
 onMounted(async () => {
+  // OOBE check: redirect to setup if no key configured
+  if (route.name !== 'oobe') {
+    try {
+      const cfg = await GetDetailedConfig()
+      if (cfg.success && (!cfg.config.key || cfg.config.key === '')) {
+        router.push('/oobe')
+        return
+      }
+    } catch (e) {
+      router.push('/oobe')
+      return
+    }
+  }
+
   // Global task event listeners — persist across route changes
   EventsOn('task_progress', (data: any) => {
     store.addLog(data.type, data.message)
