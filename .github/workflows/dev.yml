@@ -1,7 +1,9 @@
 name: DEV Test Build
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 jobs:
   build:

@@ -12,60 +12,72 @@
               <button class="titlebar-btn titlebar-close" @click="Quit">&#10005;</button>
             </div>
           </div>
-          <router-view style="height: calc(100vh - 32px);" />
+          <router-view style="height: calc(100vh - 32px);"/>
         </template>
 
         <!-- Main layout with sidebar -->
         <template v-else>
           <n-layout has-sider style="height: 100vh">
             <n-layout-sider
-              bordered
-              collapse-mode="width"
-              :collapsed-width="64"
-              :width="220"
-              :collapsed="collapsed"
-              show-trigger
-              @collapse="collapsed = true"
-              @expand="collapsed = false"
+                :collapsed="collapsed"
+                :collapsed-width="64"
+                :width="220"
+                bordered
+                collapse-mode="width"
+                show-trigger
+                @collapse="collapsed = true"
+                @expand="collapsed = false"
             >
               <div class="sider-content">
                 <div class="sider-top">
-                  <div class="sider-logo" v-if="!collapsed">
+                  <div v-if="!collapsed" class="sider-logo">
                     <n-text strong style="font-size: 18px;">Onekey</n-text>
                   </div>
                   <n-menu
-                    :collapsed="collapsed"
-                    :collapsed-width="64"
-                    :collapsed-icon-size="22"
-                    :options="menuOptions"
-                    :value="activeKey"
-                    @update:value="handleMenuSelect"
+                      :collapsed="collapsed"
+                      :collapsed-icon-size="22"
+                      :collapsed-width="64"
+                      :options="menuOptions"
+                      :value="activeKey"
+                      @update:value="handleMenuSelect"
                   />
                 </div>
                 <div class="sider-actions">
-                  <n-divider style="margin: 8px 0" />
-                  <n-button quaternary block size="small" @click="showAnnouncementModal">
-                    <template #icon><n-icon :component="MegaphoneOutline" /></template>
+                  <n-divider style="margin: 8px 0"/>
+                  <n-button block quaternary size="small" @click="showAnnouncementModal">
+                    <template #icon>
+                      <n-icon :component="MegaphoneOutline"/>
+                    </template>
                     <span v-if="!collapsed">{{ t('sidebar.announcements') }}</span>
                   </n-button>
-                  <n-button quaternary block size="small" @click="handleLoadKernel">
-                    <template #icon><n-icon :component="DownloadOutline" /></template>
+                  <n-button block quaternary size="small" @click="handleLoadKernel">
+                    <template #icon>
+                      <n-icon :component="DownloadOutline"/>
+                    </template>
                     <span v-if="!collapsed">{{ t('sidebar.load_kernel') }}</span>
                   </n-button>
-                  <n-button quaternary block size="small" @click="showKernelSettingsModal">
-                    <template #icon><n-icon :component="CogOutline" /></template>
+                  <n-button block quaternary size="small" @click="showKernelSettingsModal">
+                    <template #icon>
+                      <n-icon :component="CogOutline"/>
+                    </template>
                     <span v-if="!collapsed">{{ t('kernel_settings.title') }}</span>
                   </n-button>
-                  <n-button quaternary block size="small" @click="handlePatchVDF">
-                    <template #icon><n-icon :component="BuildOutline" /></template>
+                  <n-button block quaternary size="small" @click="handlePatchVDF">
+                    <template #icon>
+                      <n-icon :component="BuildOutline"/>
+                    </template>
                     <span v-if="!collapsed">{{ t('sidebar.patch_vdf') }}</span>
                   </n-button>
-                  <n-button quaternary block size="small" @click="handleRestartSteam">
-                    <template #icon><n-icon :component="RefreshOutline" /></template>
+                  <n-button block quaternary size="small" @click="handleRestartSteam">
+                    <template #icon>
+                      <n-icon :component="RefreshOutline"/>
+                    </template>
                     <span v-if="!collapsed">{{ t('sidebar.restart_steam') }}</span>
                   </n-button>
-                  <n-button quaternary block size="small" @click="toggleTheme">
-                    <template #icon><n-icon :component="isDark ? SunnyOutline : MoonOutline" /></template>
+                  <n-button block quaternary size="small" @click="toggleTheme">
+                    <template #icon>
+                      <n-icon :component="isDark ? SunnyOutline : MoonOutline"/>
+                    </template>
                     <span v-if="!collapsed">{{ isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode') }}</span>
                   </n-button>
                 </div>
@@ -82,23 +94,25 @@
                   <button class="titlebar-btn titlebar-close" @click="Quit">&#10005;</button>
                 </div>
               </div>
-              <n-layout-content content-style="padding: 24px;" style="height: calc(100vh - 32px);" :native-scrollbar="false">
-                <router-view />
+              <n-layout-content :native-scrollbar="false" content-style="padding: 24px;"
+                                style="height: calc(100vh - 32px);">
+                <router-view/>
               </n-layout-content>
             </n-layout>
           </n-layout>
         </template>
         <!-- Announcement Modal -->
-        <n-modal v-model:show="annModalVisible" preset="card" :title="t('announcement.title')" style="max-width: 600px;" :bordered="false" :segmented="{ content: true }">
+        <n-modal v-model:show="annModalVisible" :bordered="false" :segmented="{ content: true }" :title="t('announcement.title')"
+                 preset="card" style="max-width: 600px;">
           <div v-if="annList.length === 0" style="text-align: center; padding: 24px;">
             <n-text depth="3">{{ t('announcement.empty') }}</n-text>
           </div>
-          <n-space v-else vertical :size="16">
-            <n-card v-for="ann in annList" :key="ann.id" size="small" :bordered="true">
+          <n-space v-else :size="16" vertical>
+            <n-card v-for="ann in annList" :key="ann.id" :bordered="true" size="small">
               <template #header>
-                <n-space align="center" :size="8">
+                <n-space :size="8" align="center">
                   <span>{{ ann.title }}</span>
-                  <n-tag size="tiny" :bordered="false">{{ ann.author }}</n-tag>
+                  <n-tag :bordered="false" size="tiny">{{ ann.author }}</n-tag>
                 </n-space>
               </template>
               <template #header-extra>
@@ -109,20 +123,21 @@
           </n-space>
         </n-modal>
         <!-- Kernel Settings Modal -->
-        <n-modal v-model:show="kernelSettingsVisible" preset="card" :title="t('kernel_settings.title')" style="max-width: 420px;" :bordered="false">
+        <n-modal v-model:show="kernelSettingsVisible" :bordered="false" :title="t('kernel_settings.title')"
+                 preset="card" style="max-width: 420px;">
           <n-spin :show="kernelSettingsLoading">
-            <n-space vertical :size="16">
+            <n-space :size="16" vertical>
               <n-space align="center" justify="space-between">
                 <n-text>{{ t('kernel_settings.activate_unlock_mode') }}</n-text>
-                <n-switch v-model:value="kernelSettings.activate_unlock_mode" @update:value="saveKernelSettings" />
+                <n-switch v-model:value="kernelSettings.activate_unlock_mode" @update:value="saveKernelSettings"/>
               </n-space>
               <n-space align="center" justify="space-between">
                 <n-text>{{ t('kernel_settings.always_stay_unlocked') }}</n-text>
-                <n-switch v-model:value="kernelSettings.always_stay_unlocked" @update:value="saveKernelSettings" />
+                <n-switch v-model:value="kernelSettings.always_stay_unlocked" @update:value="saveKernelSettings"/>
               </n-space>
               <n-space align="center" justify="space-between">
                 <n-text>{{ t('kernel_settings.not_unlock_depot') }}</n-text>
-                <n-switch v-model:value="kernelSettings.not_unlock_depot" @update:value="saveKernelSettings" />
+                <n-switch v-model:value="kernelSettings.not_unlock_depot" @update:value="saveKernelSettings"/>
               </n-space>
             </n-space>
           </n-spin>
@@ -132,31 +147,38 @@
   </n-config-provider>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, h, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { darkTheme, type GlobalThemeOverrides, type MenuOption } from 'naive-ui'
-import { createDiscreteApi } from 'naive-ui'
+<script lang="ts" setup>
+import {computed, h, onMounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {createDiscreteApi, darkTheme, type GlobalThemeOverrides, type MenuOption, NIcon} from 'naive-ui'
 import {
-  HomeOutline,
-  GameControllerOutline,
-  SettingsOutline,
-  DownloadOutline,
   BuildOutline,
-  RefreshOutline,
-  SunnyOutline,
-  MoonOutline,
-  MegaphoneOutline,
   CogOutline,
+  DownloadOutline,
+  GameControllerOutline,
+  HomeOutline,
+  MegaphoneOutline,
+  MoonOutline,
+  RefreshOutline,
+  SettingsOutline,
+  SunnyOutline,
 } from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui'
-import { useI18n } from './i18n'
-import { useAppStore } from './stores/app'
-import { RestartSteam, LoadKernel, PatchVDF, GetAnnouncements, GetKernelSettings, SetKernelSettings, CheckUpdate, GetDetailedConfig } from '../wailsjs/go/main/App'
-import { WindowMinimise, WindowToggleMaximise, Quit, EventsOn, BrowserOpenURL } from '../wailsjs/runtime/runtime'
-import { marked } from 'marked'
+import {useI18n} from './i18n'
+import {useAppStore} from './stores/app'
+import {
+  CheckUpdate,
+  GetAnnouncements,
+  GetDetailedConfig,
+  GetKernelSettings,
+  LoadKernel,
+  PatchVDF,
+  RestartSteam,
+  SetKernelSettings
+} from '../wailsjs/go/main/App'
+import {BrowserOpenURL, EventsOn, Quit, WindowMinimise, WindowToggleMaximise} from '../wailsjs/runtime/runtime'
+import {marked} from 'marked'
 
-const { t } = useI18n()
+const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useAppStore()
@@ -176,14 +198,14 @@ const themeOverrides: GlobalThemeOverrides = {
 // Discrete API for message/dialog — App.vue renders the providers itself,
 // so useMessage()/useDialog() can't inject from them. createDiscreteApi
 // creates standalone instances that work anywhere.
-const { message, dialog } = createDiscreteApi(
-  ['message', 'dialog'],
-  {
-    configProviderProps: computed(() => ({
-      theme: isDark.value ? darkTheme : undefined,
-      themeOverrides,
-    })),
-  }
+const {message, dialog} = createDiscreteApi(
+    ['message', 'dialog'],
+    {
+      configProviderProps: computed(() => ({
+        theme: isDark.value ? darkTheme : undefined,
+        themeOverrides,
+      })),
+    }
 )
 
 function toggleTheme() {
@@ -196,13 +218,13 @@ const collapsed = ref(false)
 
 // Menu
 function renderIcon(icon: any) {
-  return () => h(NIcon, null, { default: () => h(icon) })
+  return () => h(NIcon, null, {default: () => h(icon)})
 }
 
 const menuOptions: MenuOption[] = [
-  { label: () => t('nav.home'), key: 'home', icon: renderIcon(HomeOutline) },
-  { label: () => t('nav.games'), key: 'games', icon: renderIcon(GameControllerOutline) },
-  { label: () => t('nav.settings'), key: 'settings', icon: renderIcon(SettingsOutline) },
+  {label: () => t('nav.home'), key: 'home', icon: renderIcon(HomeOutline)},
+  {label: () => t('nav.games'), key: 'games', icon: renderIcon(GameControllerOutline)},
+  {label: () => t('nav.settings'), key: 'settings', icon: renderIcon(SettingsOutline)},
 ]
 
 const activeKey = computed(() => {
@@ -289,7 +311,7 @@ const annModalVisible = ref(false)
 const annList = ref<any[]>([])
 
 function renderMarkdown(content: string): string {
-  return marked.parse(content, { async: false }) as string
+  return marked.parse(content, {async: false}) as string
 }
 
 function formatDate(iso: string): string {
@@ -304,7 +326,8 @@ async function fetchAnnouncements() {
     if (resp.success && resp.announcements) {
       annList.value = resp.announcements
     }
-  } catch (e) {}
+  } catch (e) {
+  }
 }
 
 function showAnnouncementModal() {
@@ -399,11 +422,11 @@ onMounted(async () => {
       dialog.info({
         title: t('update.title'),
         content: () =>
-          h('div', {}, [
-            h('p', {}, `${t('update.current')}: v${info.current_version}`),
-            h('p', {}, `${t('update.latest')}: v${info.latest_version}`),
-            info.changelog ? h('p', {}, `${t('update.changelog')}: ${info.changelog}`) : null,
-          ]),
+            h('div', {}, [
+              h('p', {}, `${t('update.current')}: v${info.current_version}`),
+              h('p', {}, `${t('update.latest')}: v${info.latest_version}`),
+              info.changelog ? h('p', {}, `${t('update.changelog')}: ${info.changelog}`) : null,
+            ]),
         positiveText: info.download_url ? t('update.download') : undefined,
         negativeText: t('common.cancel'),
         onPositiveClick: () => {
@@ -413,7 +436,8 @@ onMounted(async () => {
         },
       })
     }
-  } catch (e) {}
+  } catch (e) {
+  }
 })
 </script>
 
@@ -429,35 +453,62 @@ body {
 .md-content h4, .md-content h5, .md-content h6 {
   margin: 8px 0 4px;
 }
-.md-content h1 { font-size: 1.4em; }
-.md-content h2 { font-size: 1.2em; }
-.md-content h3 { font-size: 1.1em; }
-.md-content p { margin: 4px 0; }
-.md-content ul, .md-content ol { padding-left: 20px; margin: 4px 0; }
+
+.md-content h1 {
+  font-size: 1.4em;
+}
+
+.md-content h2 {
+  font-size: 1.2em;
+}
+
+.md-content h3 {
+  font-size: 1.1em;
+}
+
+.md-content p {
+  margin: 4px 0;
+}
+
+.md-content ul, .md-content ol {
+  padding-left: 20px;
+  margin: 4px 0;
+}
+
 .md-content code {
   background: rgba(128, 128, 128, 0.15);
   padding: 1px 4px;
   border-radius: 3px;
   font-size: 0.9em;
 }
+
 .md-content pre {
   background: rgba(128, 128, 128, 0.1);
   padding: 8px 12px;
   border-radius: 6px;
   overflow-x: auto;
 }
+
 .md-content pre code {
   background: none;
   padding: 0;
 }
+
 .md-content blockquote {
   border-left: 3px solid #6750a4;
   margin: 4px 0;
   padding: 4px 12px;
   opacity: 0.85;
 }
-.md-content a { color: #6750a4; }
-.md-content img { max-width: 100%; border-radius: 6px; }
+
+.md-content a {
+  color: #6750a4;
+}
+
+.md-content img {
+  max-width: 100%;
+  border-radius: 6px;
+}
 </style>
 
 <style scoped>

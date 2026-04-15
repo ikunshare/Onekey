@@ -26,10 +26,10 @@ var DefaultConfig = models.AppConfig{
 }
 
 type Manager struct {
-	AppConfig  models.AppConfig
-	SteamPath  string
-	db         *sql.DB
-	configDir  string
+	AppConfig models.AppConfig
+	SteamPath string
+	db        *sql.DB
+	configDir string
 }
 
 // NewManager creates a config manager backed by SQLite3 at %APPDATA%\Onekey\onekey.db.

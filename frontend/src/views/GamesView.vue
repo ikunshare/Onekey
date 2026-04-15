@@ -1,32 +1,33 @@
 <template>
   <div>
-    <n-page-header :title="t('games.title')" :subtitle="t('games.subtitle')">
+    <n-page-header :subtitle="t('games.subtitle')" :title="t('games.title')">
       <template #extra>
-        <n-button @click="fetchGames" size="small" :loading="gamesStore.loading">
+        <n-button :loading="gamesStore.loading" size="small" @click="fetchGames">
           {{ t('games.refresh') }}
         </n-button>
       </template>
     </n-page-header>
 
     <n-spin :show="gamesStore.loading" style="margin-top: 16px">
-      <n-empty v-if="games.length === 0 && !gamesStore.loading" :description="t('games.empty')" style="margin-top: 48px" />
+      <n-empty v-if="games.length === 0 && !gamesStore.loading" :description="t('games.empty')"
+               style="margin-top: 48px"/>
 
       <n-grid v-else :cols="'1 600:2 900:3'" :x-gap="12" :y-gap="12" style="margin-top: 16px">
         <n-gi v-for="game in games" :key="game.app_id">
           <n-card hoverable size="small">
             <template #cover>
               <img
-                v-if="game.tiny_image"
-                :src="game.tiny_image"
-                :alt="game.name"
-                style="width: 100%; display: block;"
-                loading="lazy"
+                  v-if="game.tiny_image"
+                  :alt="game.name"
+                  :src="game.tiny_image"
+                  loading="lazy"
+                  style="width: 100%; display: block;"
               />
             </template>
-            <n-space vertical :size="8">
+            <n-space :size="8" vertical>
               <n-text strong>{{ game.name }}</n-text>
               <n-space :size="8" align="center">
-                <n-tag v-if="game.unlocked" type="success" size="small">{{ t('games.unlocked') }}</n-tag>
+                <n-tag v-if="game.unlocked" size="small" type="success">{{ t('games.unlocked') }}</n-tag>
                 <n-tag v-else size="small">{{ t('games.not_unlocked') }}</n-tag>
                 <n-text v-if="game.depot_count" depth="3" style="font-size: 12px;">
                   {{ game.depot_count }} depots
@@ -36,7 +37,7 @@
                 </n-text>
               </n-space>
               <n-space :size="8">
-                <n-button type="primary" size="small" @click="unlockGame(game)" :disabled="appStore.isRunning">
+                <n-button :disabled="appStore.isRunning" size="small" type="primary" @click="unlockGame(game)">
                   {{ game.unlocked ? t('games.re_unlock') : t('games.unlock') }}
                 </n-button>
                 <n-button size="small" @click="showDepots(game)">
@@ -47,7 +48,7 @@
                 </n-button>
                 <n-popconfirm @positive-click="removeGame(game.app_id)">
                   <template #trigger>
-                    <n-button size="small" type="error" quaternary>
+                    <n-button quaternary size="small" type="error">
                       {{ t('games.remove') }}
                     </n-button>
                   </template>
@@ -64,21 +65,27 @@
     <n-drawer v-model:show="depotDrawerVisible" :width="480" placement="right">
       <n-drawer-content :title="depotGameName + ' - Depots'">
         <n-spin :show="depotLoading">
-          <n-empty v-if="!depotLoading && depotList.length === 0" :description="t('games.no_depot_data')" />
+          <n-empty v-if="!depotLoading && depotList.length === 0" :description="t('games.no_depot_data')"/>
           <n-table v-else :bordered="false" :single-line="false" size="small">
             <thead>
-              <tr>
-                <th>Depot ID</th>
-                <th>Manifest ID</th>
-                <th>Depot Key</th>
-              </tr>
+            <tr>
+              <th>Depot ID</th>
+              <th>Manifest ID</th>
+              <th>Depot Key</th>
+            </tr>
             </thead>
             <tbody>
-              <tr v-for="d in depotList" :key="d.depot_id">
-                <td><n-text code>{{ d.depot_id }}</n-text></td>
-                <td><n-text depth="3" style="font-size: 12px;">{{ d.manifest_id || '-' }}</n-text></td>
-                <td><n-text depth="3" style="font-size: 12px; word-break: break-all;">{{ d.depot_key || '-' }}</n-text></td>
-              </tr>
+            <tr v-for="d in depotList" :key="d.depot_id">
+              <td>
+                <n-text code>{{ d.depot_id }}</n-text>
+              </td>
+              <td>
+                <n-text depth="3" style="font-size: 12px;">{{ d.manifest_id || '-' }}</n-text>
+              </td>
+              <td>
+                <n-text depth="3" style="font-size: 12px; word-break: break-all;">{{ d.depot_key || '-' }}</n-text>
+              </td>
+            </tr>
             </tbody>
           </n-table>
         </n-spin>
@@ -87,16 +94,16 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useMessage } from 'naive-ui'
-import { useI18n } from '../i18n'
-import { useGamesStore } from '../stores/games'
-import { useAppStore } from '../stores/app'
-import { StartUnlock, GetGameDetail } from '../../wailsjs/go/main/App'
+<script lang="ts" setup>
+import {computed, onMounted, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {useMessage} from 'naive-ui'
+import {useI18n} from '../i18n'
+import {useGamesStore} from '../stores/games'
+import {useAppStore} from '../stores/app'
+import {GetGameDetail, StartUnlock} from '../../wailsjs/go/main/App'
 
-const { t } = useI18n()
+const {t} = useI18n()
 const message = useMessage()
 const router = useRouter()
 const gamesStore = useGamesStore()

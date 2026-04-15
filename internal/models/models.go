@@ -177,17 +177,17 @@ type StoreSearchPrice struct {
 // --- Game Library types ---
 
 type LibraryGame struct {
-	AppID      int             `json:"app_id"`
-	Name       string          `json:"name"`
-	TinyImage  string          `json:"tiny_image"`
-	LuaPath    string          `json:"lua_path"`
-	DLCCount   int             `json:"dlc_count"`
-	DepotCount int             `json:"depot_count"`
-	Unlocked   bool            `json:"unlocked"`
-	CreatedAt  string          `json:"created_at"`
-	UpdatedAt  string          `json:"updated_at"`
-	Depots     []LibraryDepot  `json:"depots"`
-	DLCs       []LibraryDepot  `json:"dlcs"`
+	AppID      int            `json:"app_id"`
+	Name       string         `json:"name"`
+	TinyImage  string         `json:"tiny_image"`
+	LuaPath    string         `json:"lua_path"`
+	DLCCount   int            `json:"dlc_count"`
+	DepotCount int            `json:"depot_count"`
+	Unlocked   bool           `json:"unlocked"`
+	CreatedAt  string         `json:"created_at"`
+	UpdatedAt  string         `json:"updated_at"`
+	Depots     []LibraryDepot `json:"depots"`
+	DLCs       []LibraryDepot `json:"dlcs"`
 }
 
 type LibraryDepot struct {

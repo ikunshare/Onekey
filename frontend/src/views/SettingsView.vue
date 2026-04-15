@@ -1,17 +1,18 @@
 <template>
   <div>
-    <n-space vertical :size="24">
+    <n-space :size="24" vertical>
       <!-- Key Management -->
       <n-card :title="t('settings.key_management')">
-        <n-space vertical :size="12">
+        <n-space :size="12" vertical>
           <div v-if="keyLoading">
-            <n-spin size="small" /> {{ t('settings.loading_key') }}
+            <n-spin size="small"/>
+            {{ t('settings.loading_key') }}
           </div>
           <template v-else-if="detailedConfig && detailedConfig.key">
-            <n-alert :type="keyInfo && keyInfo.isActive ? 'success' : 'warning'" :bordered="false">
+            <n-alert :bordered="false" :type="keyInfo && keyInfo.isActive ? 'success' : 'warning'">
               Key: {{ detailedConfig.key.substring(0, 12) }}...
             </n-alert>
-            <n-descriptions v-if="keyInfo" bordered :column="2" size="small">
+            <n-descriptions v-if="keyInfo" :column="2" bordered size="small">
               <n-descriptions-item :label="t('oobe.key_type')">
                 {{ t('key_type.' + keyInfo.type) || keyInfo.type }}
               </n-descriptions-item>
@@ -29,25 +30,25 @@
             </n-descriptions>
           </template>
 
-          <n-divider />
+          <n-divider/>
           <n-text strong>{{ t('settings.change_key') }}</n-text>
           <n-input-group>
             <n-input
-              v-model:value="newKey"
-              :placeholder="t('settings.new_key_placeholder')"
-              style="flex: 1"
+                v-model:value="newKey"
+                :placeholder="t('settings.new_key_placeholder')"
+                style="flex: 1"
             />
             <n-button
-              v-if="!newKeyVerified"
-              type="info"
-              @click="verifyNewKey"
+                v-if="!newKeyVerified"
+                type="info"
+                @click="verifyNewKey"
             >
               {{ t('settings.verify') }}
             </n-button>
             <n-button
-              v-else
-              type="primary"
-              @click="saveNewKey"
+                v-else
+                type="primary"
+                @click="saveNewKey"
             >
               {{ t('settings.save') }}
             </n-button>
@@ -57,13 +58,13 @@
 
       <!-- Steam Config -->
       <n-card :title="t('settings.steam_config')">
-        <n-space vertical :size="12">
+        <n-space :size="12" vertical>
           <n-form-item :label="t('settings.steam_path_label')">
             <n-input-group>
               <n-input
-                v-model:value="steamPath"
-                :placeholder="t('settings.steam_path_placeholder')"
-                style="flex: 1"
+                  v-model:value="steamPath"
+                  :placeholder="t('settings.steam_path_placeholder')"
+                  style="flex: 1"
               />
               <n-button @click="detectSteamPath">{{ t('settings.detect') }}</n-button>
             </n-input-group>
@@ -84,44 +85,44 @@
 
       <!-- About Section -->
       <n-card :title="t('settings.about')">
-        <n-space vertical :size="8">
+        <n-space :size="8" vertical>
           <n-text strong>Onekey v3.0.0</n-text>
           <n-text depth="3">{{ t('about.project_subtitle') }}</n-text>
-          <n-divider style="margin: 8px 0" />
+          <n-divider style="margin: 8px 0"/>
           <n-text depth="3">{{ t('about.tech_backend') }}: {{ t('about.tech_backend_val') }}</n-text>
           <n-text depth="3">{{ t('about.tech_frontend') }}: Vue 3 / TypeScript / Vite / Naive UI</n-text>
           <n-text depth="3">{{ t('about.tech_tools') }}: {{ t('about.tech_tools_val') }}</n-text>
-          <n-divider style="margin: 8px 0" />
-          <n-space align="center" :size="12">
-            <n-button size="small" @click="checkForUpdate" :loading="updateChecking">
+          <n-divider style="margin: 8px 0"/>
+          <n-space :size="12" align="center">
+            <n-button :loading="updateChecking" size="small" @click="checkForUpdate">
               {{ t('update.check') }}
             </n-button>
             <n-text v-if="updateInfo && updateInfo.has_update" type="warning">
-              {{ t('update.new_version', { version: updateInfo.latest_version }) }}
+              {{ t('update.new_version', {version: updateInfo.latest_version}) }}
             </n-text>
             <n-text v-else-if="updateChecked" depth="3">{{ t('update.up_to_date') }}</n-text>
           </n-space>
           <template v-if="updateInfo && updateInfo.has_update">
-            <n-alert type="warning" :title="t('update.title')" style="margin-top: 8px;">
-              <n-space vertical :size="4">
+            <n-alert :title="t('update.title')" style="margin-top: 8px;" type="warning">
+              <n-space :size="4" vertical>
                 <n-text>{{ t('update.current') }}: v{{ updateInfo.current_version }}</n-text>
                 <n-text>{{ t('update.latest') }}: v{{ updateInfo.latest_version }}</n-text>
                 <n-text v-if="updateInfo.changelog">{{ t('update.changelog') }}: {{ updateInfo.changelog }}</n-text>
                 <n-button
-                  v-if="updateInfo.download_url"
-                  type="primary"
-                  size="small"
-                  tag="a"
-                  :href="updateInfo.download_url"
-                  target="_blank"
-                  style="margin-top: 4px;"
+                    v-if="updateInfo.download_url"
+                    :href="updateInfo.download_url"
+                    size="small"
+                    style="margin-top: 4px;"
+                    tag="a"
+                    target="_blank"
+                    type="primary"
                 >
                   {{ t('update.download') }}
                 </n-button>
               </n-space>
             </n-alert>
           </template>
-          <n-divider style="margin: 8px 0" />
+          <n-divider style="margin: 8px 0"/>
           <n-text depth="3">{{ t('about.copyright') }}</n-text>
         </n-space>
       </n-card>
@@ -129,13 +130,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { useMessage } from 'naive-ui'
-import { useI18n } from '../i18n'
-import { GetDetailedConfig, UpdateConfig, VerifyKey, GetConfig, CheckUpdate } from '../../wailsjs/go/main/App'
+<script lang="ts" setup>
+import {onMounted, ref, watch} from 'vue'
+import {useMessage} from 'naive-ui'
+import {useI18n} from '../i18n'
+import {CheckUpdate, GetConfig, GetDetailedConfig, UpdateConfig, VerifyKey} from '../../wailsjs/go/main/App'
 
-const { t, setLanguage: setI18nLang } = useI18n()
+const {t, setLanguage: setI18nLang} = useI18n()
 const message = useMessage()
 
 const detailedConfig = ref<any>(null)
@@ -161,10 +162,12 @@ onMounted(async () => {
         try {
           const result = await VerifyKey(resp.config.key)
           if (result.info) keyInfo.value = result.info
-        } catch (e) {}
+        } catch (e) {
+        }
       }
     }
-  } catch (e) {}
+  } catch (e) {
+  }
   keyLoading.value = false
 })
 
@@ -181,7 +184,8 @@ watch(language, async (val) => {
       show_console: false,
       language: val,
     })
-  } catch (e) {}
+  } catch (e) {
+  }
 })
 
 async function checkForUpdate() {
@@ -192,7 +196,7 @@ async function checkForUpdate() {
     updateInfo.value = info
     updateChecked.value = true
     if (info.has_update) {
-      message.info(t('update.new_version', { version: info.latest_version }))
+      message.info(t('update.new_version', {version: info.latest_version}))
     } else {
       message.success(t('update.up_to_date'))
     }
@@ -248,7 +252,8 @@ async function saveNewKey() {
       try {
         const info = await VerifyKey(resp.config.key)
         if (info.info) keyInfo.value = info.info
-      } catch (e) {}
+      } catch (e) {
+      }
     }
   }
 }
@@ -262,6 +267,7 @@ async function detectSteamPath() {
     } else {
       message.error(t('home.steam_path_not_found'))
     }
-  } catch (e) {}
+  } catch (e) {
+  }
 }
 </script>
