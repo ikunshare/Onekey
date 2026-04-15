@@ -12,6 +12,11 @@ jobs:
       - name: 拉取仓库
         uses: actions/checkout@v4
 
+      - name: 安装 UPX
+        uses: crazy-max/ghaction-upx@v4
+        with:
+          install-only: true
+
       - name: 安装 Go
         uses: actions/setup-go@v5
         with:
@@ -25,9 +30,6 @@ jobs:
       - name: 安装 Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      - name: 安装 Garble
-        run: go install mvdan.cc/garble@latest
-
       - name: 获取版本
         shell: powershell
         run: |
@@ -36,7 +38,7 @@ jobs:
           echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
 
       - name: 编译
-        run: wails build -o "Onekey_v${{ env.PACKAGE_VERSION }}.exe" -upx -skipbindings -obfuscated
+        run: wails build -o "Onekey_v${{ env.PACKAGE_VERSION }}.exe" -upx -skipbindings
 
       - name: 创建标签
         uses: pkgdeps/git-tag-action@v3

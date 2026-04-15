@@ -14,6 +14,11 @@ jobs:
       - name: 拉取仓库
         uses: actions/checkout@v4
 
+      - name: 安装 UPX
+        uses: crazy-max/ghaction-upx@v4
+        with:
+          install-only: true
+
       - name: 安装 Go
         uses: actions/setup-go@v5
         with:
