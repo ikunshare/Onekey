@@ -17,12 +17,12 @@ jobs:
       - name: 安装 Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: "1.26"
 
       - name: 安装 Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: 安装 Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
