@@ -12,31 +12,28 @@ jobs:
       - name: 拉取仓库
         uses: actions/checkout@v4
 
+      - name: 安装 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 安装 Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
       - name: 获取版本
         shell: powershell
         run: |
-          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $wailsJson = Get-Content wails.json | ConvertFrom-Json
+          $version = $wailsJson.info.productVersion
           echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
 
-      - name: 安装Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: 安装 UPX
-        shell: powershell
-        run: choco install upx --no-progress
-
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          pip install imageio
-          pip install -r requirements.txt
-          pip install pyinstaller
-
       - name: 编译
-        run: |
-          pyinstaller --onefile --distpath build --name "Onekey_v${{ env.PACKAGE_VERSION }}" --icon "icon.jpg" --add-data "web;web" --add-data "icon.jpg;." --upx-exclude=vcruntime140.dll --upx-exclude=python311.dll main.py
+        run: wails build -o "Onekey_v${{ env.PACKAGE_VERSION }}.exe" -upx -skipbindings
 
       - name: 创建标签
         uses: pkgdeps/git-tag-action@v3
@@ -51,13 +48,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          path: build/bin/Onekey_v${{ env.PACKAGE_VERSION }}.exe
 
       - name: 发布
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.PACKAGE_VERSION }}
-          files: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          files: build/bin/Onekey_v${{ env.PACKAGE_VERSION }}.exe
           prerelease: false
           draft: false
         env:
@@ -75,4 +72,4 @@ jobs:
           gitee_target_commitish: main
           gitee_upload_retry_times: 3
           gitee_file_name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          gitee_file_path: build/Onekey_v${{ env.PACKAGE_VERSION }}.exe
+          gitee_file_path: build/bin/Onekey_v${{ env.PACKAGE_VERSION }}.exe

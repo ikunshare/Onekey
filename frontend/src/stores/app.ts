@@ -9,6 +9,11 @@ export const useAppStore = defineStore('app', () => {
     debug_mode: boolean
   }>({ steam_path: '', debug_mode: false })
 
+  // Search state (persists across route changes)
+  const searchTerm = ref('')
+  const searchResults = ref<any[]>([])
+  const searchDone = ref(false)
+
   const isRunning = computed(() => taskStatus.value === 'running')
 
   function addLog(type: string, message: string) {
@@ -27,5 +32,5 @@ export const useAppStore = defineStore('app', () => {
     taskStatus.value = status
   }
 
-  return { taskStatus, logs, config, isRunning, addLog, clearLogs, setTaskStatus }
+  return { taskStatus, logs, config, isRunning, addLog, clearLogs, setTaskStatus, searchTerm, searchResults, searchDone }
 })

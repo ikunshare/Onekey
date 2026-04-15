@@ -70,11 +70,40 @@ var translations = map[string]map[string]string{
 		"error.manifest_empty":        "游戏清单列表为空，无法继续",
 		"error.manifest_process_none": "没有成功处理任何清单文件",
 		"error.steamtools_setup":      "SteamTools 配置写入失败: {error}",
+		"error.update_check_failed":    "检查更新失败",
+		"error.kernel_download_failed": "内核文件下载失败",
+		// Steam 操作
+		"steam.restart_success": "Steam 已重新启动",
+		"steam.restart_failed":  "Steam 重启失败: {error}",
+		"steam.exe_not_found":   "未找到 steam.exe",
+		// 游戏库
+		"library.added":   "已加入游戏库",
+		"library.removed": "已从游戏库移除",
+		"library.dlc_grouped":        "DLC「{dlc}」已归入父游戏「{parent}」",
+		"library.dlc_added_to_parent": "DLC 已归入父游戏「{parent}」",
 		// Web 配置
 		"web.config_saved":        "配置已保存",
 		"web.config_save_failed":  "保存配置失败: {error}",
 		"web.config_reset":        "配置已重置为默认值",
 		"web.config_reset_failed": "重置配置失败: {error}",
+		// 内核
+		"kernel.downloading":       "正在下载内核文件...",
+		"kernel.download_success":  "内核已加载到 Steam 目录",
+		"kernel.download_failed":   "内核下载失败: {error}",
+		"kernel.save_failed":       "内核文件保存失败: {error}",
+		"kernel.no_steam_path":     "请先配置 Steam 路径",
+		// 公告
+		"announcement.fetch_failed": "获取公告失败",
+		// 补丁
+		"patch.success":  "修补完成，共修改 {count} 处",
+		"patch.failed":   "修补失败: {error}",
+		"patch.no_match": "未找到需要修补的内容",
+		// 内核设置
+		"kernel_settings.saved": "内核设置已保存",
+		// 更新
+		"update.check_failed":    "检查更新失败: {error}",
+		"update.up_to_date":      "当前已是最新版本",
+		"update.new_version":     "发现新版本: {version}",
 	},
 	"en": {
 		"tray.show_window":  "Show Window",
@@ -125,10 +154,39 @@ var translations = map[string]map[string]string{
 		"error.manifest_empty":        "Manifest list is empty, cannot proceed",
 		"error.manifest_process_none": "No manifests were successfully processed",
 		"error.steamtools_setup":      "SteamTools config failed: {error}",
+		"error.update_check_failed":    "Failed to check for updates",
+		"error.kernel_download_failed": "Kernel file download failed",
+		// Steam actions
+		"steam.restart_success": "Steam has been restarted",
+		"steam.restart_failed":  "Failed to restart Steam: {error}",
+		"steam.exe_not_found":   "steam.exe not found",
+		// Library
+		"library.added":   "Added to library",
+		"library.removed": "Removed from library",
+		"library.dlc_grouped":        "DLC \"{dlc}\" grouped under parent game \"{parent}\"",
+		"library.dlc_added_to_parent": "DLC added to parent game \"{parent}\"",
 		"web.config_saved":        "Configuration saved",
 		"web.config_save_failed":  "Failed to save configuration: {error}",
 		"web.config_reset":        "Configuration reset to default",
 		"web.config_reset_failed": "Failed to reset configuration: {error}",
+		// Kernel
+		"kernel.downloading":       "Downloading kernel file...",
+		"kernel.download_success":  "Kernel loaded to Steam directory",
+		"kernel.download_failed":   "Kernel download failed: {error}",
+		"kernel.save_failed":       "Failed to save kernel file: {error}",
+		"kernel.no_steam_path":     "Please configure Steam path first",
+		// Announcement
+		"announcement.fetch_failed": "Failed to fetch announcement",
+		// Patch
+		"patch.success":  "Patch complete, {count} occurrence(s) modified",
+		"patch.failed":   "Patch failed: {error}",
+		"patch.no_match": "No matching entries found",
+		// Kernel settings
+		"kernel_settings.saved": "Kernel settings saved",
+		// Update
+		"update.check_failed":    "Failed to check for updates: {error}",
+		"update.up_to_date":      "You are on the latest version",
+		"update.new_version":     "New version available: {version}",
 	},
 }
 

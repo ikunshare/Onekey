@@ -12,7 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"onekey/internal/constants"
 	"onekey/internal/i18n"
 	"onekey/internal/models"
 )
@@ -26,15 +25,17 @@ type ProgressFunc func(msg string, current, total int)
 type Handler struct {
 	steamPath  string
 	depotCache string
+	cdnList    []string
 }
 
-// NewHandler creates a manifest handler for the given Steam path.
-func NewHandler(steamPath string) *Handler {
+// NewHandler creates a manifest handler for the given Steam path and CDN list.
+func NewHandler(steamPath string, cdnList []string) *Handler {
 	cache := filepath.Join(steamPath, "depotcache")
 	os.MkdirAll(cache, 0755)
 	return &Handler{
 		steamPath:  steamPath,
 		depotCache: cache,
+		cdnList:    cdnList,
 	}
 }
 
@@ -122,7 +123,7 @@ func (h *Handler) processSingle(info models.ManifestInfo) bool {
 
 func (h *Handler) download(info models.ManifestInfo) []byte {
 	for retry := 0; retry < 3; retry++ {
-		for _, cdn := range constants.SteamCacheCDNList {
+		for _, cdn := range h.cdnList {
 			url := cdn + info.URL
 			resp, err := client.Get(url)
 			if err != nil {

@@ -27,6 +27,9 @@ func Setup(steamPath string, appInfo *models.SteamAppInfo, manifests []models.Ma
 	fmt.Fprintf(&b, "-- Total DLCs: %d\n", appInfo.DLCCount)
 	fmt.Fprintf(&b, "\n-- MAIN APP\n")
 	fmt.Fprintf(&b, "addappid(%s, \"0\", \"%s\")\n", appInfo.AppID, appInfo.WorkshopDecryptionKey)
+	if appInfo.AccessToken != "" && appInfo.AccessToken != "0" {
+		fmt.Fprintf(&b, "addtoken(%s, \"%s\")\n", appInfo.AppID, appInfo.AccessToken)
+	}
 	fmt.Fprintf(&b, "\n-- ALL Depots\n")
 
 	// Deduplicate depots: each depot_id should appear only once.

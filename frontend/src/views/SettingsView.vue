@@ -1,198 +1,153 @@
 <template>
   <div>
-    <header class="app-bar">
-      <div class="app-bar-content">
-        <button class="btn btn-text" @click="router.push('/')">
-          <span class="material-icons">arrow_back</span>
-        </button>
-        <span class="material-icons app-icon">settings</span>
-        <h1 class="app-title">{{ t('settings.title') }}</h1>
-      </div>
-    </header>
-
-    <main class="main-content settings-main">
+    <n-space vertical :size="24">
       <!-- Key Management -->
-      <div class="card">
-        <div class="card-header">
-          <span class="material-icons">verified</span>
-          <h2>{{ t('settings.key_management') }}</h2>
-        </div>
-        <div class="card-content">
-          <div class="settings-section">
-            <div id="keyInfoSection">
-              <div v-if="!detailedConfig" class="loading">{{ t('settings.loading_key') }}</div>
-              <div v-else-if="detailedConfig.key" class="status-item">
-                <span class="material-icons status-icon success">vpn_key</span>
-                <span class="status-text">Key: {{ detailedConfig.key.substring(0, 12) }}...</span>
-              </div>
-            </div>
-
-            <div class="key-change-section" style="margin-top: 16px">
-              <h4 style="margin: 0 0 16px 0;">
-                <span class="material-icons" style="vertical-align: middle; margin-right: 8px">swap_horiz</span>
-                {{ t('settings.change_key') }}
-              </h4>
-              <div class="key-input-group" style="display: flex; gap: 8px; align-items: flex-start;">
-                <div class="input-group" style="flex: 1; margin: 0">
-                  <label for="newKey" class="input-label">{{ t('settings.new_key_label') }}</label>
-                  <input type="text" id="newKey" v-model="newKey" class="text-field" :placeholder="t('settings.new_key_placeholder')" autocomplete="off" />
-                  <div class="input-helper">{{ t('settings.new_key_helper') }}</div>
-                </div>
-                <button type="button" class="btn btn-secondary" @click="verifyNewKey" v-if="!newKeyVerified">
-                  <span class="material-icons">check</span>
-                  {{ t('settings.verify') }}
-                </button>
-                <button type="button" class="btn btn-primary" @click="saveNewKey" v-if="newKeyVerified">
-                  <span class="material-icons">save</span>
-                  {{ t('settings.save') }}
-                </button>
-              </div>
-            </div>
+      <n-card :title="t('settings.key_management')">
+        <n-space vertical :size="12">
+          <div v-if="keyLoading">
+            <n-spin size="small" /> {{ t('settings.loading_key') }}
           </div>
-        </div>
-      </div>
+          <template v-else-if="detailedConfig && detailedConfig.key">
+            <n-alert :type="keyInfo && keyInfo.isActive ? 'success' : 'warning'" :bordered="false">
+              Key: {{ detailedConfig.key.substring(0, 12) }}...
+            </n-alert>
+            <n-descriptions v-if="keyInfo" bordered :column="2" size="small">
+              <n-descriptions-item :label="t('oobe.key_type')">
+                {{ t('key_type.' + keyInfo.type) || keyInfo.type }}
+              </n-descriptions-item>
+              <n-descriptions-item :label="t('oobe.key_status')">
+                <n-tag :type="keyInfo.isActive ? 'success' : 'error'" size="small">
+                  {{ keyInfo.isActive ? t('oobe.active') : t('oobe.inactive') }}
+                </n-tag>
+              </n-descriptions-item>
+              <n-descriptions-item :label="t('oobe.key_expires')">
+                {{ keyInfo.expiresAt ? new Date(keyInfo.expiresAt).toLocaleDateString() : t('oobe.permanent') }}
+              </n-descriptions-item>
+              <n-descriptions-item :label="t('oobe.key_usage')">
+                {{ keyInfo.usageCount }} / {{ keyInfo.totalUsage }}
+              </n-descriptions-item>
+            </n-descriptions>
+          </template>
+
+          <n-divider />
+          <n-text strong>{{ t('settings.change_key') }}</n-text>
+          <n-input-group>
+            <n-input
+              v-model:value="newKey"
+              :placeholder="t('settings.new_key_placeholder')"
+              style="flex: 1"
+            />
+            <n-button
+              v-if="!newKeyVerified"
+              type="info"
+              @click="verifyNewKey"
+            >
+              {{ t('settings.verify') }}
+            </n-button>
+            <n-button
+              v-else
+              type="primary"
+              @click="saveNewKey"
+            >
+              {{ t('settings.save') }}
+            </n-button>
+          </n-input-group>
+        </n-space>
+      </n-card>
 
       <!-- Steam Config -->
-      <div class="card">
-        <div class="card-header">
-          <span class="material-icons">games</span>
-          <h2>{{ t('settings.steam_config') }}</h2>
-        </div>
-        <div class="card-content">
-          <div class="settings-section">
-            <div class="input-group">
-              <label for="steamPath" class="input-label">{{ t('settings.steam_path_label') }}</label>
-              <div style="display: flex; gap: 8px;">
-                <input type="text" id="steamPath" v-model="steamPath" class="text-field" :placeholder="t('settings.steam_path_placeholder')" style="flex: 1" />
-                <button type="button" class="btn btn-secondary" @click="detectSteamPath">
-                  <span class="material-icons">search</span>
-                  {{ t('settings.detect') }}
-                </button>
-              </div>
-              <div class="input-helper">{{ t('settings.steam_path_helper') }}</div>
-            </div>
-            <div class="status-indicator">
-              <span class="material-icons status-icon" :class="steamPath ? 'success' : ''">{{ steamPath ? 'check_circle' : 'info' }}</span>
-              <span class="status-text">{{ steamPath || t('settings.steam_path_waiting') }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <n-card :title="t('settings.steam_config')">
+        <n-space vertical :size="12">
+          <n-form-item :label="t('settings.steam_path_label')">
+            <n-input-group>
+              <n-input
+                v-model:value="steamPath"
+                :placeholder="t('settings.steam_path_placeholder')"
+                style="flex: 1"
+              />
+              <n-button @click="detectSteamPath">{{ t('settings.detect') }}</n-button>
+            </n-input-group>
+          </n-form-item>
+          <n-text depth="3" style="font-size: 12px;">{{ t('settings.steam_path_helper') }}</n-text>
+        </n-space>
+      </n-card>
 
       <!-- App Config -->
-      <div class="card">
-        <div class="card-header">
-          <span class="material-icons">tune</span>
-          <h2>{{ t('settings.app_config') }}</h2>
-        </div>
-        <div class="card-content">
-          <div class="settings-section">
-            <div class="setting-item">
-              <label class="setting-label">{{ t('settings.language') }}</label>
-              <div class="radio-group">
-                <label class="radio-item">
-                  <input type="radio" v-model="language" value="zh" />
-                  <span class="radio-button"></span>
-                  <span class="radio-label">{{ t('settings.lang_zh') }}</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" v-model="language" value="en" />
-                  <span class="radio-button"></span>
-                  <span class="radio-label">{{ t('settings.lang_en') }}</span>
-                </label>
-              </div>
-            </div>
+      <n-card :title="t('settings.app_config')">
+        <n-form-item :label="t('settings.language')">
+          <n-radio-group v-model:value="language">
+            <n-radio-button value="zh">{{ t('settings.lang_zh') }}</n-radio-button>
+            <n-radio-button value="en">{{ t('settings.lang_en') }}</n-radio-button>
+          </n-radio-group>
+        </n-form-item>
+      </n-card>
 
-            <div class="setting-item">
-              <label class="checkbox-item">
-                <input type="checkbox" v-model="debugMode" />
-                <span class="checkbox-button"></span>
-                <div class="checkbox-content">
-                  <span class="checkbox-label">{{ t('settings.debug_mode') }}</span>
-                  <span class="checkbox-description">{{ t('settings.debug_desc') }}</span>
-                </div>
-              </label>
-            </div>
-
-            <div class="setting-item">
-              <label class="checkbox-item">
-                <input type="checkbox" v-model="loggingFiles" />
-                <span class="checkbox-button"></span>
-                <div class="checkbox-content">
-                  <span class="checkbox-label">{{ t('settings.logging') }}</span>
-                  <span class="checkbox-description">{{ t('settings.logging_desc') }}</span>
-                </div>
-              </label>
-            </div>
-
-            <div class="setting-item">
-              <label class="checkbox-item">
-                <input type="checkbox" v-model="showConsole" />
-                <span class="checkbox-button"></span>
-                <div class="checkbox-content">
-                  <span class="checkbox-label">{{ t('settings.console') }}</span>
-                  <span class="checkbox-description">{{ t('settings.console_desc') }}</span>
-                </div>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="card">
-        <div class="card-content">
-          <div class="action-buttons" style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-primary" @click="saveConfig">
-              <span class="material-icons">save</span>
-              {{ t('settings.save_config') }}
-            </button>
-            <button type="button" class="btn btn-secondary" @click="showResetDialog = true">
-              <span class="material-icons">restore</span>
-              {{ t('settings.reset_config') }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Confirm Dialog -->
-    <div v-if="showResetDialog" class="dialog-overlay" @click.self="showResetDialog = false">
-      <div class="dialog">
-        <div class="dialog-header">
-          <h3>{{ t('settings.confirm_title') }}</h3>
-        </div>
-        <div class="dialog-content">
-          <p>{{ t('settings.confirm_reset') }}</p>
-        </div>
-        <div class="dialog-actions">
-          <button type="button" class="btn btn-text" @click="showResetDialog = false">{{ t('settings.cancel') }}</button>
-          <button type="button" class="btn btn-primary" @click="resetConfig">{{ t('settings.confirm') }}</button>
-        </div>
-      </div>
-    </div>
+      <!-- About Section -->
+      <n-card :title="t('settings.about')">
+        <n-space vertical :size="8">
+          <n-text strong>Onekey v3.0.0</n-text>
+          <n-text depth="3">{{ t('about.project_subtitle') }}</n-text>
+          <n-divider style="margin: 8px 0" />
+          <n-text depth="3">{{ t('about.tech_backend') }}: {{ t('about.tech_backend_val') }}</n-text>
+          <n-text depth="3">{{ t('about.tech_frontend') }}: Vue 3 / TypeScript / Vite / Naive UI</n-text>
+          <n-text depth="3">{{ t('about.tech_tools') }}: {{ t('about.tech_tools_val') }}</n-text>
+          <n-divider style="margin: 8px 0" />
+          <n-space align="center" :size="12">
+            <n-button size="small" @click="checkForUpdate" :loading="updateChecking">
+              {{ t('update.check') }}
+            </n-button>
+            <n-text v-if="updateInfo && updateInfo.has_update" type="warning">
+              {{ t('update.new_version', { version: updateInfo.latest_version }) }}
+            </n-text>
+            <n-text v-else-if="updateChecked" depth="3">{{ t('update.up_to_date') }}</n-text>
+          </n-space>
+          <template v-if="updateInfo && updateInfo.has_update">
+            <n-alert type="warning" :title="t('update.title')" style="margin-top: 8px;">
+              <n-space vertical :size="4">
+                <n-text>{{ t('update.current') }}: v{{ updateInfo.current_version }}</n-text>
+                <n-text>{{ t('update.latest') }}: v{{ updateInfo.latest_version }}</n-text>
+                <n-text v-if="updateInfo.changelog">{{ t('update.changelog') }}: {{ updateInfo.changelog }}</n-text>
+                <n-button
+                  v-if="updateInfo.download_url"
+                  type="primary"
+                  size="small"
+                  tag="a"
+                  :href="updateInfo.download_url"
+                  target="_blank"
+                  style="margin-top: 4px;"
+                >
+                  {{ t('update.download') }}
+                </n-button>
+              </n-space>
+            </n-alert>
+          </template>
+          <n-divider style="margin: 8px 0" />
+          <n-text depth="3">{{ t('about.copyright') }}</n-text>
+        </n-space>
+      </n-card>
+    </n-space>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted } from 'vue'
+import { useMessage } from 'naive-ui'
 import { useI18n } from '../i18n'
-import { GetDetailedConfig, UpdateConfig, ResetConfig, VerifyKey, GetConfig } from '../../wailsjs/go/main/App'
+import { GetDetailedConfig, UpdateConfig, VerifyKey, GetConfig, CheckUpdate } from '../../wailsjs/go/main/App'
 
 const { t, setLanguage: setI18nLang } = useI18n()
-const router = useRouter()
-const showSnackbar = inject<any>('showSnackbar')
+const message = useMessage()
 
 const detailedConfig = ref<any>(null)
+const keyInfo = ref<any>(null)
+const keyLoading = ref(true)
 const newKey = ref('')
 const newKeyVerified = ref(false)
 const steamPath = ref('')
 const language = ref('zh')
-const debugMode = ref(false)
-const loggingFiles = ref(true)
-const showConsole = ref(false)
-const showResetDialog = ref(false)
+const updateInfo = ref<any>(null)
+const updateChecking = ref(false)
+const updateChecked = ref(false)
 
 onMounted(async () => {
   try {
@@ -201,12 +156,52 @@ onMounted(async () => {
       detailedConfig.value = resp.config
       steamPath.value = resp.config.steam_path || ''
       language.value = resp.config.language || 'zh'
-      debugMode.value = resp.config.debug_mode
-      loggingFiles.value = resp.config.logging_files
-      showConsole.value = resp.config.show_console
+      // Fetch key details
+      if (resp.config.key) {
+        try {
+          const result = await VerifyKey(resp.config.key)
+          if (result.info) keyInfo.value = result.info
+        } catch (e) {}
+      }
     }
   } catch (e) {}
+  keyLoading.value = false
 })
+
+// Language: save immediately on change
+watch(language, async (val) => {
+  setI18nLang(val)
+  if (!detailedConfig.value) return
+  try {
+    await UpdateConfig({
+      key: detailedConfig.value.key || '',
+      steam_path: steamPath.value,
+      debug_mode: false,
+      logging_files: false,
+      show_console: false,
+      language: val,
+    })
+  } catch (e) {}
+})
+
+async function checkForUpdate() {
+  updateChecking.value = true
+  updateChecked.value = false
+  try {
+    const info = await CheckUpdate()
+    updateInfo.value = info
+    updateChecked.value = true
+    if (info.has_update) {
+      message.info(t('update.new_version', { version: info.latest_version }))
+    } else {
+      message.success(t('update.up_to_date'))
+    }
+  } catch (e) {
+    message.error(t('update.check_failed'))
+  } finally {
+    updateChecking.value = false
+  }
+}
 
 async function verifyNewKey() {
   const key = newKey.value.trim()
@@ -215,22 +210,47 @@ async function verifyNewKey() {
     const result = await VerifyKey(key)
     if (result.key && result.info) {
       newKeyVerified.value = true
-      showSnackbar(t('oobe.verify_success'), 'success')
+      message.success(t('oobe.verify_success'))
     } else {
-      showSnackbar(t('oobe.verify_fail'), 'error')
+      message.error(t('oobe.verify_fail'))
     }
   } catch (e) {
-    showSnackbar(t('oobe.verify_error'), 'error')
+    message.error(t('oobe.verify_error'))
   }
 }
 
 async function saveNewKey() {
-  await saveConfigWith(newKey.value.trim())
+  const key = newKey.value.trim()
+  try {
+    const result = await UpdateConfig({
+      key,
+      steam_path: steamPath.value,
+      debug_mode: false,
+      logging_files: false,
+      show_console: false,
+      language: language.value,
+    })
+    if (result.success) {
+      message.success(result.message)
+    } else {
+      message.error(result.message)
+    }
+  } catch (e: any) {
+    message.error(e.message || 'Error')
+  }
   newKeyVerified.value = false
   newKey.value = ''
-  // Reload config
+  // Refresh key info
   const resp = await GetDetailedConfig()
-  if (resp.success) detailedConfig.value = resp.config
+  if (resp.success) {
+    detailedConfig.value = resp.config
+    if (resp.config.key) {
+      try {
+        const info = await VerifyKey(resp.config.key)
+        if (info.info) keyInfo.value = info.info
+      } catch (e) {}
+    }
+  }
 }
 
 async function detectSteamPath() {
@@ -238,59 +258,10 @@ async function detectSteamPath() {
     const resp = await GetConfig()
     if (resp.success && resp.config.steam_path) {
       steamPath.value = resp.config.steam_path
-      showSnackbar('Steam路径: ' + resp.config.steam_path, 'success')
+      message.success('Steam: ' + resp.config.steam_path)
     } else {
-      showSnackbar(t('home.steam_path_not_found'), 'error')
+      message.error(t('home.steam_path_not_found'))
     }
   } catch (e) {}
-}
-
-async function saveConfig() {
-  await saveConfigWith(detailedConfig.value?.key || '')
-}
-
-async function saveConfigWith(key: string) {
-  try {
-    setI18nLang(language.value)
-    const result = await UpdateConfig({
-      key: key,
-      steam_path: steamPath.value,
-      debug_mode: debugMode.value,
-      logging_files: loggingFiles.value,
-      show_console: showConsole.value,
-      language: language.value,
-    })
-    if (result.success) {
-      showSnackbar(result.message, 'success')
-    } else {
-      showSnackbar(result.message, 'error')
-    }
-  } catch (e: any) {
-    showSnackbar(e.message || 'Error', 'error')
-  }
-}
-
-async function resetConfig() {
-  showResetDialog.value = false
-  try {
-    const result = await ResetConfig()
-    if (result.success) {
-      showSnackbar(result.message, 'success')
-      // Reload
-      const resp = await GetDetailedConfig()
-      if (resp.success) {
-        detailedConfig.value = resp.config
-        steamPath.value = resp.config.steam_path || ''
-        language.value = resp.config.language || 'zh'
-        debugMode.value = resp.config.debug_mode
-        loggingFiles.value = resp.config.logging_files
-        showConsole.value = resp.config.show_console
-      }
-    } else {
-      showSnackbar(result.message, 'error')
-    }
-  } catch (e: any) {
-    showSnackbar(e.message || 'Error', 'error')
-  }
 }
 </script>

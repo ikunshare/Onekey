@@ -9,6 +9,16 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue'),
     },
     {
+      path: '/games',
+      name: 'games',
+      component: () => import('../views/GamesView.vue'),
+    },
+    {
+      path: '/games/:appId/dlc',
+      name: 'dlc-detail',
+      component: () => import('../views/DlcDetailView.vue'),
+    },
+    {
       path: '/oobe',
       name: 'oobe',
       component: () => import('../views/OobeView.vue'),
@@ -17,11 +27,6 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: () => import('../views/SettingsView.vue'),
-    },
-    {
-      path: '/about',
-      name: 'about',
-      component: () => import('../views/AboutView.vue'),
     },
   ],
 })
