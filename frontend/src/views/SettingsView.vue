@@ -83,6 +83,28 @@
         </n-form-item>
       </n-card>
 
+      <!-- Network Proxy -->
+      <n-card :title="t('settings.network_proxy')">
+        <n-space :size="12" vertical>
+          <n-form-item :label="t('settings.proxy_url_label')">
+            <n-input-group>
+              <n-input
+                  v-model:value="proxyURL"
+                  :placeholder="t('settings.proxy_url_placeholder')"
+                  style="flex: 1"
+              />
+              <n-button :loading="proxyTesting" type="info" @click="testProxy">
+                {{ t('settings.proxy_test') }}
+              </n-button>
+              <n-button type="primary" @click="saveProxy">
+                {{ t('settings.save') }}
+              </n-button>
+            </n-input-group>
+          </n-form-item>
+          <n-text depth="3" style="font-size: 12px;">{{ t('settings.proxy_helper') }}</n-text>
+        </n-space>
+      </n-card>
+
       <!-- About Section -->
       <n-card :title="t('settings.about')">
         <n-space :size="8" vertical>
@@ -134,7 +156,7 @@
 import {onMounted, ref, watch} from 'vue'
 import {useMessage} from 'naive-ui'
 import {useI18n} from '../i18n'
-import {CheckUpdate, GetConfig, GetDetailedConfig, UpdateConfig, VerifyKey} from '../../wailsjs/go/main/App'
+import {CheckUpdate, GetConfig, GetDetailedConfig, TestProxy, UpdateConfig, VerifyKey} from '../../wailsjs/go/main/App'
 
 const {t, setLanguage: setI18nLang} = useI18n()
 const message = useMessage()
@@ -149,6 +171,8 @@ const language = ref('zh')
 const updateInfo = ref<any>(null)
 const updateChecking = ref(false)
 const updateChecked = ref(false)
+const proxyURL = ref('')
+const proxyTesting = ref(false)
 
 onMounted(async () => {
   try {
@@ -157,6 +181,7 @@ onMounted(async () => {
       detailedConfig.value = resp.config
       steamPath.value = resp.config.steam_path || ''
       language.value = resp.config.language || 'zh'
+      proxyURL.value = resp.config.proxy_url || ''
       // Fetch key details
       if (resp.config.key) {
         try {
@@ -183,6 +208,7 @@ watch(language, async (val) => {
       logging_files: false,
       show_console: false,
       language: val,
+      proxy_url: proxyURL.value,
     })
   } catch (e) {
   }
@@ -233,6 +259,7 @@ async function saveNewKey() {
       logging_files: false,
       show_console: false,
       language: language.value,
+      proxy_url: proxyURL.value,
     })
     if (result.success) {
       message.success(result.message)
@@ -268,6 +295,44 @@ async function detectSteamPath() {
       message.error(t('home.steam_path_not_found'))
     }
   } catch (e) {
+  }
+}
+
+async function testProxy() {
+  proxyTesting.value = true
+  try {
+    const result = await TestProxy(proxyURL.value)
+    if (result.success) {
+      message.success(result.message)
+    } else {
+      message.error(result.message)
+    }
+  } catch (e: any) {
+    message.error(e.message || 'Error')
+  } finally {
+    proxyTesting.value = false
+  }
+}
+
+async function saveProxy() {
+  if (!detailedConfig.value) return
+  try {
+    const result = await UpdateConfig({
+      key: detailedConfig.value.key || '',
+      steam_path: steamPath.value,
+      debug_mode: false,
+      logging_files: false,
+      show_console: false,
+      language: language.value,
+      proxy_url: proxyURL.value,
+    })
+    if (result.success) {
+      message.success(result.message)
+    } else {
+      message.error(result.message)
+    }
+  } catch (e: any) {
+    message.error(e.message || 'Error')
   }
 }
 </script>

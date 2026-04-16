@@ -189,6 +189,7 @@ async function finishSetup() {
       logging_files: true,
       show_console: false,
       language: 'zh',
+      proxy_url: '',
     })
     if (result.success) {
       message.success(t('oobe.config_saved'))

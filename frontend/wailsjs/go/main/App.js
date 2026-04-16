@@ -70,6 +70,10 @@ export function StartUnlock(arg1) {
   return window['go']['main']['App']['StartUnlock'](arg1);
 }
 
+export function TestProxy(arg1) {
+  return window['go']['main']['App']['TestProxy'](arg1);
+}
+
 export function UpdateConfig(arg1) {
   return window['go']['main']['App']['UpdateConfig'](arg1);
 }

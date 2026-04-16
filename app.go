@@ -14,6 +14,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"onekey/internal/config"
+	"onekey/internal/httpclient"
 	"onekey/internal/i18n"
 	"onekey/internal/library"
 	"onekey/internal/patcher"
@@ -45,7 +46,11 @@ func (a *App) startup(ctx context.Context) {
 	a.config = config.NewManager()
 	a.library = library.NewManager()
 	i18n.SetLanguage(a.config.AppConfig.Language)
+	if a.config.AppConfig.ProxyURL != "" {
+		httpclient.Shared().SetProxy(a.config.AppConfig.ProxyURL)
+	}
 	a.initLogFile()
+	go a.config.InitCDNWithLatencyTest()
 }
 
 func (a *App) shutdown(ctx context.Context) {
@@ -117,6 +122,7 @@ func (a *App) GetDetailedConfig() models.DetailedConfigResponse {
 			SteamPathExists: steamPathExists,
 			Key:             a.config.AppConfig.Key,
 			Language:        a.config.AppConfig.Language,
+			ProxyURL:        a.config.AppConfig.ProxyURL,
 		},
 	}
 }
@@ -128,7 +134,13 @@ func (a *App) UpdateConfig(req models.UpdateConfigRequest) models.SimpleResponse
 		return models.SimpleResponse{Success: false, Message: i18n.T("web.config_save_failed", "error", err.Error())}
 	}
 	i18n.SetLanguage(a.config.AppConfig.Language)
+	httpclient.Shared().SetProxy(a.config.AppConfig.ProxyURL)
 	return models.SimpleResponse{Success: true, Message: i18n.T("web.config_saved")}
+}
+
+func (a *App) TestProxy(proxyURL string) models.SimpleResponse {
+	ok, msg := testProxyConnectivity(proxyURL)
+	return models.SimpleResponse{Success: ok, Message: msg}
 }
 
 // ResetConfig resets to default values.
@@ -291,7 +303,7 @@ func (a *App) runUnlockTask(appID string) {
 		fmt.Sscanf(appInfo.AppID, "%d", &appIDInt)
 
 		// Check if this app is a DLC by querying Steam
-		parentID, parentName := fetchParentApp(appInfo.AppID)
+		parentID, parentName := fetchParentApp(appInfo.AppID, a.config.AppConfig.Key)
 		if parentID != "" && parentName != "" {
 			// It's a DLC — merge under parent game
 			parentIDInt := 0
@@ -352,7 +364,7 @@ func (a *App) SearchStore(term string) models.StoreSearchResult {
 	if a.config.AppConfig.Language == "en" {
 		lang = "english"
 	}
-	result, err := searchStore(term, lang)
+	result, err := searchStore(term, lang, a.config.AppConfig.Key)
 	if err != nil {
 		return models.StoreSearchResult{}
 	}
@@ -389,7 +401,7 @@ func (a *App) AddToLibrary(appID int, name, tinyImage, appType string) models.Si
 	}
 
 	if appType != "app" && appType != "" {
-		parentID, parentName := fetchParentApp(fmt.Sprintf("%d", appID))
+		parentID, parentName := fetchParentApp(fmt.Sprintf("%d", appID), a.config.AppConfig.Key)
 		if parentID != "" && parentName != "" {
 			parentIDInt := 0
 			fmt.Sscanf(parentID, "%d", &parentIDInt)

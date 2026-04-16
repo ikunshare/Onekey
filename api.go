@@ -8,14 +8,14 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 
 	"onekey/internal/constants"
+	"onekey/internal/httpclient"
 	"onekey/internal/i18n"
 	"onekey/internal/models"
 )
 
-var httpClient = &http.Client{Timeout: 60 * time.Second}
+var httpClient = httpclient.Shared()
 
 func fetchKeyInfo(key string) (*models.KeyInfo, error) {
 	body, _ := json.Marshal(map[string]string{"key": key})
@@ -200,10 +200,31 @@ func getIntField(m map[string]any, key string, defaultVal int) int {
 	return defaultVal
 }
 
-func searchStore(term, lang string) (*models.StoreSearchResult, error) {
+func searchStore(term, lang, apiKey string) (*models.StoreSearchResult, error) {
 	u := fmt.Sprintf("https://store.steampowered.com/api/storesearch/?term=%s&l=%s&cc=CN",
 		url.QueryEscape(term), url.QueryEscape(lang))
 	resp, err := httpClient.Get(u)
+	if err == nil {
+		defer resp.Body.Close()
+		data, _ := io.ReadAll(resp.Body)
+		var result models.StoreSearchResult
+		if json.Unmarshal(data, &result) == nil && len(result.Items) > 0 {
+			return &result, nil
+		}
+	}
+
+	return searchStoreViaProxy(term, lang, apiKey)
+}
+
+func searchStoreViaProxy(term, lang, apiKey string) (*models.StoreSearchResult, error) {
+	u := fmt.Sprintf("%s/steam/search?term=%s&l=%s",
+		constants.SteamAPIBase, url.QueryEscape(term), url.QueryEscape(lang))
+	req, err := http.NewRequest(http.MethodGet, u, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("X-API-Key", apiKey)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("%s", i18n.T("error.network", "error", err.Error()))
 	}
@@ -221,15 +242,9 @@ func searchStore(term, lang string) (*models.StoreSearchResult, error) {
 
 // fetchParentApp queries Steam appdetails to check if appID is a DLC/music/etc.
 // Returns (parentAppID, parentName) if it has a parent game, or ("", "") if not.
-func fetchParentApp(appID string) (string, string) {
-	u := fmt.Sprintf("https://store.steampowered.com/api/appdetails?appids=%s", appID)
-	resp, err := httpClient.Get(u)
-	if err != nil {
-		return "", ""
-	}
-	defer resp.Body.Close()
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
+func fetchParentApp(appID, apiKey string) (string, string) {
+	data := fetchAppDetails(appID, apiKey)
+	if data == nil {
 		return "", ""
 	}
 	var raw map[string]any
@@ -250,6 +265,35 @@ func fetchParentApp(appID string) (string, string) {
 		return "", ""
 	}
 	return getStringField(fg, "appid"), getStringField(fg, "name")
+}
+
+// fetchAppDetails tries Steam Store directly, falls back to backend proxy.
+func fetchAppDetails(appID, apiKey string) []byte {
+	u := fmt.Sprintf("https://store.steampowered.com/api/appdetails?appids=%s", appID)
+	resp, err := httpClient.Get(u)
+	if err == nil {
+		defer resp.Body.Close()
+		if resp.StatusCode == 200 {
+			data, err := io.ReadAll(resp.Body)
+			if err == nil && len(data) > 2 {
+				return data
+			}
+		}
+	}
+
+	proxyURL := fmt.Sprintf("%s/steam/appdetails?appids=%s", constants.SteamAPIBase, appID)
+	req, err := http.NewRequest(http.MethodGet, proxyURL, nil)
+	if err != nil {
+		return nil
+	}
+	req.Header.Set("X-API-Key", apiKey)
+	resp2, err := httpClient.Do(req)
+	if err != nil {
+		return nil
+	}
+	defer resp2.Body.Close()
+	data, _ := io.ReadAll(resp2.Body)
+	return data
 }
 
 func fetchAnnouncements() ([]models.Announcement, error) {
@@ -370,4 +414,23 @@ func downloadKernel() ([]byte, error) {
 	}
 
 	return io.ReadAll(dlResp.Body)
+}
+
+func testProxyConnectivity(proxyURL string) (bool, string) {
+	c := httpclient.Shared()
+	old := c.Proxy()
+	if err := c.SetProxy(proxyURL); err != nil {
+		return false, i18n.T("settings.proxy_invalid")
+	}
+	defer c.SetProxy(old)
+
+	resp, err := c.Get("https://store.steampowered.com/api/storesearch/?term=test&cc=CN&l=schinese&count=1")
+	if err != nil {
+		return false, i18n.T("settings.proxy_fail", "error", err.Error())
+	}
+	resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return false, i18n.T("settings.proxy_fail", "error", fmt.Sprintf("HTTP %d", resp.StatusCode))
+	}
+	return true, i18n.T("settings.proxy_ok")
 }

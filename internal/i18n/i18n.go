@@ -100,6 +100,10 @@ var translations = map[string]map[string]string{
 		"patch.no_match": "未找到需要修补的内容",
 		// 内核设置
 		"kernel_settings.saved": "内核设置已保存",
+		// 代理
+		"settings.proxy_invalid": "代理地址格式无效",
+		"settings.proxy_fail":    "代理连通性测试失败: {error}",
+		"settings.proxy_ok":      "代理连通性测试成功",
 		// 更新
 		"update.check_failed": "检查更新失败: {error}",
 		"update.up_to_date":   "当前已是最新版本",
@@ -183,6 +187,10 @@ var translations = map[string]map[string]string{
 		"patch.no_match": "No matching entries found",
 		// Kernel settings
 		"kernel_settings.saved": "Kernel settings saved",
+		// Proxy
+		"settings.proxy_invalid": "Invalid proxy URL format",
+		"settings.proxy_fail":    "Proxy connectivity test failed: {error}",
+		"settings.proxy_ok":      "Proxy connectivity test passed",
 		// Update
 		"update.check_failed": "Failed to check for updates: {error}",
 		"update.up_to_date":   "You are on the latest version",

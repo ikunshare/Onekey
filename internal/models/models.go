@@ -8,6 +8,7 @@ type AppConfig struct {
 	ShowConsole     bool   `json:"Show_Console"`
 	CustomSteamPath string `json:"Custom_Steam_Path"`
 	Language        string `json:"Language"`
+	ProxyURL        string `json:"Proxy_URL"`
 }
 
 // ManifestInfo holds information about a single manifest from the API.
@@ -80,6 +81,7 @@ type DetailedConfig struct {
 	SteamPathExists bool   `json:"steam_path_exists"`
 	Key             string `json:"key"`
 	Language        string `json:"language"`
+	ProxyURL        string `json:"proxy_url"`
 }
 
 type DetailedConfigResponse struct {
@@ -94,6 +96,7 @@ type UpdateConfigRequest struct {
 	LoggingFiles bool   `json:"logging_files"`
 	ShowConsole  bool   `json:"show_console"`
 	Language     string `json:"language"`
+	ProxyURL     string `json:"proxy_url"`
 }
 
 type KeyInfoAPIResponse struct {

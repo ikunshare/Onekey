@@ -108,6 +108,7 @@ export namespace models {
 	    steam_path_exists: boolean;
 	    key: string;
 	    language: string;
+	    proxy_url: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new DetailedConfig(source);
@@ -122,6 +123,7 @@ export namespace models {
 	        this.steam_path_exists = source["steam_path_exists"];
 	        this.key = source["key"];
 	        this.language = source["language"];
+	        this.proxy_url = source["proxy_url"];
 	    }
 	}
 	export class DetailedConfigResponse {
@@ -509,6 +511,7 @@ export namespace models {
 	    logging_files: boolean;
 	    show_console: boolean;
 	    language: string;
+	    proxy_url: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new UpdateConfigRequest(source);
@@ -522,6 +525,7 @@ export namespace models {
 	        this.logging_files = source["logging_files"];
 	        this.show_console = source["show_console"];
 	        this.language = source["language"];
+	        this.proxy_url = source["proxy_url"];
 	    }
 	}
 	export class UpdateInfo {

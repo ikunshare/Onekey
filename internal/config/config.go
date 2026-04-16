@@ -1,11 +1,11 @@
 package config
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,6 +13,7 @@ import (
 
 	_ "github.com/glebarez/go-sqlite"
 
+	"onekey/internal/httpclient"
 	"onekey/internal/models"
 )
 
@@ -141,6 +142,9 @@ func (m *Manager) load() {
 	if v, ok := found["Language"]; ok && v != "" {
 		m.AppConfig.Language = v
 	}
+	if v, ok := found["Proxy_URL"]; ok {
+		m.AppConfig.ProxyURL = v
+	}
 
 	// Auto-complete: ensure all default keys exist in DB
 	m.autoComplete(found)
@@ -222,6 +226,7 @@ func (m *Manager) configMap(cfg models.AppConfig) map[string]string {
 		"Show_Console":      boolStr(cfg.ShowConsole),
 		"Custom_Steam_Path": cfg.CustomSteamPath,
 		"Language":          cfg.Language,
+		"Proxy_URL":         cfg.ProxyURL,
 	}
 }
 
@@ -238,6 +243,7 @@ func (m *Manager) Update(req models.UpdateConfigRequest) error {
 	m.AppConfig.DebugMode = req.DebugMode
 	m.AppConfig.LoggingFiles = req.LoggingFiles
 	m.AppConfig.ShowConsole = req.ShowConsole
+	m.AppConfig.ProxyURL = req.ProxyURL
 	if req.Language != "" {
 		m.AppConfig.Language = req.Language
 	}
@@ -284,17 +290,14 @@ func (m *Manager) Close() {
 const steamPipeAPI = "https://api.steampowered.com/IContentServerDirectoryService/GetServersForSteamPipe/v1"
 
 // fallbackCDNList is used when both API fetch and DB cache fail.
+// Covers HKG, SHA (Shanghai), SGP, LAX for geographic diversity.
 var fallbackCDNList = []string{
 	"https://cache1-hkg1.steamcontent.com",
 	"https://cache2-hkg1.steamcontent.com",
 	"https://cache3-hkg1.steamcontent.com",
-	"https://cache4-hkg1.steamcontent.com",
-	"https://cache5-hkg1.steamcontent.com",
-	"https://cache6-hkg1.steamcontent.com",
-	"https://cache7-hkg1.steamcontent.com",
-	"https://cache8-hkg1.steamcontent.com",
-	"https://cache9-hkg1.steamcontent.com",
-	"https://cache10-hkg1.steamcontent.com",
+	"https://cache1-sgp1.steamcontent.com",
+	"https://cache2-sgp1.steamcontent.com",
+	"https://cache1-lax1.steamcontent.com",
 }
 
 type cdnEntry struct {
@@ -321,8 +324,7 @@ func (m *Manager) GetCDNList() []string {
 }
 
 func (m *Manager) fetchCDNListFromAPI() []cdnEntry {
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(steamPipeAPI)
+	resp, err := httpclient.Shared().Get(steamPipeAPI)
 	if err != nil {
 		return nil
 	}
@@ -438,4 +440,76 @@ func cdnURLs(entries []cdnEntry) []string {
 func PathExists(p string) bool {
 	_, err := os.Stat(p)
 	return err == nil
+}
+
+// InitCDNWithLatencyTest fetches the CDN list, probes each endpoint's latency
+// concurrently, sorts by response time, and persists the ranked list to DB.
+// Designed to be called once at startup in a goroutine.
+func (m *Manager) InitCDNWithLatencyTest() {
+	candidates := m.fetchCDNListFromAPI()
+	if len(candidates) == 0 {
+		candidates = m.loadCDNCache()
+	}
+	if len(candidates) == 0 {
+		candidates = make([]cdnEntry, len(fallbackCDNList))
+		for i, u := range fallbackCDNList {
+			candidates[i] = cdnEntry{URL: u, Weight: 999}
+		}
+	}
+
+	type probeResult struct {
+		idx     int
+		latency time.Duration
+		ok      bool
+	}
+
+	ch := make(chan probeResult, len(candidates))
+	for i, c := range candidates {
+		go func(idx int, cdnURL string) {
+			lat, ok := probeCDN(cdnURL)
+			ch <- probeResult{idx, lat, ok}
+		}(i, c.URL)
+	}
+
+	latencies := make([]time.Duration, len(candidates))
+	for i := 0; i < len(candidates); i++ {
+		r := <-ch
+		if r.ok {
+			latencies[r.idx] = r.latency
+		} else {
+			latencies[r.idx] = 999 * time.Second
+		}
+	}
+
+	type ranked struct {
+		entry   cdnEntry
+		latency time.Duration
+	}
+	items := make([]ranked, len(candidates))
+	for i, c := range candidates {
+		items[i] = ranked{entry: c, latency: latencies[i]}
+	}
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].latency < items[j].latency
+	})
+
+	sorted := make([]cdnEntry, len(items))
+	for i, it := range items {
+		sorted[i] = cdnEntry{URL: it.entry.URL, Weight: i}
+	}
+	m.saveCDNCache(sorted)
+}
+
+// probeCDN sends a small HEAD request to the CDN and returns the round-trip
+// latency. Returns false if the probe fails.
+func probeCDN(cdnURL string) (time.Duration, bool) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	start := time.Now()
+	resp, err := httpclient.Shared().GetCtx(ctx, cdnURL)
+	if err != nil {
+		return 0, false
+	}
+	resp.Body.Close()
+	return time.Since(start), true
 }

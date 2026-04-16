@@ -127,6 +127,11 @@ export default {
     'settings.cancel': '取消',
     'settings.confirm': '确认',
     'settings.about': '关于',
+    'settings.network_proxy': '网络代理',
+    'settings.proxy_url_label': '代理地址',
+    'settings.proxy_url_placeholder': '例如 http://127.0.0.1:7890 或 socks5://127.0.0.1:1080',
+    'settings.proxy_test': '测试连通性',
+    'settings.proxy_helper': '如果你在中国大陆且无法搜索/下载，可配置代理来改善连通性。留空则不使用代理。',
     // Key types
     'key_type.day': '日卡',
     'key_type.week': '周卡',

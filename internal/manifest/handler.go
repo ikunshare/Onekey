@@ -5,18 +5,17 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
+	"onekey/internal/httpclient"
 	"onekey/internal/i18n"
 	"onekey/internal/models"
 )
 
-var client = &http.Client{Timeout: 60 * time.Second}
+var client = httpclient.Shared()
 
 // ProgressFunc is called with a status message and current/total counts.
 type ProgressFunc func(msg string, current, total int)
@@ -26,6 +25,7 @@ type Handler struct {
 	steamPath  string
 	depotCache string
 	cdnList    []string
+	cdnMu      sync.Mutex
 }
 
 // NewHandler creates a manifest handler for the given Steam path and CDN list.
@@ -123,10 +123,16 @@ func (h *Handler) processSingle(info models.ManifestInfo) bool {
 
 func (h *Handler) download(info models.ManifestInfo) []byte {
 	for retry := 0; retry < 3; retry++ {
-		for _, cdn := range h.cdnList {
+		h.cdnMu.Lock()
+		cdns := make([]string, len(h.cdnList))
+		copy(cdns, h.cdnList)
+		h.cdnMu.Unlock()
+
+		for i, cdn := range cdns {
 			url := cdn + info.URL
 			resp, err := client.Get(url)
 			if err != nil {
+				h.demoteCDN(i)
 				continue
 			}
 			if resp.StatusCode == 200 {
@@ -137,10 +143,24 @@ func (h *Handler) download(info models.ManifestInfo) []byte {
 				}
 			} else {
 				resp.Body.Close()
+				h.demoteCDN(i)
 			}
 		}
 	}
 	return nil
+}
+
+// demoteCDN moves the CDN at index i to the end of the list so that
+// subsequent downloads prefer other nodes first.
+func (h *Handler) demoteCDN(i int) {
+	h.cdnMu.Lock()
+	defer h.cdnMu.Unlock()
+	if i < 0 || i >= len(h.cdnList)-1 {
+		return
+	}
+	bad := h.cdnList[i]
+	h.cdnList = append(h.cdnList[:i], h.cdnList[i+1:]...)
+	h.cdnList = append(h.cdnList, bad)
 }
 
 func (h *Handler) removeOldManifests(depotID, currentManifestID string) {

@@ -36,6 +36,8 @@ export function SetKernelSettings(arg1:models.KernelSettings):Promise<models.Sim
 
 export function StartUnlock(arg1:string):Promise<models.SimpleResponse>;
 
+export function TestProxy(arg1:string):Promise<models.SimpleResponse>;
+
 export function UpdateConfig(arg1:models.UpdateConfigRequest):Promise<models.SimpleResponse>;
 
 export function VerifyKey(arg1:string):Promise<models.KeyInfoAPIResponse>;
