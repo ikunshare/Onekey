@@ -1,10 +1,10 @@
 {
   "fixed": {
-    "file_version": "3.0.0.0"
+    "file_version": "3.0.1.0"
   },
   "info": {
     "0000": {
-      "ProductVersion": "3.0.0.0",
+      "ProductVersion": "3.0.1.0",
       "CompanyName": "ikunshare",
       "FileDescription": "Onekey - Steam Depot Manifest Downloader",
       "LegalCopyright": "Copyright 2025 ikunshare",

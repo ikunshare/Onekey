@@ -10,20 +10,20 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/sys/windows/registry"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"golang.org/x/sys/windows/registry"
 
 	"onekey/internal/config"
 	"onekey/internal/httpclient"
 	"onekey/internal/i18n"
 	"onekey/internal/library"
-	"onekey/internal/patcher"
 	"onekey/internal/manifest"
 	"onekey/internal/models"
+	"onekey/internal/patcher"
 	"onekey/internal/steamtools"
 )
 
-const AppVersion = "3.0.0"
+const AppVersion = "3.0.1"
 
 type App struct {
 	ctx        context.Context

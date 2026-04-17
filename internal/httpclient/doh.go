@@ -176,9 +176,9 @@ func buildDNSQuery(host string) ([]byte, error) {
 		buf = append(buf, byte(len(label)))
 		buf = append(buf, []byte(label)...)
 	}
-	buf = append(buf, 0x00)             // end of QNAME
-	buf = append(buf, 0x00, 0x01)        // QTYPE=A
-	buf = append(buf, 0x00, 0x01)        // QCLASS=IN
+	buf = append(buf, 0x00)       // end of QNAME
+	buf = append(buf, 0x00, 0x01) // QTYPE=A
+	buf = append(buf, 0x00, 0x01) // QCLASS=IN
 	return buf, nil
 }
 

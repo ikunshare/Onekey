@@ -108,7 +108,7 @@
       <!-- About Section -->
       <n-card :title="t('settings.about')">
         <n-space :size="8" vertical>
-          <n-text strong>Onekey v3.0.0</n-text>
+          <n-text strong>Onekey v3.0.1</n-text>
           <n-text depth="3">{{ t('about.project_subtitle') }}</n-text>
           <n-divider style="margin: 8px 0"/>
           <n-text depth="3">{{ t('about.tech_backend') }}: {{ t('about.tech_backend_val') }}</n-text>

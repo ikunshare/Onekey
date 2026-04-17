@@ -3,7 +3,7 @@
   <assemblyIdentity
     type="win32"
     name="com.ikunshare.onekey"
-    version="3.0.0.0"
+    version="3.0.1.0"
     processorArchitecture="*"/>
   <dependency>
     <dependentAssembly>

@@ -324,7 +324,11 @@ func (m *Manager) GetCDNList() []string {
 }
 
 func (m *Manager) fetchCDNListFromAPI() []cdnEntry {
-	resp, err := httpclient.Shared().Get(steamPipeAPI)
+	apiURL := steamPipeAPI + "?cell_id=33&max_servers=30"
+	if ip := httpclient.GetPublicIP(); ip != "" {
+		apiURL += "&ip_override=" + ip
+	}
+	resp, err := httpclient.Shared().Get(apiURL)
 	if err != nil {
 		return nil
 	}
@@ -355,8 +359,11 @@ func (m *Manager) fetchCDNListFromAPI() []cdnEntry {
 
 	var entries []cdnEntry
 	for _, s := range result.Response.Servers {
-		// Only use SteamCache and CDN types
 		if s.Type != "SteamCache" && s.Type != "CDN" {
+			continue
+		}
+		// CDN type with weighted_load != 130 returns 403 on manifest requests
+		if s.Type == "CDN" && s.WeightedLoad != 130 {
 			continue
 		}
 		if s.Host == "" {
@@ -377,6 +384,13 @@ func (m *Manager) fetchCDNListFromAPI() []cdnEntry {
 	})
 
 	return entries
+}
+
+func (m *Manager) clearCDNCache() {
+	if m.db == nil {
+		return
+	}
+	m.db.Exec("DELETE FROM cdn_cache")
 }
 
 func (m *Manager) saveCDNCache(entries []cdnEntry) {
@@ -446,6 +460,7 @@ func PathExists(p string) bool {
 // concurrently, sorts by response time, and persists the ranked list to DB.
 // Designed to be called once at startup in a goroutine.
 func (m *Manager) InitCDNWithLatencyTest() {
+	m.clearCDNCache()
 	candidates := m.fetchCDNListFromAPI()
 	if len(candidates) == 0 {
 		candidates = m.loadCDNCache()
