@@ -1,7 +1,9 @@
-name: Build
+name: Release
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -31,23 +33,10 @@ jobs:
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       - name: 获取版本
-        shell: powershell
-        run: |
-          $wailsJson = Get-Content wails.json | ConvertFrom-Json
-          $version = $wailsJson.info.productVersion
-          echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+        run: echo "PACKAGE_VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
 
       - name: 编译
         run: wails build -o "Onekey_v${{ env.PACKAGE_VERSION }}.exe" -upx -skipbindings
-
-      - name: 创建标签
-        uses: pkgdeps/git-tag-action@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_repo: ${{ github.repository }}
-          version: ${{ env.PACKAGE_VERSION }}
-          git_commit_sha: ${{ github.sha }}
-          git_tag_prefix: "v"
 
       - name: 上传包
         uses: actions/upload-artifact@v4
@@ -58,23 +47,9 @@ jobs:
       - name: 发布
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.PACKAGE_VERSION }}
+          tag_name: ${{ github.ref_name }}
           files: build/bin/Onekey_v${{ env.PACKAGE_VERSION }}.exe
           prerelease: false
           draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 发布到Gitee
-        uses: nicennnnnnnlee/action-gitee-release@v1.0.5
-        with:
-          gitee_owner: ikun0014
-          gitee_repo: Onekey
-          gitee_token: ${{ secrets.GITEE_TOKEN }}
-          gitee_tag_name: v${{ env.PACKAGE_VERSION }}
-          gitee_release_name: v${{ env.PACKAGE_VERSION }}
-          gitee_release_body: I don't know
-          gitee_target_commitish: main
-          gitee_upload_retry_times: 3
-          gitee_file_name: Onekey_v${{ env.PACKAGE_VERSION }}.exe
-          gitee_file_path: build/bin/Onekey_v${{ env.PACKAGE_VERSION }}.exe
